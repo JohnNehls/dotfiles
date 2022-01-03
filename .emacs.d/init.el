@@ -6,7 +6,6 @@
 ;(package-initialize)
 ;(package-refresh-contents)
 
-;;;; TEST EXPERIMENTAL COMMIT
 
 ;; Install some packages
 (defvar myPackages
