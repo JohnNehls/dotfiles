@@ -48,6 +48,36 @@ Replace each item with use-package.
 #+end_src
 
 
+* Use-package setup
+Use-package is like a package manager.
+Packages: Elpa is default, Melpa is community.
+
+#+begin_src emacs-lisp
+  ;; Initialize package sources
+  (require 'package)
+
+  (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+			   ("org" . "https://orgmode.org/elpa/")
+			   ("elpa" . "https://elpa.gnu.org/packages/")))
+
+  (package-initialize)
+
+  (unless package-archive-contents
+   (package-refresh-contents))
+
+  ;; Initialize use-package on non-Linux platforms
+  (unless (package-installed-p 'use-package)
+     (package-install 'use-package))
+
+  (require 'use-package)
+  (setq use-package-always-ensure t)
+
+  (use-package command-log-mode)
+
+#+end_src
+
+#+RESULTS:
+
 * C++
 General idea from https://emacs-lsp.github.io/lsp-mode/tutorials/CPP-guide/
 
@@ -214,6 +244,9 @@ This box is only really needed for certain themes which do not delineate between
   ;; Set up the visible bell
   (setq visible-bell t)
 #+end_src
+
+#+RESULTS:
+: t
 
 ** Text mode
 
