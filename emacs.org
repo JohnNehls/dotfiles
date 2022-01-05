@@ -14,7 +14,6 @@ Replace each item with use-package.
   (package-refresh-contents)
 #+end_src
 
-#+RESULTS:
 
 #+begin_src emacs-lisp
   ;; Install some packages
@@ -49,56 +48,8 @@ Replace each item with use-package.
 #+end_src
 
 
-* Looks
-Set overall theme.
-#+begin_src emacs-lisp
-  (load-theme 'solarized-gruvbox-dark t)
-#+end_src
-
-Darken the background of the source blocks by 3%.
-This box is only really needed for certain themes which do not delineate between source and org text. As of now: solarized-gruvbox-dark
-However, if you change your theme during editing the color of the code block will stay the same.
-#+begin_src emacs-lisp
-(require 'color)
-(set-face-attribute 'org-block nil :background
-                    (color-darken-name
-                     (face-attribute 'default :background) 3))
-#+end_src
-
-#+RESULTS:
-
-* General Emacs
-
-** Global Configurations
-#+begin_src emacs-lisp
-(setq inhibit-startup-message t)          ; inhibit startup message
-(tool-bar-mode -1)                        ; remove toolbar
-(scroll-bar-mode -1)                      ; remove side scrollbar
-;(global-display-line-numbers-mode t) ; show line numbers (better)
-(global-visual-line-mode t)       ; removes coninuation arrow
-(setq make-backup-files nil)      ; stop creating backup~ files
-(setq auto-save-default nil)      ; stop creating #autosave# files
-(add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode)) ; open texts in org-mode
-(add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
-#+end_src
-
-** Transparency
-#+begin_src emacs-lisp
- (defun transparency (value)
-   "Sets the transparency of the frame window. 0=transparent/100=opaque"
-   (interactive "nTransparency Value 0 - 100 opaque:")
-   (set-frame-parameter (selected-frame) 'alpha value))
-(transparency 96)
-#+end_src
-
-** Text mode
-#+begin_src emacs-lisp
-(add-hook 'text-mode-hook 'flyspell-mode)    ; enable spellcheck on text mode
-#+end_src
-
-
 * C++
-General idea from [[https://emacs-lsp.github.io/lsp-mode/tutorials/CPP-guide/][here]].
+General idea from https://emacs-lsp.github.io/lsp-mode/tutorials/CPP-guide/
 
 #+begin_src emacs-lisp
 (which-key-mode)
@@ -154,7 +105,7 @@ Inspired from sample `helm' configuration at https://github.com/emacs-helm/helm/
 
 
 * Org-Mode
-
+** Text and Looks
 #+begin_src emacs-lisp
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -178,8 +129,7 @@ Inspired from sample `helm' configuration at https://github.com/emacs-helm/helm/
 
 #+end_src
 
-  
-** Block Template
+** Block Templates
 #+begin_src emacs-lisp
 
   ;; This is needed as of Org 9.2
@@ -207,8 +157,57 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 
 #+end_src
 
+
+#  LocalWords:  solarized gruvbox
+
+
+* General Emacs
+** Looks
+*** Theme
+Set overall theme. Favorites: solarized-gruvbox-dark, material
+#+begin_src emacs-lisp
+  (load-theme 'solarized-gruvbox-dark t)
+#+end_src
+
+Darken the background of the source blocks by 3%. However, if you change your theme during editing the color of the code block will stay the same.
+This box is only really needed for certain themes which do not delineate between source and org text. As of now: solarized-gruvbox-dark
+#NOTE: The order of operation matters. Too early in the init.el file and org-block is not known. 
+#+begin_src emacs-lisp  
+(require 'color)
+(set-face-attribute 'org-block nil :background
+                    (color-darken-name
+                     (face-attribute 'default :background) 3))
+#+end_src
+
 #+RESULTS:
-| (lambda nil (add-hook 'after-save-hook #'efs/org-babel-tangle-config)) | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes |
 
+*** Transparency
+#+begin_src emacs-lisp
+ (defun transparency (value)
+   "Sets the transparency of the frame window. 0=transparent/100=opaque"
+   (interactive "nTransparency Value 0 - 100 opaque:")
+   (set-frame-parameter (selected-frame) 'alpha value))
+(transparency 96)
+#+end_src
 
+#+RESULTS:
 
+** Global Configurations
+
+#+begin_src emacs-lisp
+(setq inhibit-startup-message t)          ; inhibit startup message
+(tool-bar-mode -1)                        ; remove toolbar
+(scroll-bar-mode -1)                      ; remove side scrollbar
+;(global-display-line-numbers-mode t) ; show line numbers (better)
+(global-visual-line-mode t)       ; removes coninuation arrow
+(setq make-backup-files nil)      ; stop creating backup~ files
+(setq auto-save-default nil)      ; stop creating #autosave# files
+(add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode)) ; open texts in org-mode
+(add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
+#+end_src
+
+** Text mode
+
+#+begin_src emacs-lisp
+(add-hook 'text-mode-hook 'flyspell-mode)    ; enable spellcheck on text mode
+#+end_src
