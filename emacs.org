@@ -49,15 +49,32 @@ Replace each item with use-package.
 #+end_src
 
 
+* Looks
+Set overall theme.
+#+begin_src emacs-lisp
+  (load-theme 'solarized-gruvbox-dark t)
+#+end_src
+
+Darken the background of the source blocks by 3%.
+This box is only really needed for certain themes which do not delineate between source and org text. As of now: solarized-gruvbox-dark
+However, if you change your theme during editing the color of the code block will stay the same.
+#+begin_src emacs-lisp
+(require 'color)
+(set-face-attribute 'org-block nil :background
+                    (color-darken-name
+                     (face-attribute 'default :background) 3))
+#+end_src
+
+#+RESULTS:
 
 * General Emacs
 
-** Global Configs
+** Global Configurations
 #+begin_src emacs-lisp
 (setq inhibit-startup-message t)          ; inhibit startup message
 (tool-bar-mode -1)                        ; remove toolbar
 (scroll-bar-mode -1)                      ; remove side scrollbar
-(global-display-line-numbers-mode t) ; show line numbers (better)
+;(global-display-line-numbers-mode t) ; show line numbers (better)
 (global-visual-line-mode t)       ; removes coninuation arrow
 (setq make-backup-files nil)      ; stop creating backup~ files
 (setq auto-save-default nil)      ; stop creating #autosave# files
@@ -195,7 +212,3 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 
 
 
-* Looks
-#+begin_src emacs-lisp
-(load-theme 'material t)        
-#+end_src

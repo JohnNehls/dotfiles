@@ -27,10 +27,17 @@
 	    (package-install package)))
       myPackages)
 
+(load-theme 'solarized-gruvbox-dark t)
+
+(require 'color)
+(set-face-attribute 'org-block nil :background
+                    (color-darken-name
+                     (face-attribute 'default :background) 3))
+
 (setq inhibit-startup-message t)          ; inhibit startup message
 (tool-bar-mode -1)                        ; remove toolbar
 (scroll-bar-mode -1)                      ; remove side scrollbar
-(global-display-line-numbers-mode t) ; show line numbers (better)
+;(global-display-line-numbers-mode t) ; show line numbers (better)
 (global-visual-line-mode t)       ; removes coninuation arrow
 (setq make-backup-files nil)      ; stop creating backup~ files
 (setq auto-save-default nil)      ; stop creating #autosave# files
@@ -120,5 +127,3 @@
       (org-babel-tangle))))
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
-
-(load-theme 'material t)
