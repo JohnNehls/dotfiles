@@ -119,11 +119,20 @@
 (setq inhibit-startup-message t)          ; inhibit startup message
 (tool-bar-mode -1)                        ; remove toolbar
 (scroll-bar-mode -1)                      ; remove side scrollbar
+(tooltip-mode -1)                     ; Disable tooltips
+;(menu-bar-mode -1)                   ; Disable the menu bar
+(set-fringe-mode 10)                  ; Give some breathing room
 ;(global-display-line-numbers-mode t) ; show line numbers (better)
 (global-visual-line-mode t)       ; removes coninuation arrow
 (setq make-backup-files nil)      ; stop creating backup~ files
 (setq auto-save-default nil)      ; stop creating #autosave# files
 (add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode)) ; open texts in org-mode
 (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
+
+;; Set up the visible bell
+(setq visible-bell t)
+
+;; Set up the visible bell
+(setq visible-bell t)
 
 (add-hook 'text-mode-hook 'flyspell-mode)    ; enable spellcheck on text mode
