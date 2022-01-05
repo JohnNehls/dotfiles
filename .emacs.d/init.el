@@ -11,14 +11,14 @@
     lsp-mode           ; Language server protocol for interpreting languages 
     yasnippet          ; Code templates
     lsp-treemacs       ; Tree renderer-- have not explored yet
-    helm-lsp           ; Helm is for incremental completion/selection
+    ;helm-lsp           ; Helm is for incremental completion/selection
     projectile         ; Project interaction library
     hydra    ; ties related commands into short bindings with a common prefix
     flycheck ; On-the-fly syntax checking, replacemnt for flymake
     company  ; Text completion
     avy      ; Jumping to visible text using a char-based decision tree
     which-key ; Displays key bindings following entered incomplete command
-    helm-xref ; Helm interface for xref
+    ;helm-xref ; Helm interface for xref
     dap-mode  ; Debug Adapter Protocol is a wire protocol for communication between client and Debug Server
     )
   )
@@ -26,27 +26,6 @@
 	  (unless (package-installed-p package)
 	    (package-install package)))
       myPackages)
-
-;; Initialize package sources
-(require 'package)
-
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-			 ("org" . "https://orgmode.org/elpa/")
-			 ("elpa" . "https://elpa.gnu.org/packages/")))
-
-(package-initialize)
-
-(unless package-archive-contents
- (package-refresh-contents))
-
-;; Initialize use-package on non-Linux platforms
-(unless (package-installed-p 'use-package)
-   (package-install 'use-package))
-
-(require 'use-package)
-(setq use-package-always-ensure t)
-
-(use-package command-log-mode)
 
 (which-key-mode)
 (add-hook 'c-mode-hook 'lsp)
@@ -63,12 +42,6 @@
   (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration)
   (require 'dap-cpptools)
   (yas-global-mode))
-
-(helm-mode)
-(require 'helm-xref)
-(define-key global-map [remap find-file] #'helm-find-files)
-(define-key global-map [remap execute-extended-command] #'helm-M-x)
-(define-key global-map [remap switch-to-buffer] #'helm-mini)
 
 ;; the following lines enable the elpy package as well as the ipython shell
 (elpy-enable)
@@ -124,6 +97,30 @@
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 
+;; Initialize package sources
+(require 'package)
+
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+			 ("org" . "https://orgmode.org/elpa/")
+			 ("elpa" . "https://elpa.gnu.org/packages/")))
+
+(package-initialize)
+
+(unless package-archive-contents
+ (package-refresh-contents))
+
+;; Initialize use-package on non-Linux platforms
+(unless (package-installed-p 'use-package)
+   (package-install 'use-package))
+
+(require 'use-package)
+(setq use-package-always-ensure t)
+
+(use-package command-log-mode)
+
+(use-package solarized-theme
+  :init (load-theme 'solarized-gruvbox-dark t))
+
 (load-theme 'solarized-gruvbox-dark t)
 
 (require 'color)
@@ -155,5 +152,22 @@
 
 ;; Set up the visible bell
 (setq visible-bell t)
+
+(use-package vertico
+  :init
+  (vertico-mode)
+
+  ;; Different scroll margin
+  ;; (setq vertico-scroll-margin 0)
+
+  ;; Show more candidates
+  ;; (setq vertico-count 20)
+
+  ;; Grow and shrink the Vertico minibuffer
+  ;; (setq vertico-resize t)
+
+  ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
+  ;; (setq vertico-cycle t)
+  )
 
 (add-hook 'text-mode-hook 'flyspell-mode)    ; enable spellcheck on text mode

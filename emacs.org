@@ -29,14 +29,14 @@ Replace each item with use-package.
       lsp-mode           ; Language server protocol for interpreting languages 
       yasnippet          ; Code templates
       lsp-treemacs       ; Tree renderer-- have not explored yet
-      helm-lsp           ; Helm is for incremental completion/selection
+      ;helm-lsp           ; Helm is for incremental completion/selection
       projectile         ; Project interaction library
       hydra    ; ties related commands into short bindings with a common prefix
       flycheck ; On-the-fly syntax checking, replacemnt for flymake
       company  ; Text completion
       avy      ; Jumping to visible text using a char-based decision tree
       which-key ; Displays key bindings following entered incomplete command
-      helm-xref ; Helm interface for xref
+      ;helm-xref ; Helm interface for xref
       dap-mode  ; Debug Adapter Protocol is a wire protocol for communication between client and Debug Server
       )
     )
@@ -46,37 +46,6 @@ Replace each item with use-package.
 	myPackages)
 
 #+end_src
-
-
-* Use-package setup
-Use-package is like a package manager.
-Packages: Elpa is default, Melpa is community.
-
-#+begin_src emacs-lisp
-  ;; Initialize package sources
-  (require 'package)
-
-  (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-			   ("org" . "https://orgmode.org/elpa/")
-			   ("elpa" . "https://elpa.gnu.org/packages/")))
-
-  (package-initialize)
-
-  (unless package-archive-contents
-   (package-refresh-contents))
-
-  ;; Initialize use-package on non-Linux platforms
-  (unless (package-installed-p 'use-package)
-     (package-install 'use-package))
-
-  (require 'use-package)
-  (setq use-package-always-ensure t)
-
-  (use-package command-log-mode)
-
-#+end_src
-
-#+RESULTS:
 
 * C++
 General idea from https://emacs-lsp.github.io/lsp-mode/tutorials/CPP-guide/
@@ -99,16 +68,6 @@ General idea from https://emacs-lsp.github.io/lsp-mode/tutorials/CPP-guide/
   (yas-global-mode))
 
 #+end_src
-** Helm
-Inspired from sample `helm' configuration at https://github.com/emacs-helm/helm/
-#+begin_src emacs-lisp
-  (helm-mode)
-  (require 'helm-xref)
-  (define-key global-map [remap find-file] #'helm-find-files)
-  (define-key global-map [remap execute-extended-command] #'helm-M-x)
-  (define-key global-map [remap switch-to-buffer] #'helm-mini)
-#+end_src
-
 
 * Python
 
@@ -132,7 +91,6 @@ Inspired from sample `helm' configuration at https://github.com/emacs-helm/helm/
 ;;;;;;; END Python IDE configuration ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 #+end_src
-
 
 * Org-Mode
 ** Text and Looks
@@ -187,18 +145,59 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 
 #+end_src
 
+#+RESULTS:
+| (lambda nil (add-hook 'after-save-hook #'efs/org-babel-tangle-config)) | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes |
 
-#  LocalWords:  solarized gruvbox
 
+#  LocalWords:  solarized gruvbox vertico
+
+* Use-package setup
+Use-package is like a package manager.
+Packages: Elpa is default, Melpa is community.
+
+#+begin_src emacs-lisp
+  ;; Initialize package sources
+  (require 'package)
+
+  (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+			   ("org" . "https://orgmode.org/elpa/")
+			   ("elpa" . "https://elpa.gnu.org/packages/")))
+
+  (package-initialize)
+
+  (unless package-archive-contents
+   (package-refresh-contents))
+
+  ;; Initialize use-package on non-Linux platforms
+  (unless (package-installed-p 'use-package)
+     (package-install 'use-package))
+
+  (require 'use-package)
+  (setq use-package-always-ensure t)
+
+  (use-package command-log-mode)
+
+#+end_src
+
+#+RESULTS:
 
 * General Emacs
 ** Looks
 *** Theme
-Set overall theme. Favorites: solarized-gruvbox-dark, material
 #+begin_src emacs-lisp
+    (use-package solarized-theme
+      :init (load-theme 'solarized-gruvbox-dark t))
+#+end_src
+
+#+RESULTS:
+
+**** OLD
+Set overall theme. Favorites: solarized-gruvbox-dark, material
+#+begin_src emacs-lisp : tangle no
   (load-theme 'solarized-gruvbox-dark t)
 #+end_src
 
+*** Darken Code in Org-Mode
 Darken the background of the source blocks by 3%. However, if you change your theme during editing the color of the code block will stay the same.
 This box is only really needed for certain themes which do not delineate between source and org text. As of now: solarized-gruvbox-dark
 #NOTE: The order of operation matters. Too early in the init.el file and org-block is not known. 
@@ -209,7 +208,6 @@ This box is only really needed for certain themes which do not delineate between
                      (face-attribute 'default :background) 3))
 #+end_src
 
-#+RESULTS:
 
 *** Transparency
 #+begin_src emacs-lisp
@@ -233,6 +231,7 @@ This box is only really needed for certain themes which do not delineate between
   (set-fringe-mode 10)                  ; Give some breathing room
   ;(global-display-line-numbers-mode t) ; show line numbers (better)
   (global-visual-line-mode t)       ; removes coninuation arrow
+  (add-hook 'text-mode-hook 'flyspell-mode)   ;enable spellcheck on text mode
   (setq make-backup-files nil)      ; stop creating backup~ files
   (setq auto-save-default nil)      ; stop creating #autosave# files
   (add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode)) ; open texts in org-mode
@@ -248,8 +247,24 @@ This box is only really needed for certain themes which do not delineate between
 #+RESULTS:
 : t
 
-** Text mode
-
+** Vertico
 #+begin_src emacs-lisp
-(add-hook 'text-mode-hook 'flyspell-mode)    ; enable spellcheck on text mode
+(use-package vertico
+  :init
+  (vertico-mode)
+
+  ;; Different scroll margin
+  ;; (setq vertico-scroll-margin 0)
+
+  ;; Show more candidates
+  ;; (setq vertico-count 20)
+
+  ;; Grow and shrink the Vertico minibuffer
+  ;; (setq vertico-resize t)
+
+  ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
+  ;; (setq vertico-cycle t)
+  )
 #+end_src
+
+
