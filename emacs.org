@@ -1,10 +1,11 @@
 ;#+TITLE: Emacs Configuration
 #+PROPERTY: header-args:emacs-lisp :tangle .emacs.d/init.el
+#+STARTUP: content
 
-* Use-package setup
+* Setup
+** Use-package
 Use-package is like a package manager.
 Packages: Elpa is default, Melpa is community.
-
 #+begin_src emacs-lisp
   ;; Initialize package sources
   (require 'package)
@@ -23,65 +24,142 @@ Packages: Elpa is default, Melpa is community.
      (package-install 'use-package))
 
   (require 'use-package)
-  (setq use-package-always-ensure t)
+  (setq use-package-always-ensure t) ; no need for :ensure t for each package.
 
   (use-package command-log-mode)
 #+end_src
 
 #+RESULTS:
 
+** Auto-tangle
+This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-config= gets executed each time such a buffer gets saved.  This function checks to see if the file being saved is the Emacs.org file you're looking at right now, and if so, automatically exports the configuration here to the associated output files.
+
+#+begin_src emacs-lisp
+  ;; Automatically tangle our Emacs.org config file when we save it
+  (defun efs/org-babel-tangle-config ()
+    (when (string-equal (buffer-file-name)
+                        (expand-file-name "~/.dotfiles/emacs.org"))
+      ;; Dynamic scoping to the rescue
+      (let ((org-confirm-babel-evaluate nil))
+        (org-babel-tangle))))
+
+  (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+
+#+end_src
+
 * General Emacs
 ** Global Configurations
 
 #+begin_src emacs-lisp
-  (setq inhibit-startup-message t)          ; inhibit startup message
-  (tool-bar-mode -1)                        ; remove toolbar
-  (scroll-bar-mode -1)                      ; remove side scrollbar
-  (tooltip-mode -1)                     ; Disable tooltips
-  ;(menu-bar-mode -1)                   ; Disable the menu bar
-  (set-fringe-mode 10)                  ; Give some breathing room
-  ;(global-display-line-numbers-mode t) ; show line numbers (better)
-  (global-visual-line-mode t)       ; removes coninuation arrow
-  (add-hook 'text-mode-hook 'flyspell-mode)   ;enable spellcheck on text mode
-  (setq make-backup-files nil)      ; stop creating backup~ files
-  (setq auto-save-default nil)      ; stop creating #autosave# files
-  (add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode)) ; open texts in org-mode
+  (setq inhibit-startup-message t)           ; inhibit startup message
+  (tool-bar-mode -1)                         ; remove toolbar
+  (scroll-bar-mode -1)                       ; remove side scrollbar
+  (tooltip-mode -1)                          ; Disable tooltips
+  (set-fringe-mode 10)                       ; Give some breathing room
+  (global-visual-line-mode t)                ; removes coninuation arrow
+  (add-hook 'text-mode-hook 'flyspell-mode)  ; enable spellcheck on text mode
+  (setq make-backup-files nil)               ; stop creating backup~ files
+  (setq auto-save-default nil)               ; stop creating #autosave# files
+  ;(menu-bar-mode -1)                        ; Disable the menu bar
+
+
+  ;; Open text files in Org-Mode
+  (add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode)) 
   (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
 
   ;; Set up the visible bell
   (setq visible-bell t)
 
-  ;; Set up the visible bell
-  (setq visible-bell t)
 #+end_src
 
-** Vertico
+Use rainbow colored parenthesis to help match delimiters. 
 #+begin_src emacs-lisp
-(use-package vertico
-  :init
-  (vertico-mode)
+(use-package rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode))
+#+end_src
 
-  ;; Different scroll margin
-  ;; (setq vertico-scroll-margin 0)
+*** Line numbers 
+#+begin_src emacs-lisp
+  ;; ;Disable line numbers for some modes
+  ;;  (dolist (mode '(org-mode-hook
+  ;; 		 term-mode-hook
+  ;; 		 shell-mode-hook
+  ;; 		 eshell-mode-hook))
+  ;;    (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-  ;; Show more candidates
-  ;; (setq vertico-count 20)
+  ;; (global-display-line-numbers-mode t)     ; Puts line numbers on ALL buffers
+#+end_src
 
-  ;; Grow and shrink the Vertico minibuffer
-  ;; (setq vertico-resize t)
+#+RESULTS:
+** Theme
+Doom and Greduan's themes seem to be better than built-in themes due to their wide support and definitions. They account for the different modes' nuances.
+Favorites: gruvbox, gruvbox-hard, doom-tomorrow-night
 
-  ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
-  ;; (setq vertico-cycle t)
-  )
+#+begin_src emacs-lisp
+  (use-package gruvbox-theme
+      :init (load-theme 'gruvbox t))
+#+end_src
+
+#+RESULTS:
+
+** Transparency
+#+begin_src emacs-lisp
+ (defun transparency (value)
+   "Sets the transparency of the frame window. 0=transparent/100=opaque"
+   (interactive "nTransparency Value 0 - 100 opaque:")
+   (set-frame-parameter (selected-frame) 'alpha value))
+(transparency 96)
+#+end_src
+
+** Helpful
+Better version of help. 
+#+begin_src emacs-lisp
+(use-package helpful
+  :custom
+  (counsel-describe-function-function #'helpful-callable)
+  (counsel-describe-variable-function #'helpful-variable)
+  :bind
+  ([remap describe-function] . counsel-describe-function)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-variable] . counsel-describe-variable)
+  ([remap describe-key] . helpful-key))
+#+end_src
+
+#+RESULTS:
+: helpful-key
+
+** Ivy, Ivy-Rich, and Counsel
+Ivy displays vertical completions of input buffer.
+#+begin_src emacs-lisp
+    (use-package ivy
+      :diminish ivy-mode
+      :config
+      (ivy-mode 1))
+#+end_src
+Ivy-rich provides information to display in input buffer to counsel.
+#+begin_src emacs-lisp
+  (use-package ivy-rich
+    :init
+    (ivy-rich-mode 1))
+#+end_src
+Along with ivy-rich, counsel displays info along with suggestions in input buffer.
+#+begin_src emacs-lisp
+  (use-package counsel
+    :bind (("M-x" . counsel-M-x)
+	   ("C-x b" . counsel-ibuffer)
+	   ("C-x C-f" . counsel-find-file)
+	   :map minibuffer-local-map
+	   ;("C-r" . 'counsel-minibuffer-history)
+	   ))
 #+end_src
 
 ** Which-key
 #+begin_src emacs-lisp
   (use-package which-key
     :init (which-key-mode)
-    ;:diminish which-key-mode  ;remove name from minor mode list
+    :diminish which-key-mode  ;remove name from minor mode list
     :config
-    (setq which-key-idle-delay 1))
+    (setq which-key-idle-delay 1.0))
 #+end_src
 
 ** Neotree
@@ -94,6 +172,13 @@ Packages: Elpa is default, Melpa is community.
   (use-package magit)
 #+end_src
 
+** Keybindings
+Make ESC quit prompts
+#+begin_src emacs-lisp
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+#+end_src
+
+Eventually create my own keybindings as shown: https://www.youtube.com/watch?v=xaZMwNELaJY
 
 * C++
 Wants:
@@ -117,12 +202,10 @@ Wants:
       ;helm-xref ; Helm interface for xref
       dap-mode  ; Debug Adapter Protocol is a wire protocol for communication between client and Debug Server
   
-  
 * Python
 ** Elpy
 #+begin_src emacs-lisp
   (use-package elpy
-    :ensure t
     :init (elpy-enable) ;enables Elpy in all future python buffers
     :custom
     (python-shell-interpreter "ipython")
@@ -136,29 +219,6 @@ Wants:
     (python-indent 4)
     )
 #+end_src
-
-** OLD settings
-#+begin_src emacs-lisp  :tangle no
-;; the following lines enable the elpy package as well as the ipython shell
-(elpy-enable)
-(setq python-shell-interpreter "ipython" ;require install ipython
-      python-shell-interpreter-args "-i --simple-prompt")
-(add-hook 'python-mode-hook 'eldoc-mode)
-(setq elpy-rpc-python-command "python3")
-(setq elpy-shell-echo-output nil)
-(setq python-shell-completion-native-enable nil)
-(setq python-indent-offset 4
-      python-indent 4)
-;;;;;; (setq elpy-rpc-backend "jedi") ;;; not needed as of now
- 
-;;;;;; quick help box in autocompete
-(company-quickhelp-mode 1)
-(eval-after-load 'company '(define-key company-active-map (kbd "C-c h") #'company-quickhelp-manual-begin)) 
-(setq company-quickhelp-color-background "dim gray")
-;;;;;;; END Python IDE configuration ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-#+end_src
-
 
 * Org-Mode
 ** Text and Looks
@@ -197,54 +257,4 @@ Wants:
 #+end_src
 
 
-* Looks
-*** Theme
-#+begin_src emacs-lisp
-    (use-package solarized-theme
-      :init (load-theme 'solarized-gruvbox-dark t))
-#+end_src
-
-*** Darken Code block in Org-Mode
-Darken the background of the source blocks by 3%. However, if you change your theme during editing the color of the code block will stay the same.
-This box is only really needed for certain themes which do not delineate between source and org text. As of now: solarized-gruvbox-dark
-#NOTE: The order of operation matters. Too early in the init.el file and org-block is not known. 
-
-#+begin_src emacs-lisp  
-(require 'color)
-(set-face-attribute 'org-block nil :background
-                    (color-darken-name
-                     (face-attribute 'default :background) 3))
-#+end_src
-
-*** Transparency
-#+begin_src emacs-lisp
- (defun transparency (value)
-   "Sets the transparency of the frame window. 0=transparent/100=opaque"
-   (interactive "nTransparency Value 0 - 100 opaque:")
-   (set-frame-parameter (selected-frame) 'alpha value))
-(transparency 96)
-#+end_src
-
-
-* Auto-tangle Configuration File
-This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-config= gets executed each time such a buffer gets saved.  This function checks to see if the file being saved is the Emacs.org file you're looking at right now, and if so, automatically exports the configuration here to the associated output files.
-
-#+begin_src emacs-lisp
-  ;; Automatically tangle our Emacs.org config file when we save it
-  (defun efs/org-babel-tangle-config ()
-    (when (string-equal (buffer-file-name)
-                        (expand-file-name "~/.dotfiles/emacs.org"))
-      ;; Dynamic scoping to the rescue
-      (let ((org-confirm-babel-evaluate nil))
-        (org-babel-tangle))))
-
-  (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
-
-#+end_src
-
-
-
-
-
-
-#  LocalWords:  solarized gruvbox vertico Magit Quickhelp Elpy
+#  LocalWords:  solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's
