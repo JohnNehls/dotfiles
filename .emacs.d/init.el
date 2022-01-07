@@ -34,11 +34,10 @@
 (scroll-bar-mode -1)                       ; remove side scrollbar
 (tooltip-mode -1)                          ; Disable tooltips
 (set-fringe-mode 10)                       ; Give some breathing room
-(global-visual-line-mode t)                ; removes coninuation arrow
 (add-hook 'text-mode-hook 'flyspell-mode)  ; enable spellcheck on text mode
 (setq make-backup-files nil)               ; stop creating backup~ files
 (setq auto-save-default nil)               ; stop creating #autosave# files
-;(menu-bar-mode -1)                        ; Disable the menu bar
+;; (menu-bar-mode -1)                        ; Disable the menu bar
 
 
 ;; Open text files in Org-Mode
@@ -67,20 +66,12 @@
    "Sets the transparency of the frame window. 0=transparent/100=opaque"
    (interactive "nTransparency Value 0 - 100 opaque:")
    (set-frame-parameter (selected-frame) 'alpha value))
-(transparency 96)
+(transparency 94)  ;; Default value (generally e [94,96]
 
-(use-package helpful
-  :custom
-  (counsel-describe-function-function #'helpful-callable)
-  (counsel-describe-variable-function #'helpful-variable)
-  :bind
-  ([remap describe-function] . counsel-describe-function)
-  ([remap describe-command] . helpful-command)
-  ([remap describe-variable] . counsel-describe-variable)
-  ([remap describe-key] . helpful-key))
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
 (use-package ivy
-  :diminish
+  :delight ivy-mode
   :config
   (ivy-mode 1))
 
@@ -97,21 +88,31 @@
 	 ))
 
 (use-package which-key
+ :delight which-key-mode  ;remove name from minor mode list
   :init (which-key-mode)
-  :diminish which-key-mode  ;remove name from minor mode list
   :config
   (setq which-key-idle-delay 1.0))
 
 (use-package neotree)
 
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+(use-package helpful
+  :custom
+  (counsel-describe-function-function #'helpful-callable)
+  (counsel-describe-variable-function #'helpful-variable)
+  :bind
+  ([remap describe-function] . counsel-describe-function)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-variable] . counsel-describe-variable)
+  ([remap describe-key] . helpful-key))
+
+(use-package delight)
 
 (use-package magit
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
 (use-package projectile
-  :diminish projectile-mode
+  ;; :delight projectile-mode
   :config (projectile-mode)
   :custom ((projectile-completion-system 'ivy))
   :bind-keymap
@@ -124,6 +125,44 @@
 
 (use-package counsel-projectile
   :config (counsel-projectile-mode))
+
+(use-package smartparens
+  :delight smartparens-mode)
+
+(use-package company
+  :init
+  (setq company-idle-delay nil  ; avoid auto completion popup, use TAB to show it
+        company-async-timeout 15        ; completion may be slow
+        company-tooltip-align-annotations t
+        )
+  :hook (after-init . global-company-mode))
+
+(use-package lsp-mode
+  :delight lsp-mode
+  :commands lsp
+  :config
+  (lsp-enable-which-key-integration t))
+
+(use-package lsp-ui)
+
+(use-package yasnippet
+  :diminish yas-minor-mode)
+(use-package yasnippet-snippets) ; load basic snippets from melpa
+
+(setq-default c-basic-offset 4)
+
+(defun my-c-c++-mode-hook-fn ()
+  (setq lsp-headerline-breadcrumb-enable nil);; removes busy header
+  (lsp)
+  (smartparens-mode)
+  (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
+  (yas-minor-mode-on)
+  ;; flycheck
+  ;; Dap-mod
+  (delight 'abbrev-mode "" "abbrev")
+  )
+(add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
+(add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
 
 (use-package elpy
   :init (elpy-enable) ;enables Elpy in all future python buffers
@@ -139,17 +178,26 @@
   (python-indent 4)
   )
 
+(defun my-python-mode-hook-fn ()
+  (smartparens-mode)
+  (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
+  )
+(add-hook 'c-mode-hook #'my-python-mode-hook-fn)
+
 (defun efs/org-mode-setup ()
-      (org-indent-mode)
-      (variable-pitch-mode 1)
-      (visual-line-mode 1))
+        (org-indent-mode)
+        (variable-pitch-mode 1)
+        (visual-line-mode 1)
+        (projectile-mode -1) ;; turn it off
+)
 
 (defun efs/org-font-setup ()
   ;; Replace list hyphen with dot
   (font-lock-add-keywords 'org-mode
                      '(("^ *\\([-]\\) "
                       (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-
+  ;; Elipsis
+   (setq org-ellipsis " ▾")
   ;; Set faces for heading levels
   (dolist (face '((org-level-1 . 1.2)
                   (org-level-2 . 1.1)
@@ -173,7 +221,6 @@
 (use-package org
     :hook (org-mode . efs/org-mode-setup)
     :config
-    (setq org-ellipsis " ▾")
     (efs/org-font-setup))
 
 (use-package org-bullets

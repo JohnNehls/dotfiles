@@ -3,7 +3,7 @@
 #+STARTUP: content
 * Setup
 ** Use-package
-Use-package is like a package manager.
+Use-package is like a package manager. [[https://github.com/jwiegley/use-package][Use-Package Documentation]]
 Packages: Elpa is default, Melpa is community.
 #+begin_src emacs-lisp
   ;; Initialize package sources
@@ -28,8 +28,6 @@ Packages: Elpa is default, Melpa is community.
   (use-package command-log-mode)
 #+end_src
 
-#+RESULTS:
-
 ** Auto-tangle
 This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-config= gets executed each time such a buffer gets saved.  This function checks to see if the file being saved is the Emacs.org file you're looking at right now, and if so, automatically exports the configuration here to the associated output files.
 
@@ -47,18 +45,17 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 
 * General Emacs
 ** Global Configurations
-
+*** Basic
 #+begin_src emacs-lisp
   (setq inhibit-startup-message t)           ; inhibit startup message
   (tool-bar-mode -1)                         ; remove toolbar
   (scroll-bar-mode -1)                       ; remove side scrollbar
   (tooltip-mode -1)                          ; Disable tooltips
   (set-fringe-mode 10)                       ; Give some breathing room
-  (global-visual-line-mode t)                ; removes coninuation arrow
   (add-hook 'text-mode-hook 'flyspell-mode)  ; enable spellcheck on text mode
   (setq make-backup-files nil)               ; stop creating backup~ files
   (setq auto-save-default nil)               ; stop creating #autosave# files
-  ;(menu-bar-mode -1)                        ; Disable the menu bar
+  ;; (menu-bar-mode -1)                        ; Disable the menu bar
 
 
   ;; Open text files in Org-Mode
@@ -70,6 +67,7 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 
 #+end_src
 
+*** Rainbow Delimiters
 Use rainbow colored parenthesis to help match delimiters. 
 #+begin_src emacs-lisp
 (use-package rainbow-delimiters
@@ -88,8 +86,7 @@ Use rainbow colored parenthesis to help match delimiters.
   ;; (global-display-line-numbers-mode t)     ; Puts line numbers on ALL buffers
 #+end_src
 
-#+RESULTS:
-** Theme
+*** Theme
 Doom and Greduan's themes seem to be better than built-in themes due to their wide support and definitions. They account for the different modes' nuances.
 Favorites: gruvbox, gruvbox-hard, doom-tomorrow-night
 
@@ -98,39 +95,31 @@ Favorites: gruvbox, gruvbox-hard, doom-tomorrow-night
       :init (load-theme 'gruvbox t))
 #+end_src
 
-#+RESULTS:
-
-** Transparency
+*** Transparency
+Use the transparency function defined below to adjust levels during a session. 
 #+begin_src emacs-lisp
  (defun transparency (value)
    "Sets the transparency of the frame window. 0=transparent/100=opaque"
    (interactive "nTransparency Value 0 - 100 opaque:")
    (set-frame-parameter (selected-frame) 'alpha value))
-(transparency 96)
+(transparency 94)  ;; Default value (generally e [94,96]
 #+end_src
 
-** Helpful
-Better version of help. 
+***  Keybindings
+Make <Esc> quit prompts
 #+begin_src emacs-lisp
-(use-package helpful
-  :custom
-  (counsel-describe-function-function #'helpful-callable)
-  (counsel-describe-variable-function #'helpful-variable)
-  :bind
-  ([remap describe-function] . counsel-describe-function)
-  ([remap describe-command] . helpful-command)
-  ([remap describe-variable] . counsel-describe-variable)
-  ([remap describe-key] . helpful-key))
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 #+end_src
 
-#+RESULTS:
-: helpful-key
-
-** Ivy, Ivy-Rich, and Counsel
+**** TODO Improve work flow
+Eventually create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. 
+hydra    ; ties related commands into short bindings with a common prefix
+** Input Buffer, Directory Search, and Help
+*** Ivy, Ivy-Rich, and Counsel
 Ivy displays vertical completions of input buffer.
 #+begin_src emacs-lisp
     (use-package ivy
-      :diminish
+      :delight ivy-mode
       :config
       (ivy-mode 1))
 #+end_src
@@ -150,28 +139,52 @@ Along with ivy-rich, counsel displays info along with suggestions in input buffe
 	   ;("C-r" . 'counsel-minibuffer-history)
 	   ))
 #+end_src
-
-** Which-key
+o
+*** Which-key
 #+begin_src emacs-lisp
   (use-package which-key
+   :delight which-key-mode  ;remove name from minor mode list
     :init (which-key-mode)
-    :diminish which-key-mode  ;remove name from minor mode list
     :config
     (setq which-key-idle-delay 1.0))
 #+end_src
 
-** Neotree
+*** Neotree
 #+begin_src emacs-lisp
 (use-package neotree)
 #+end_src
 
-** Keybindings
-Make ESC quit prompts
+*** Helpful
+Better version of help. Remap normal help keys to Helpful's versions. 
 #+begin_src emacs-lisp
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+(use-package helpful
+  :custom
+  (counsel-describe-function-function #'helpful-callable)
+  (counsel-describe-variable-function #'helpful-variable)
+  :bind
+  ([remap describe-function] . counsel-describe-function)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-variable] . counsel-describe-variable)
+  ([remap describe-key] . helpful-key))
 #+end_src
 
-Eventually create my own keybindings as shown: https://www.youtube.com/watch?v=xaZMwNELaJY
+*** Delight
+#+begin_src emacs-lisp
+(use-package delight)
+#+end_src
+
+#+RESULTS:
+
+** Modeline
+#+begin_src emacs-lisp  :tangle no
+(use-package all-the-icons)
+
+(use-package doom-modeline
+  :init (doom-modeline-mode 1)
+  :custom ((doom-modeline-height 15)))
+#+end_src
+
+#+RESULTS:
 
 * IDE
 Configured as shown in the following video: [[https://www.youtube.com/watch?v=INTu30BHZGk][Projectile and Magit]].
@@ -184,50 +197,100 @@ Git interface. Custom variable displays Magit status buffer in the same buffer r
 #+end_src
 
 ** Projectile
-Projectile allows me to set project-wide commands and variables.
+Allows me to set project-wide commands and variables. [[https://docs.projectile.mx/projectile/index.html][Projectile Documentation]]
 Notably: run, debug, project-variables, grep (and rg).
 #+begin_src emacs-lisp
-(use-package projectile
-  :diminish projectile-mode
-  :config (projectile-mode)
-  :custom ((projectile-completion-system 'ivy))
-  :bind-keymap
-  ("C-c p" . projectile-command-map)
-  :init
-  ;; NOTE: Set this to the folder where you keep your Git repos!
-  (when (file-directory-p "~/Projects/Code")
-    (setq projectile-project-search-path '("~/Projects/Code")))
-  (setq projectile-switch-project-action #'projectile-dired))
+  (use-package projectile
+    ;; :delight projectile-mode
+    :config (projectile-mode)
+    :custom ((projectile-completion-system 'ivy))
+    :bind-keymap
+    ("C-c p" . projectile-command-map)
+    :init
+    ;; NOTE: Set this to the folder where you keep your Git repos!
+    (when (file-directory-p "~/Projects/Code")
+      (setq projectile-project-search-path '("~/Projects/Code")))
+    (setq projectile-switch-project-action #'projectile-dired))
 
-(use-package counsel-projectile
-  :config (counsel-projectile-mode))
+  (use-package counsel-projectile
+    :config (counsel-projectile-mode))
 #+end_src
 
-#+RESULTS:
-: t
+** Smartparens
+#+begin_src emacs-lisp
+  (use-package smartparens
+    :delight smartparens-mode)
+#+end_src
+
+** Company-Mode
+Gets called by lsp-mode. 
+#+begin_src emacs-lisp  
+    (use-package company
+      :init
+      (setq company-idle-delay nil  ; avoid auto completion popup, use TAB to show it
+            company-async-timeout 15        ; completion may be slow
+            company-tooltip-align-annotations t
+            )
+      :hook (after-init . global-company-mode))
+#+end_src
+
+** LSP-Mode
+Provides language backend to company mode (which is run when lsp is run). 
+#+begin_src emacs-lisp  
+  (use-package lsp-mode
+    :delight lsp-mode
+    :commands lsp
+    :config
+    (lsp-enable-which-key-integration t))
+#+end_src
+
+*** LSP-UI
+LSP-ui provides advanced help and suggestions to the lsp-mode suggestions.
+Including:  lsp-ui-sideline, lsp-ui-peek, mouse-hover "help box, etc
+Automatically starts along with lsp-mode.  [[https://emacs-lsp.github.io/lsp-ui/][lsp-ui documentation]]
+#+begin_src emacs-lisp  
+  (use-package lsp-ui)
+#+end_src
+
+** Yasnippet
+#+begin_src emacs-lisp
+  (use-package yasnippet
+    :diminish yas-minor-mode)
+  (use-package yasnippet-snippets) ; load basic snippets from melpa
+#+end_src
+
+
+
 
 * C++
-Wants:
-- lsp-mode with clangd 
-- company (with company-fix for fuzzy filtering completion)
-- eldoc-box -documentation popup under curser for supported modes
-- Yassnippet
-- Projectile (but this might be more than just for c++)
+**  Hook
+#+begin_src emacs-lisp   
+  (setq-default c-basic-offset 4)
 
-  ;;;; c/cpp IDE packages
-      lsp-mode           ; Language server protocol for interpreting languages 
-      yasnippet          ; Code templates
-      lsp-treemacs       ; Tree renderer-- have not explored yet
-      ;helm-lsp           ; Helm is for incremental completion/selection
-      projectile         ; Project interaction library
-      hydra    ; ties related commands into short bindings with a common prefix
-      flycheck ; On-the-fly syntax checking, replacemnt for flymake
-      company  ; Text completion
-      avy      ; Jumping to visible text using a char-based decision tree
-      which-key ; Displays key bindings following entered incomplete command
-      ;helm-xref ; Helm interface for xref
-      dap-mode  ; Debug Adapter Protocol is a wire protocol for communication between client and Debug Server
-  
+  (defun my-c-c++-mode-hook-fn ()
+    (setq lsp-headerline-breadcrumb-enable nil);; removes busy header
+    (lsp)
+    (smartparens-mode)
+    (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
+    (yas-minor-mode-on)
+    ;; flycheck
+    ;; Dap-mod
+    (delight 'abbrev-mode "" "abbrev")
+    )
+  (add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
+  (add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
+
+#+end_src
+
+** Try in the future:
+   - lsp-treemacs       ; Tree renderer-- have not explored yet
+   - avy      ; Jumping to visible text using a char-based decision tree
+   - company (with company-fix for fuzzy filtering completion)
+   - eldoc-box -documentation popup under curser for supported modes
+
+
+
+
 * Python
 ** Elpy
 #+begin_src emacs-lisp
@@ -246,14 +309,29 @@ Wants:
     )
 #+end_src
 
+** Hook
+#+begin_src emacs-lisp    
+  (defun my-python-mode-hook-fn ()
+    (smartparens-mode)
+    (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
+    )
+  (add-hook 'c-mode-hook #'my-python-mode-hook-fn)
+#+end_src
+
 * Org-Mode
 ** Mode setup
 #+begin_src emacs-lisp 
   (defun efs/org-mode-setup ()
         (org-indent-mode)
         (variable-pitch-mode 1)
-        (visual-line-mode 1))
+        (visual-line-mode 1)
+        (projectile-mode -1) ;; turn it off
+)
 #+end_src
+
+
+
+#+RESULTS:
 
 ** Fonts 
 #+begin_src emacs-lisp
@@ -262,7 +340,8 @@ Wants:
     (font-lock-add-keywords 'org-mode
                        '(("^ *\\([-]\\) "
                         (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-
+    ;; Elipsis
+     (setq org-ellipsis " ▾")
     ;; Set faces for heading levels
     (dolist (face '((org-level-1 . 1.2)
                     (org-level-2 . 1.1)
@@ -289,7 +368,6 @@ Wants:
     (use-package org
         :hook (org-mode . efs/org-mode-setup)
         :config
-        (setq org-ellipsis " ▾")
         (efs/org-font-setup))
 #+end_src
 
@@ -332,7 +410,8 @@ Wants:
 
 #+RESULTS:
 
-
 * Localwords
-#  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords
+#  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc
 
+
+#  LocalWords:  Smartparens UI Helpful's Yasnippet LSP Modeline
