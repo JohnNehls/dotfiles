@@ -44,7 +44,7 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 #+end_src
 
 * General Emacs
-** Global Configurations
+** UI Configurations
 *** Basic
 #+begin_src emacs-lisp
   (setq inhibit-startup-message t)           ; inhibit startup message
@@ -55,7 +55,7 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
   (add-hook 'text-mode-hook 'flyspell-mode)  ; enable spellcheck on text mode
   (setq make-backup-files nil)               ; stop creating backup~ files
   (setq auto-save-default nil)               ; stop creating #autosave# files
-  ;; (menu-bar-mode -1)                        ; Disable the menu bar
+  (menu-bar-mode -1)                        ; Disable the menu bar
 
 
   ;; Open text files in Org-Mode
@@ -67,23 +67,17 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 
 #+end_src
 
-*** Rainbow Delimiters
-Use rainbow colored parenthesis to help match delimiters. 
-#+begin_src emacs-lisp
-(use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode))
-#+end_src
-
 *** Line numbers 
 #+begin_src emacs-lisp
-  ;; ;Disable line numbers for some modes
-  ;;  (dolist (mode '(org-mode-hook
-  ;; 		 term-mode-hook
-  ;; 		 shell-mode-hook
-  ;; 		 eshell-mode-hook))
-  ;;    (add-hook mode (lambda () (display-line-numbers-mode 0))))
+  ;Disable line numbers for some modes
+   (dolist (mode '(org-mode-hook
+                   term-mode-hook
+                   shell-mode-hook
+                   treemacs-mode-hook
+                   eshell-mode-hook))
+     (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-  ;; (global-display-line-numbers-mode t)     ; Puts line numbers on ALL buffers
+  (global-display-line-numbers-mode t)     ; Puts line numbers on ALL buffers
 #+end_src
 
 *** Theme
@@ -105,15 +99,23 @@ Use the transparency function defined below to adjust levels during a session.
 (transparency 94)  ;; Default value (generally e [94,96]
 #+end_src
 
-***  Keybindings
-Make <Esc> quit prompts
+*** Modeline 
+**** Delight
+Enables you to customize the mode names displayed in the mode line.
 #+begin_src emacs-lisp
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+(use-package delight)
 #+end_src
 
-**** TODO Improve work flow
-Eventually create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. 
-hydra    ; ties related commands into short bindings with a common prefix
+**** Doom-modeline (not used)
+*NOTE*: The first time you load your configuration on a new machine, you’ll need to run `M-x all-the-icons-install-fonts` so that mode line icons display correctly.
+#+begin_src emacs-lisp  :tangle no
+  (use-package all-the-icons)
+  (use-package doom-modeline
+    :init (doom-modeline-mode 1)
+    :custom ((doom-modeline-height 15)))
+#+end_src
+
+#+RESULTS:
 ** Input Buffer, Directory Search, and Help
 *** Ivy, Ivy-Rich, and Counsel
 Ivy displays vertical completions of input buffer.
@@ -149,9 +151,13 @@ o
     (setq which-key-idle-delay 1.0))
 #+end_src
 
-*** Neotree
+*** Treemacs
+- treemacs shows folder contents.
+- lsp-treemacs-symbols shows file contents: classes functions etc
+- lsp-treemacs-references 
 #+begin_src emacs-lisp
-(use-package neotree)
+  (use-package lsp-treemacs
+    :after lsp)
 #+end_src
 
 *** Helpful
@@ -168,26 +174,24 @@ Better version of help. Remap normal help keys to Helpful's versions.
   ([remap describe-key] . helpful-key))
 #+end_src
 
-*** Delight
+** Keybindings
+Make <Esc> quit prompts
 #+begin_src emacs-lisp
-(use-package delight)
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 #+end_src
 
-#+RESULTS:
-
-** Modeline
-#+begin_src emacs-lisp  :tangle no
-(use-package all-the-icons)
-
-(use-package doom-modeline
-  :init (doom-modeline-mode 1)
-  :custom ((doom-modeline-height 15)))
+**** TODO Improve work flow
+Eventually create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. 
+hydra    ; ties related commands into short bindings with a common prefix
+* Development Tools 
+** Rainbow Delimiters
+** Smartparens
+Auto-creates closing parenthesis and bar and, smartly, writes it over. 
+#+begin_src emacs-lisp
+  (use-package smartparens
+    :delight smartparens-mode)
 #+end_src
 
-#+RESULTS:
-
-* IDE
-Configured as shown in the following video: [[https://www.youtube.com/watch?v=INTu30BHZGk][Projectile and Magit]].
 ** Magit
 Git interface. Custom variable displays Magit status buffer in the same buffer rather than splitting it. 
 #+begin_src emacs-lisp
@@ -216,40 +220,38 @@ Notably: run, debug, project-variables, grep (and rg).
     :config (counsel-projectile-mode))
 #+end_src
 
-** Smartparens
-#+begin_src emacs-lisp
-  (use-package smartparens
-    :delight smartparens-mode)
-#+end_src
-
-** Company-Mode
-Gets called by lsp-mode. 
-#+begin_src emacs-lisp  
-    (use-package company
-      :init
-      (setq company-idle-delay nil  ; avoid auto completion popup, use TAB to show it
-            company-async-timeout 15        ; completion may be slow
-            company-tooltip-align-annotations t
-            )
-      :hook (after-init . global-company-mode))
-#+end_src
-
-** LSP-Mode
-Provides language backend to company mode (which is run when lsp is run). 
+** Language Server Protocol (lsp-mode)
+Provides language backend to company-mode (which is run when lsp is run). 
 #+begin_src emacs-lisp  
   (use-package lsp-mode
     :delight lsp-mode
-    :commands lsp
+    :commands (lsp)
+    :init
+    (setq lsp-keymap-prefix "C-c l") ;; or "C-l"
     :config
     (lsp-enable-which-key-integration t))
 #+end_src
 
-*** LSP-UI
-LSP-ui provides advanced help and suggestions to the lsp-mode suggestions.
+*** lsp-ui
+Provides advanced help and suggestions to the lsp-mode suggestions. Some info is provided in sideline box. 
 Including:  lsp-ui-sideline, lsp-ui-peek, mouse-hover "help box, etc
 Automatically starts along with lsp-mode.  [[https://emacs-lsp.github.io/lsp-ui/][lsp-ui documentation]]
 #+begin_src emacs-lisp  
   (use-package lsp-ui)
+#+end_src
+
+** Company-Mode
+Currently gets called by lsp-mode by default. //my understanding// It is the auto-complete box that lsp provides information to. Company-box-mode brings up a another box with information about the highlighted recommended item in the company/lsp box. 
+#+begin_src emacs-lisp  
+  (use-package company
+    :custom
+    (company-minimum-prefix-length 1)
+    (company-idle-delay 0.0)
+    :bind (:map lsp-mode-map ("<tab>" . company-indent-or-complete-common)))
+
+  (use-package company-box
+    :hook (company-mode . company-box-mode))
+
 #+end_src
 
 ** Yasnippet
@@ -259,39 +261,49 @@ Automatically starts along with lsp-mode.  [[https://emacs-lsp.github.io/lsp-ui/
   (use-package yasnippet-snippets) ; load basic snippets from melpa
 #+end_src
 
+** Flycheck
+#+begin_src emacs-lisp
+(use-package flycheck
+:delight flycheck-mode)
+#+end_src
 
-
+** Dap Debugging
+Like lsp-mode but for debuggers. 
+#+begin_src emacs-lisp
+(use-package dap-mode
+:delight dap-mode
+)
+#+end_src
 
 * C++
 **  Hook
+LSP-mode works with clangd (which currently is already loaded-- likely from irony mode (elpy dependency?). 
 #+begin_src emacs-lisp   
   (setq-default c-basic-offset 4)
 
   (defun my-c-c++-mode-hook-fn ()
-    (setq lsp-headerline-breadcrumb-enable nil);; removes busy header
-    (lsp)
-    (smartparens-mode)
-    (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
-    (yas-minor-mode-on)
-    ;; flycheck
-    ;; Dap-mod
-    (delight 'abbrev-mode "" "abbrev")
+    (lsp)                ; turn on
+    (smartparens-mode)   ; turn on
+    (local-set-key (kbd "<tab>") #'company-indent-or-complete-common) ;tab comp
+    (yas-minor-mode-on)  ; turn on
+    (abbrev-mode -1)        ; turn off
+    ;; flycheck -- already running Delighted
+    ;; Dap-mod  -- already running Delighted
+    (delight 'c++-mode "C++" "C++//l") ; shorten modeline tag
     )
   (add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
   (add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
 
 #+end_src
 
-** Try in the future:
+** Future Ideas
    - lsp-treemacs       ; Tree renderer-- have not explored yet
    - avy      ; Jumping to visible text using a char-based decision tree
    - company (with company-fix for fuzzy filtering completion)
    - eldoc-box -documentation popup under curser for supported modes
 
-
-
-
 * Python
+As of now, all we use is Elpy. Though, for more continuity with my C++-mode, I'd like replace it with  lsp-mode, dap, yasnippet, flycheck, etc. Video showing how to do this is [[https://www.youtube.com/watch?v=jPXIP46BnNA&t=1s][here]].
 ** Elpy
 #+begin_src emacs-lisp
   (use-package elpy
@@ -329,10 +341,6 @@ Automatically starts along with lsp-mode.  [[https://emacs-lsp.github.io/lsp-ui/
 )
 #+end_src
 
-
-
-#+RESULTS:
-
 ** Fonts 
 #+begin_src emacs-lisp
   (defun efs/org-font-setup ()
@@ -363,7 +371,7 @@ Automatically starts along with lsp-mode.  [[https://emacs-lsp.github.io/lsp-ui/
     (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 #+end_src
 
-** Ellipsis
+** Start
 #+begin_src emacs-lisp
     (use-package org
         :hook (org-mode . efs/org-mode-setup)
@@ -411,7 +419,6 @@ Automatically starts along with lsp-mode.  [[https://emacs-lsp.github.io/lsp-ui/
 #+RESULTS:
 
 * Localwords
-#  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc
+#  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline
 
-
-#  LocalWords:  Smartparens UI Helpful's Yasnippet LSP Modeline
+#  LocalWords:  Treemacs backend lsp

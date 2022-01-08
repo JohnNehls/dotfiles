@@ -37,7 +37,7 @@
 (add-hook 'text-mode-hook 'flyspell-mode)  ; enable spellcheck on text mode
 (setq make-backup-files nil)               ; stop creating backup~ files
 (setq auto-save-default nil)               ; stop creating #autosave# files
-;; (menu-bar-mode -1)                        ; Disable the menu bar
+(menu-bar-mode -1)                        ; Disable the menu bar
 
 
 ;; Open text files in Org-Mode
@@ -47,17 +47,15 @@
 ;; Set up the visible bell
 (setq visible-bell t)
 
-(use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode))
+;Disable line numbers for some modes
+ (dolist (mode '(org-mode-hook
+                 term-mode-hook
+                 shell-mode-hook
+                 treemacs-mode-hook
+                 eshell-mode-hook))
+   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-;; ;Disable line numbers for some modes
-;;  (dolist (mode '(org-mode-hook
-;; 		 term-mode-hook
-;; 		 shell-mode-hook
-;; 		 eshell-mode-hook))
-;;    (add-hook mode (lambda () (display-line-numbers-mode 0))))
-
-;; (global-display-line-numbers-mode t)     ; Puts line numbers on ALL buffers
+(global-display-line-numbers-mode t)     ; Puts line numbers on ALL buffers
 
 (use-package gruvbox-theme
     :init (load-theme 'gruvbox t))
@@ -68,7 +66,7 @@
    (set-frame-parameter (selected-frame) 'alpha value))
 (transparency 94)  ;; Default value (generally e [94,96]
 
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+(use-package delight)
 
 (use-package ivy
   :delight ivy-mode
@@ -93,7 +91,8 @@
   :config
   (setq which-key-idle-delay 1.0))
 
-(use-package neotree)
+(use-package lsp-treemacs
+  :after lsp)
 
 (use-package helpful
   :custom
@@ -105,7 +104,10 @@
   ([remap describe-variable] . counsel-describe-variable)
   ([remap describe-key] . helpful-key))
 
-(use-package delight)
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+
+(use-package smartparens
+  :delight smartparens-mode)
 
 (use-package magit
   :custom
@@ -126,40 +128,47 @@
 (use-package counsel-projectile
   :config (counsel-projectile-mode))
 
-(use-package smartparens
-  :delight smartparens-mode)
-
-(use-package company
-  :init
-  (setq company-idle-delay nil  ; avoid auto completion popup, use TAB to show it
-        company-async-timeout 15        ; completion may be slow
-        company-tooltip-align-annotations t
-        )
-  :hook (after-init . global-company-mode))
-
 (use-package lsp-mode
   :delight lsp-mode
-  :commands lsp
+  :commands (lsp)
+  :init
+  (setq lsp-keymap-prefix "C-c l") ;; or "C-l"
   :config
   (lsp-enable-which-key-integration t))
 
 (use-package lsp-ui)
 
+(use-package company
+  :custom
+  (company-minimum-prefix-length 1)
+  (company-idle-delay 0.0)
+  :bind (:map lsp-mode-map ("<tab>" . company-indent-or-complete-common)))
+
+(use-package company-box
+  :hook (company-mode . company-box-mode))
+
 (use-package yasnippet
   :diminish yas-minor-mode)
 (use-package yasnippet-snippets) ; load basic snippets from melpa
 
+(use-package flycheck
+:delight flycheck-mode)
+
+(use-package dap-mode
+:delight dap-mode
+)
+
 (setq-default c-basic-offset 4)
 
 (defun my-c-c++-mode-hook-fn ()
-  (setq lsp-headerline-breadcrumb-enable nil);; removes busy header
-  (lsp)
-  (smartparens-mode)
-  (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
-  (yas-minor-mode-on)
-  ;; flycheck
-  ;; Dap-mod
-  (delight 'abbrev-mode "" "abbrev")
+  (lsp)                ; turn on
+  (smartparens-mode)   ; turn on
+  (local-set-key (kbd "<tab>") #'company-indent-or-complete-common) ;tab comp
+  (yas-minor-mode-on)  ; turn on
+  (abbrev-mode -1)        ; turn off
+  ;; flycheck -- already running Delighted
+  ;; Dap-mod  -- already running Delighted
+  (delight 'c++-mode "C++" "C++//l") ; shorten modeline tag
   )
 (add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
 (add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
