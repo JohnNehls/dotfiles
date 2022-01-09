@@ -69,15 +69,16 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 
 *** Line numbers 
 #+begin_src emacs-lisp
-  ;Disable line numbers for some modes
-   (dolist (mode '(org-mode-hook
-                   term-mode-hook
-                   shell-mode-hook
-                   treemacs-mode-hook
-                   eshell-mode-hook))
-     (add-hook mode (lambda () (display-line-numbers-mode 0))))
+    ;Disable line numbers for some modes
+     (dolist (mode '(org-mode-hook
+                     term-mode-hook
+                     shell-mode-hook
+                     treemacs-mode-hook
+                     eshell-mode-hook
+                     vterm-mode-hook))
+       (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-  (global-display-line-numbers-mode t)     ; Puts line numbers on ALL buffers
+    (global-display-line-numbers-mode t)     ; Puts line numbers on ALL buffers
 #+end_src
 
 *** Theme
@@ -183,7 +184,8 @@ Make <Esc> quit prompts
 **** TODO Improve work flow
 Eventually create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. 
 hydra    ; ties related commands into short bindings with a common prefix
-* Development Tools 
+
+* Development 
 ** Rainbow Delimiters
 ** Smartparens
 Auto-creates closing parenthesis and bar and, smartly, writes it over. 
@@ -333,12 +335,13 @@ As of now, all we use is Elpy. Though, for more continuity with my C++-mode, I'd
 * Org-Mode
 ** Mode setup
 #+begin_src emacs-lisp 
-  (defun efs/org-mode-setup ()
-        (org-indent-mode)
-        (variable-pitch-mode 1)
-        (visual-line-mode 1)
-        (projectile-mode -1) ;; turn it off
-)
+    (defun efs/org-mode-setup ()
+          (org-indent-mode)
+          (variable-pitch-mode 1)
+          (visual-line-mode 1)
+          (rainbow-delimiters-mode 1)
+          (projectile-mode -1) 
+  )
 #+end_src
 
 ** Fonts 
@@ -417,8 +420,44 @@ As of now, all we use is Elpy. Though, for more continuity with my C++-mode, I'd
 #+end_src
 
 #+RESULTS:
+* Terminals
+** term-mode
+- Slower than vterm at printing large amounts of information. 
+- For more than one terminal, you must M-x rename-uniquely the terminal.
+- C-c prefix for term commands
 
+Line-mode vs char-mode *selection shows on the modeline*:
+C-c C-k -> char-mode
+C-c C-j  -> line-mode
+*** Better term-mode colors
+#+begin_src emacs-lisp
+(use-package eterm-256color
+  :hook (term-mode . eterm-256color-mode))
+#+end_src
+
+** vterm
+Faster terminal due to being compiled. Default is a better mode than term-mode; it's like a char-mode but with ability to access function list with M-x.  [[https://github.com/akermu/emacs-libvterm][vterm Documentation]]
+- For more than one terminal, you must M-x rename-uniquely the terminal.
+- C-c prefix for term commands
+- C-c C-c = send C-c to the terminal (kill running command)
+
+#+begin_src emacs-lisp
+  (use-package vterm
+    :commands vterm
+    :config
+    ;(setq term-prompt-regexp "^[^$]*[$] *");; match your custom shell
+  ;;(setq vterm-shell "zsh");; Set this to customize the shell to launch
+    (setq vterm-max-scrollback 10000))
+#+end_src
+
+#+RESULTS:
+: t
+   
+** shell-mode
+Between term-mode eshell. 
+** eshell
+More customization in Elisp. Supports Tramp. 
 * Localwords
-#  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline
+#  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell
 
-#  LocalWords:  Treemacs backend lsp
+

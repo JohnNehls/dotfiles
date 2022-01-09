@@ -52,7 +52,8 @@
                  term-mode-hook
                  shell-mode-hook
                  treemacs-mode-hook
-                 eshell-mode-hook))
+                 eshell-mode-hook
+                 vterm-mode-hook))
    (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 (global-display-line-numbers-mode t)     ; Puts line numbers on ALL buffers
@@ -197,7 +198,8 @@
         (org-indent-mode)
         (variable-pitch-mode 1)
         (visual-line-mode 1)
-        (projectile-mode -1) ;; turn it off
+        (rainbow-delimiters-mode 1)
+        (projectile-mode -1) 
 )
 
 (defun efs/org-font-setup ()
@@ -254,3 +256,13 @@
 
 ;; setting to allow sizing of JPG and PNGs in org-mode
 (setq org-image-actual-width nil)
+
+(use-package eterm-256color
+  :hook (term-mode . eterm-256color-mode))
+
+(use-package vterm
+  :commands vterm
+  :config
+  ;(setq term-prompt-regexp "^[^$]*[$] *");; match your custom shell
+;;(setq vterm-shell "zsh");; Set this to customize the shell to launch
+  (setq vterm-max-scrollback 10000))
