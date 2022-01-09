@@ -1,4 +1,4 @@
-;#+TITLE: Emacs Configuration
+#+TITLE: Emacs Configuration
 #+PROPERTY: header-args:emacs-lisp :tangle .emacs.d/init.el
 #+STARTUP: content
 * Setup
@@ -17,7 +17,7 @@ Packages: Elpa is default, Melpa is community.
 
   (unless package-archive-contents
    (package-refresh-contents))
-
+         
   ;; Initialize use-package on non-Linux platforms
   (unless (package-installed-p 'use-package)
      (package-install 'use-package))
@@ -43,6 +43,23 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
   (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 #+end_src
 
+** Automatic Package Updates
+The auto-package-update package helps us keep Emacs packages up to date.  It will prompt you after a certain number of days either at startup or at a specific time of day to remind you to update your packages.
+
+You can also use =M-x auto-package-update-now= to update right now!
+
+#+begin_src emacs-lisp
+
+  (use-package auto-package-update
+    :custom
+    (auto-package-update-interval 30)
+    (auto-package-update-prompt-before-update t)
+    (auto-package-update-hide-results t)
+    :config
+    (auto-package-update-maybe))
+    (auto-package-update-at-time "09:00"))
+
+#+end_src
 * General Emacs
 ** UI Configurations
 *** Basic
@@ -152,6 +169,7 @@ Along with ivy-rich, counsel displays info along with suggestions in input buffe
     :after lsp)
 #+end_src
 
+
 *** Helpful
 Better version of help. Remap normal help keys to Helpful's versions. 
 #+begin_src emacs-lisp
@@ -169,8 +187,14 @@ Better version of help. Remap normal help keys to Helpful's versions.
 ** Keybindings
 Make <Esc> quit input prompts.
 #+begin_src emacs-lisp
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+  ;; (global-set-key (kbd "C-o") 'other-window)
+  (global-set-key (kbd "M-SPC") 'other-window) 
 #+end_src
+ 
+#+RESULTS: 
+: other-window
+
 
 **** Improve work flow (not used)
 Eventually create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. 
@@ -231,11 +255,11 @@ Provides language backend to company-mode.
 #+end_src
 
 *** lsp-ui
-Provides advanced suggestions and their help to the lsp-mode suggestions. Some info is provided in sideline box. Including:  lsp-ui-sideline, lsp-ui-peek, mouse-hover "help box, etc           [[https://emacs-lsp.github.io/lsp-ui/][lsp-ui documentation]]
+Provides additional lsp information to the company-mode box.  [[https://emacs-lsp.github.io/lsp-ui/][lsp-ui documentation]]
 #+begin_src emacs-lisp  
-  (use-package lsp-ui) ; automatically starts along with lsp-mode. 
+  (use-package lsp-ui)	  ; automatically starts along with lsp-mode. 
 #+end_src
-
+ 
 ** Company-Mode
 Currently gets called by lsp-mode by default. //my understanding//: company-mode provides the auto-complete box that lsp provides information to. 
 #+begin_src emacs-lisp  
@@ -447,9 +471,20 @@ Between term-mode eshell.
 ** eshell
 More customization in Elisp. Supports Tramp. 
 * File Management
-** Dired
+** TODO Dired
+More to do at [[https://youtu.be/PMWwM8QJAtU][here]].  Could not use "use-package" since dired packaged did not exist. Here we just modify dired without "use-package".
+- "(" toggle file info
+- M-x du  shows the size of the files in the buffer (toggle for human readable)
+#+begin_src emacs-lisp
+  (setq dired-listing-switches "-agho --group-directories-first"); organized info
+
+  (use-package treemacs-icons-dired
+    :config (treemacs-icons-dired-mode) )
+
+;A rather janky mode which lists the recursive size of each foler/item in dired. 
+  (use-package dired-du
+  :commands du)
+#+end_src
 
 * Localwords
-#  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell   Dired
-
-#  LocalWords:  dracula clangd
+#  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell  Dired dracula clangd ui

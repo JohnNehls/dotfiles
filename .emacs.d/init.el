@@ -29,6 +29,15 @@
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 
+(use-package auto-package-update
+  :custom
+  (auto-package-update-interval 30)
+  (auto-package-update-prompt-before-update t)
+  (auto-package-update-hide-results t)
+  :config
+  (auto-package-update-maybe))
+  (auto-package-update-at-time "09:00"))
+
 (setq inhibit-startup-message t)           ; inhibit startup message
 (tool-bar-mode -1)                         ; remove toolbar
 (scroll-bar-mode -1)                       ; remove side scrollbar
@@ -102,6 +111,8 @@
   ([remap describe-key] . helpful-key))
 
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+;; (global-set-key (kbd "C-o") 'other-window)
+(global-set-key (kbd "M-SPC") 'other-window)
 
 (use-package rainbow-delimiters)
 
@@ -136,7 +147,7 @@
   :config
   (lsp-enable-which-key-integration t))
 
-(use-package lsp-ui) ; automatically starts along with lsp-mode.
+(use-package lsp-ui)	  ; automatically starts along with lsp-mode.
 
 (use-package company
   :custom
@@ -264,3 +275,12 @@
   ;(setq term-prompt-regexp "^[^$]*[$] *");; match your custom shell
 ;;(setq vterm-shell "zsh");; Set this to customize the shell to launch
   (setq vterm-max-scrollback 10000))
+
+(setq dired-listing-switches "-agho --group-directories-first"); organized info
+
+  (use-package treemacs-icons-dired
+    :config (treemacs-icons-dired-mode) )
+
+;A rather janky mode which lists the recursive size of each foler/item in dired. 
+  (use-package dired-du
+  :commands du)
