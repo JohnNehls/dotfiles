@@ -48,7 +48,7 @@ The auto-package-update package helps us keep Emacs packages up to date.  It wil
 
 You can also use =M-x auto-package-update-now= to update right now!
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp 
 
   (use-package auto-package-update
     :custom
@@ -56,9 +56,23 @@ You can also use =M-x auto-package-update-now= to update right now!
     (auto-package-update-prompt-before-update t)
     (auto-package-update-hide-results t)
     :config
-    (auto-package-update-maybe))
+    (auto-package-update-maybe)
     (auto-package-update-at-time "09:00"))
 
+#+end_src
+** Startup Performance
+#+begin_src emacs-lisp 
+;; The default is 800 kilobytes.  Measured in bytes.
+(setq gc-cons-threshold (* 50 1000 1000))
+
+(defun efs/display-startup-time ()
+  (message "Emacs loaded in %s with %d garbage collections."
+           (format "%.2f seconds"
+                   (float-time
+                     (time-subtract after-init-time before-init-time)))
+           gcs-done))
+
+(add-hook 'emacs-startup-hook #'efs/display-startup-time)
 #+end_src
 * General Emacs
 ** UI Configurations
@@ -168,7 +182,6 @@ Along with ivy-rich, counsel displays info along with suggestions in input buffe
   (use-package lsp-treemacs
     :after lsp)
 #+end_src
-
 
 *** Helpful
 Better version of help. Remap normal help keys to Helpful's versions. 
@@ -485,6 +498,9 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]].  Could not use "use-packag
   (use-package dired-du
   :commands du)
 #+end_src
+
+#+RESULTS:
+: du
 
 * Localwords
 #  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell  Dired dracula clangd ui

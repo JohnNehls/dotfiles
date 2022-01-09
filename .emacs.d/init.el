@@ -35,8 +35,20 @@
   (auto-package-update-prompt-before-update t)
   (auto-package-update-hide-results t)
   :config
-  (auto-package-update-maybe))
+  (auto-package-update-maybe)
   (auto-package-update-at-time "09:00"))
+
+;; The default is 800 kilobytes.  Measured in bytes.
+(setq gc-cons-threshold (* 50 1000 1000))
+
+(defun efs/display-startup-time ()
+  (message "Emacs loaded in %s with %d garbage collections."
+           (format "%.2f seconds"
+                   (float-time
+                     (time-subtract after-init-time before-init-time)))
+           gcs-done))
+
+(add-hook 'emacs-startup-hook #'efs/display-startup-time)
 
 (setq inhibit-startup-message t)           ; inhibit startup message
 (tool-bar-mode -1)                         ; remove toolbar
