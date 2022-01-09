@@ -1,23 +1,34 @@
+;; The default is 800 kilobytes.  Measured in bytes.
+(setq gc-cons-threshold (* 50 1000 1000))
+
+(defun efs/display-startup-time ()
+  (message "Emacs loaded in %s with %d garbage collections."
+           (format "%.2f seconds"
+                   (float-time
+                     (time-subtract after-init-time before-init-time)))
+           gcs-done))
+
+(add-hook 'emacs-startup-hook #'efs/display-startup-time)
+
 ;; Initialize package sources
 (require 'package)
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-			 ("org" . "https://orgmode.org/elpa/")
-			 ("elpa" . "https://elpa.gnu.org/packages/")))
+                         ("org" . "https://orgmode.org/elpa/")
+                         ("elpa" . "https://elpa.gnu.org/packages/")))
 
 (package-initialize)
 
 (unless package-archive-contents
- (package-refresh-contents))
+  (package-refresh-contents))
 
 ;; Initialize use-package on non-Linux platforms
 (unless (package-installed-p 'use-package)
-   (package-install 'use-package))
+  (package-install 'use-package))
 
 (require 'use-package)
 (setq use-package-always-ensure t) ; no need for :ensure t for each package.
-
-(use-package command-log-mode)
+(setq use-package-verbose t) ; to display starup messages in *Messages*
 
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun efs/org-babel-tangle-config ()
@@ -37,18 +48,6 @@
   :config
   (auto-package-update-maybe)
   (auto-package-update-at-time "09:00"))
-
-;; The default is 800 kilobytes.  Measured in bytes.
-(setq gc-cons-threshold (* 50 1000 1000))
-
-(defun efs/display-startup-time ()
-  (message "Emacs loaded in %s with %d garbage collections."
-           (format "%.2f seconds"
-                   (float-time
-                     (time-subtract after-init-time before-init-time)))
-           gcs-done))
-
-(add-hook 'emacs-startup-hook #'efs/display-startup-time)
 
 (setq inhibit-startup-message t)           ; inhibit startup message
 (tool-bar-mode -1)                         ; remove toolbar
@@ -78,7 +77,49 @@
 (use-package gruvbox-theme
     :init (load-theme 'gruvbox t))
 
+(use-package all-the-icons)
+(use-package doom-modeline
+  :init (doom-modeline-mode 1)
+  :custom ((doom-modeline-height 15)))
+
 (use-package delight)
+
+(use-package diminish)
+
+(defun diminished-modes ()
+    "Echo all active diminished or minor modes as if they were minor.
+The display goes in the echo area; if it's too long even for that,
+you can see the whole thing in the *Messages* buffer.
+This doesn't change the status of any modes; it just lets you see
+what diminished modes would be on the mode-line if they were still minor."
+    (interactive)
+    (let ((minor-modes minor-mode-alist)
+          message)
+      (while minor-modes
+        (when (symbol-value (caar minor-modes))
+          ;; This minor mode is active in this buffer
+          (let* ((mode-pair (car minor-modes))
+                 (mode (car mode-pair))
+                 (minor-pair (or (assq mode diminished-mode-alist) mode-pair))
+                 (minor-name (cadr minor-pair)))
+            (when (symbolp minor-name)
+              ;; This minor mode uses symbol indirection in the cdr
+              (let ((symbols-seen (list minor-name)))
+                (while (and (symbolp (callf symbol-value minor-name))
+                            (not (memq minor-name symbols-seen)))
+                  (push minor-name symbols-seen))))
+            (push minor-name message)))
+        (callf cdr minor-modes))
+      ;; Handle :eval forms
+      (setq message (mapconcat
+                     (lambda (form)
+                       (if (and (listp form) (eq (car form) :eval))
+                           (apply 'eval (cdr form))
+                         form))
+                     (nreverse message) ""))
+      (when (= (string-to-char message) ?\ )
+        (callf substring message 1))
+      (message "%s" message)))
 
 (defun transparency (value)
    "Sets the transparency of the frame window. 0=transparent/100=opaque"
@@ -93,7 +134,8 @@
   (ivy-mode 1))
 
 (use-package ivy-rich
-  :init
+  :after ivy
+  :init  
   (ivy-rich-mode 1))
 
 (use-package counsel
@@ -103,16 +145,26 @@
          ("C-r" . 'counsel-minibuffer-history)
          ))
 
-(use-package which-key
-  :delight which-key-mode  
-  :init (which-key-mode)
+(use-package ivy-prescient
+  :after counsel
+  :custom
+  (ivy-prescient-enable-filtering nil)
   :config
+  ;; Uncomment the following line to have sorting remembered across sessions!
+  ;(prescient-persist-mode 1)
+  (ivy-prescient-mode 1))
+
+(use-package which-key
+  :defer 0
+  :delight which-key-mode  
+  :config(which-key-mode)
   (setq which-key-idle-delay 0.2))
 
 (use-package lsp-treemacs
   :after lsp)
 
 (use-package helpful
+:commands (helpful-callable helpful-variavle helpful-command helpful-key)
   :custom
   (counsel-describe-function-function #'helpful-callable)
   (counsel-describe-variable-function #'helpful-variable)
@@ -123,20 +175,23 @@
   ([remap describe-key] . helpful-key))
 
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-;; (global-set-key (kbd "C-o") 'other-window)
+(global-set-key (kbd "C-o") 'other-window)
 (global-set-key (kbd "M-SPC") 'other-window)
 
-(use-package rainbow-delimiters)
+(use-package rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode))
 
 (use-package smartparens
   :delight smartparens-mode)
 
 (use-package magit
+  :commands (magit-status)
   :custom
   ;display Magit status buffer in the same buffer rather than splitting it. 
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
 (use-package projectile
+  :after lsp
   ;; :delight projectile-mode
   :config (projectile-mode)
   :custom ((projectile-completion-system 'ivy))
@@ -149,6 +204,7 @@
   (setq projectile-switch-project-action #'projectile-dired))
 
 (use-package counsel-projectile
+  :after projectile-mode
   :config (counsel-projectile-mode))
 
 (use-package lsp-mode
@@ -159,25 +215,38 @@
   :config
   (lsp-enable-which-key-integration t))
 
-(use-package lsp-ui)	  ; automatically starts along with lsp-mode.
+(use-package lsp-ui
+  :hook (lsp-mode . lsp-ui-mode) 
+  :custom
+  (lsp-ui-doc-position 'bottom))
+
+(use-package lsp-ivy
+  :after lsp)
 
 (use-package company
+  :delight company-mode 
   :custom
   (company-minimum-prefix-length 1)
   (company-idle-delay 0.0)
   :bind (:map lsp-mode-map ("<tab>" . company-indent-or-complete-common)))
 
 (use-package company-box
+  :delight company-box-mode 
   :hook (company-mode . company-box-mode))
 
 (use-package yasnippet
-  :delight yas-minor-mode)
-(use-package yasnippet-snippets) ; load basic snippets from melpa
+  :delight( yas-minor-mode)
+  :after lsp)
+
+(use-package yasnippet-snippets
+  :after yas-minor-mode) ; load basic snippets from melpa
 
 (use-package flycheck
-:delight flycheck-mode)
+  :diminish flycheck-mode
+  :after lsp)
 
 (use-package dap-mode
+:after lsp
 :delight dap-mode)
 
 (setq-default c-basic-offset 4)
@@ -188,40 +257,35 @@
   (local-set-key (kbd "<tab>") #'company-indent-or-complete-common) ;tab comp
   (yas-minor-mode-on)  ; turn on
   (abbrev-mode -1)        ; turn off
-  ;; flycheck -- already running Delighted
-  ;; Dap-mod  -- already running Delighted
   (delight 'c++-mode "C++" "C++//l") ; shorten modeline tag
+  ;; edit the modeline-- not needed for doom-modeline  
+  ;; (diminish 'flycheck-mode)
+  ;; (diminish 'yas-minor-mode)
+  ;; (diminish 'eldoc-mode)
   )
 (add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
 (add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
 
-(use-package elpy
-  :init (elpy-enable) ;enables Elpy in all future python buffers
-  :custom
-  (python-shell-interpreter "ipython")
-  (python-shell-interpreter-args "-i --simple-prompt")
-  (elpy-rpc-python-command "python3")
-  (elpy-shell-echo-output nil)
-  ;(elpy-rpc-backend "jedi")
-  ;; Not sure if the following should really be here
-  (python-shell-completion-native-enable nil)
-  (python-indent-offset 4)
-  (python-indent 4)
-  )
-
 (defun my-python-mode-hook-fn ()
   (smartparens-mode)
-  (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
-  )
-(add-hook 'c-mode-hook #'my-python-mode-hook-fn)
+  (local-set-key (kbd "<tab>") #'company-indent-or-complete-common))
+
+(add-hook 'python-mode-hook #'my-python-mode-hook-fn)
 
 (defun efs/org-mode-setup ()
-        (org-indent-mode)
-        (variable-pitch-mode 1)
-        (visual-line-mode 1)
-        (rainbow-delimiters-mode 1)
-        (projectile-mode -1) 
-)
+  (org-indent-mode)
+  (variable-pitch-mode 1)
+  (visual-line-mode 1)
+  (rainbow-delimiters-mode 1)
+  (projectile-mode -1)
+  ;; edit the modeline-- not needed for doom-modeline
+  ;; (diminish 'visual-line-mode)
+  ;; (diminish 'flyspell-mode)
+  ;; (diminish 'org-indent-mode)
+  ;; (diminish 'buffer-face-mode)
+  ;; (diminish 'yas-minor-mode)
+  ;; (diminish 'eldoc-mode)
+  )
 
 (defun efs/org-font-setup ()
   ;; Replace list hyphen with dot
@@ -251,12 +315,14 @@
   (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 
 (use-package org
-    :hook (org-mode . efs/org-mode-setup)
-    :config
-    (efs/org-font-setup))
+  :commands (org-capture org-agenda)
+  :hook (org-mode . efs/org-mode-setup)
+  :config
+  (efs/org-font-setup)
+  (setq org-image-actual-width nil) ; fix to allow picture resizing
+)
 
 (use-package org-bullets
-  :after org
   :hook (org-mode . org-bullets-mode)
   :custom
   (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
@@ -269,20 +335,20 @@
 (use-package visual-fill-column
   :hook (org-mode . efs/org-mode-visual-fill))
 
-;; This is needed as of Org 9.2
-(require 'org-tempo)
-(add-to-list 'org-structure-template-alist '("sh" . "src sh"))
-(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-(add-to-list 'org-structure-template-alist '("py" . "src python"))
-
-;; setting to allow sizing of JPG and PNGs in org-mode
-(setq org-image-actual-width nil)
+(with-eval-after-load 'org
+  ;; This is needed as of Org 9.2
+  (require 'org-tempo)
+  (add-to-list 'org-structure-template-alist '("sh" . "src sh"))
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  (add-to-list 'org-structure-template-alist '("py" . "src python"))
+)
 
 (use-package eterm-256color
   :hook (term-mode . eterm-256color-mode))
 
 (use-package vterm
   :commands vterm
+  :bind (:map vterm-mode-map ("C-o" . other-window))
   :config
   ;(setq term-prompt-regexp "^[^$]*[$] *");; match your custom shell
 ;;(setq vterm-shell "zsh");; Set this to customize the shell to launch
@@ -292,7 +358,6 @@
 
   (use-package treemacs-icons-dired
     :config (treemacs-icons-dired-mode) )
-
 ;A rather janky mode which lists the recursive size of each foler/item in dired. 
   (use-package dired-du
   :commands du)

@@ -2,6 +2,24 @@
 #+PROPERTY: header-args:emacs-lisp :tangle .emacs.d/init.el
 #+STARTUP: content
 * Setup
+** Startup Performance
+Dial the GC threshold back down so that garbage collection happens more frequently but in less time. Display startup time in *Messages*.
+#+begin_src emacs-lisp 
+;; The default is 800 kilobytes.  Measured in bytes.
+(setq gc-cons-threshold (* 50 1000 1000))
+
+(defun efs/display-startup-time ()
+  (message "Emacs loaded in %s with %d garbage collections."
+           (format "%.2f seconds"
+                   (float-time
+                     (time-subtract after-init-time before-init-time)))
+           gcs-done))
+
+(add-hook 'emacs-startup-hook #'efs/display-startup-time)
+#+end_src
+
+A more advanced garbage collection hack is outlined https://github.com/emacsmirror/gcmh
+
 ** Use-package
 Use-package is like a package manager. [[https://github.com/jwiegley/use-package][Use-Package Documentation]]
 Packages: Elpa is default, Melpa is community.
@@ -10,22 +28,22 @@ Packages: Elpa is default, Melpa is community.
   (require 'package)
 
   (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-			   ("org" . "https://orgmode.org/elpa/")
-			   ("elpa" . "https://elpa.gnu.org/packages/")))
+                           ("org" . "https://orgmode.org/elpa/")
+                           ("elpa" . "https://elpa.gnu.org/packages/")))
 
   (package-initialize)
 
   (unless package-archive-contents
-   (package-refresh-contents))
-         
+    (package-refresh-contents))
+
   ;; Initialize use-package on non-Linux platforms
   (unless (package-installed-p 'use-package)
-     (package-install 'use-package))
+    (package-install 'use-package))
 
   (require 'use-package)
   (setq use-package-always-ensure t) ; no need for :ensure t for each package.
+  (setq use-package-verbose t) ; to display starup messages in *Messages*
 
-  (use-package command-log-mode)
 #+end_src
 
 ** Auto-tangle
@@ -60,20 +78,7 @@ You can also use =M-x auto-package-update-now= to update right now!
     (auto-package-update-at-time "09:00"))
 
 #+end_src
-** Startup Performance
-#+begin_src emacs-lisp 
-;; The default is 800 kilobytes.  Measured in bytes.
-(setq gc-cons-threshold (* 50 1000 1000))
 
-(defun efs/display-startup-time ()
-  (message "Emacs loaded in %s with %d garbage collections."
-           (format "%.2f seconds"
-                   (float-time
-                     (time-subtract after-init-time before-init-time)))
-           gcs-done))
-
-(add-hook 'emacs-startup-hook #'efs/display-startup-time)
-#+end_src
 * General Emacs
 ** UI Configurations
 *** Basic
@@ -114,22 +119,63 @@ Favorites: gruvbox, gruvbox-hard, doom-tomorrow-night, doom-dracula
       :init (load-theme 'gruvbox t))
 #+end_src
 *** Modeline 
-**** Delight
-Enables you to customize the mode names displayed in the mode line.
-#+begin_src emacs-lisp
-(use-package delight)
-#+end_src
-
-**** Doom-modeline (not used)
+**** Doom-modeline
 *NOTE*: The first time you load your configuration on a new machine, you’ll need to run `M-x all-the-icons-install-fonts` so that mode line icons display correctly.
-#+begin_src emacs-lisp  :tangle no
+#+begin_src emacs-lisp  
   (use-package all-the-icons)
   (use-package doom-modeline
     :init (doom-modeline-mode 1)
     :custom ((doom-modeline-height 15)))
 #+end_src
 
-#+RESULTS:
+**** Delight (used?)
+Enables you to customize the mode names displayed in the mode line.
+#+begin_src emacs-lisp
+(use-package delight)
+#+end_src
+
+**** Diminish(used?)
+#+begin_src emacs-lisp
+  (use-package diminish)
+#+end_src
+
+#+begin_src emacs-lisp
+  (defun diminished-modes ()
+    "Echo all active diminished or minor modes as if they were minor.
+The display goes in the echo area; if it's too long even for that,
+you can see the whole thing in the *Messages* buffer.
+This doesn't change the status of any modes; it just lets you see
+what diminished modes would be on the mode-line if they were still minor."
+    (interactive)
+    (let ((minor-modes minor-mode-alist)
+          message)
+      (while minor-modes
+        (when (symbol-value (caar minor-modes))
+          ;; This minor mode is active in this buffer
+          (let* ((mode-pair (car minor-modes))
+                 (mode (car mode-pair))
+                 (minor-pair (or (assq mode diminished-mode-alist) mode-pair))
+                 (minor-name (cadr minor-pair)))
+            (when (symbolp minor-name)
+              ;; This minor mode uses symbol indirection in the cdr
+              (let ((symbols-seen (list minor-name)))
+                (while (and (symbolp (callf symbol-value minor-name))
+                            (not (memq minor-name symbols-seen)))
+                  (push minor-name symbols-seen))))
+            (push minor-name message)))
+        (callf cdr minor-modes))
+      ;; Handle :eval forms
+      (setq message (mapconcat
+                     (lambda (form)
+                       (if (and (listp form) (eq (car form) :eval))
+                           (apply 'eval (cdr form))
+                         form))
+                     (nreverse message) ""))
+      (when (= (string-to-char message) ?\ )
+        (callf substring message 1))
+      (message "%s" message)))
+#+end_src
+
 *** Transparency
 #+begin_src emacs-lisp
    (defun transparency (value)
@@ -140,20 +186,20 @@ Enables you to customize the mode names displayed in the mode line.
   (transparency 94)  ;; Default value generally e [94,96]
 #+end_src
 
-
 ** Input Buffer, Directory Search, and Help
 *** Ivy, Ivy-Rich, and Counsel
 Ivy displays vertical completions of input buffer.
 #+begin_src emacs-lisp
-    (use-package ivy
-      :delight ivy-mode
-      :config
-      (ivy-mode 1))
+  (use-package ivy
+    :delight ivy-mode
+    :config
+    (ivy-mode 1))
 #+end_src
 Ivy-rich provides information to display in input buffer to counsel.
 #+begin_src emacs-lisp
   (use-package ivy-rich
-    :init
+    :after ivy
+    :init  
     (ivy-rich-mode 1))
 #+end_src
 Along with ivy-rich, counsel displays info along with suggestions in input buffer.
@@ -165,12 +211,28 @@ Along with ivy-rich, counsel displays info along with suggestions in input buffe
            ("C-r" . 'counsel-minibuffer-history)
            ))
 #+end_src
+
+**** Improved Candidate Sorting with prescient.el
+prescient.el provides some helpful behavior for sorting Ivy completion candidates based on how recently or frequently you select them. This can be especially helpful when using M-x to run commands that you don’t have bound to a key but still need to access occasionally.
+
+This Prescient configuration is optimized for use in System Crafters videos and streams, check out the video on prescient.el for more details on how to configure it!
+#+begin_src emacs-lisp
+(use-package ivy-prescient
+  :after counsel
+  :custom
+  (ivy-prescient-enable-filtering nil)
+  :config
+  ;; Uncomment the following line to have sorting remembered across sessions!
+  ;(prescient-persist-mode 1)
+  (ivy-prescient-mode 1))
+#+end_src
+
 *** Which-key
 #+begin_src emacs-lisp
   (use-package which-key
+    :defer 0
     :delight which-key-mode  
-    :init (which-key-mode)
-    :config
+    :config(which-key-mode)
     (setq which-key-idle-delay 0.2))
 #+end_src
 
@@ -186,28 +248,28 @@ Along with ivy-rich, counsel displays info along with suggestions in input buffe
 *** Helpful
 Better version of help. Remap normal help keys to Helpful's versions. 
 #+begin_src emacs-lisp
-(use-package helpful
-  :custom
-  (counsel-describe-function-function #'helpful-callable)
-  (counsel-describe-variable-function #'helpful-variable)
-  :bind
-  ([remap describe-function] . counsel-describe-function)
-  ([remap describe-command] . helpful-command)
-  ([remap describe-variable] . counsel-describe-variable)
-  ([remap describe-key] . helpful-key))
+  (use-package helpful
+  :commands (helpful-callable helpful-variavle helpful-command helpful-key)
+    :custom
+    (counsel-describe-function-function #'helpful-callable)
+    (counsel-describe-variable-function #'helpful-variable)
+    :bind
+    ([remap describe-function] . counsel-describe-function)
+    ([remap describe-command] . helpful-command)
+    ([remap describe-variable] . counsel-describe-variable)
+    ([remap describe-key] . helpful-key))
 #+end_src
 
 ** Keybindings
 Make <Esc> quit input prompts.
 #+begin_src emacs-lisp
   (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-  ;; (global-set-key (kbd "C-o") 'other-window)
+  (global-set-key (kbd "C-o") 'other-window)
   (global-set-key (kbd "M-SPC") 'other-window) 
 #+end_src
  
 #+RESULTS: 
 : other-window
-
 
 **** Improve work flow (not used)
 Eventually create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. 
@@ -216,7 +278,8 @@ hydra ties related commands into short bindings with a common prefix.
 * Development 
 ** Rainbow Delimiters
 #+begin_src emacs-lisp
-(use-package rainbow-delimiters)
+  (use-package rainbow-delimiters
+    :hook (prog-mode . rainbow-delimiters-mode))
 #+end_src
 
 ** Smartparens
@@ -230,6 +293,7 @@ Auto-creates closing parenthesis and bar and, smartly, writes it over if it is t
 Git interface. Custom variable 
 #+begin_src emacs-lisp
   (use-package magit
+    :commands (magit-status)
     :custom
     ;display Magit status buffer in the same buffer rather than splitting it. 
     (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
@@ -240,6 +304,7 @@ Allows me to set project-wide commands and variables. [[https://docs.projectile.
 Notably: run, debug, project-variables, grep (and rg).
 #+begin_src emacs-lisp
   (use-package projectile
+    :after lsp
     ;; :delight projectile-mode
     :config (projectile-mode)
     :custom ((projectile-completion-system 'ivy))
@@ -252,6 +317,7 @@ Notably: run, debug, project-variables, grep (and rg).
     (setq projectile-switch-project-action #'projectile-dired))
 
   (use-package counsel-projectile
+    :after projectile-mode
     :config (counsel-projectile-mode))
 #+end_src
 
@@ -269,45 +335,70 @@ Provides language backend to company-mode.
 
 *** lsp-ui
 Provides additional lsp information to the company-mode box.  [[https://emacs-lsp.github.io/lsp-ui/][lsp-ui documentation]]
+The mode provides info when hoovered by mouse.
+*Note:* Functions also display the proceeding comments as documentation
 #+begin_src emacs-lisp  
-  (use-package lsp-ui)	  ; automatically starts along with lsp-mode. 
+  (use-package lsp-ui
+    :hook (lsp-mode . lsp-ui-mode) 
+    :custom
+    (lsp-ui-doc-position 'bottom))
 #+end_src
- 
+
+*** lsp-ivy
+[[https://github.com/emacs-lsp/lsp-ivy][lsp-ivy]] integrates Ivy with =lsp-mode= to make it easy to search for things by name in your code.  When you run these commands, a prompt will appear in the minibuffer allowing you to type part of the name of a symbol in your code.  Results will be populated in the minibuffer so that you can find what you're looking for and jump to that location in the code upon selecting the result.
+
+Try these commands with =M-x=:
+
+- =lsp-ivy-workspace-symbol= - Search for a symbol name in the current project workspace
+- =lsp-ivy-global-workspace-symbol= - Search for a symbol name in all active project workspaces
+
+#+begin_src emacs-lisp
+  (use-package lsp-ivy
+    :after lsp)
+
+#+end_src
 ** Company-Mode
 Currently gets called by lsp-mode by default. //my understanding//: company-mode provides the auto-complete box that lsp provides information to. 
 #+begin_src emacs-lisp  
-  (use-package company
-    :custom
-    (company-minimum-prefix-length 1)
-    (company-idle-delay 0.0)
-    :bind (:map lsp-mode-map ("<tab>" . company-indent-or-complete-common)))
+   (use-package company
+     :delight company-mode 
+     :custom
+     (company-minimum-prefix-length 1)
+     (company-idle-delay 0.0)
+     :bind (:map lsp-mode-map ("<tab>" . company-indent-or-complete-common)))
 #+end_src
 
 *Company-box-mode* brings up a another box with information about the highlighted recommended item in the company/lsp box. 
 #+begin_src emacs-lisp
-  (use-package company-box
-    :hook (company-mode . company-box-mode))
+   (use-package company-box
+     :delight company-box-mode 
+     :hook (company-mode . company-box-mode))
 #+end_src
 
 ** Yasnippet
 #+begin_src emacs-lisp
   (use-package yasnippet
-    :delight yas-minor-mode)
-  (use-package yasnippet-snippets) ; load basic snippets from melpa
+    :delight( yas-minor-mode)
+    :after lsp)
+
+  (use-package yasnippet-snippets
+    :after yas-minor-mode) ; load basic snippets from melpa
 #+end_src
 
 ** Flycheck
 Checks the code for bugs on the fly.
 #+begin_src emacs-lisp
-(use-package flycheck
-:delight flycheck-mode)
+  (use-package flycheck
+    :diminish flycheck-mode
+    :after lsp)
 #+end_src
 
 ** Dap Debugging
 Like lsp-mode but for debuggers. 
 #+begin_src emacs-lisp
-(use-package dap-mode
-:delight dap-mode)
+  (use-package dap-mode
+  :after lsp
+  :delight dap-mode)
 #+end_src
 
 * C++
@@ -322,52 +413,65 @@ LSP-mode works with clangd (which currently is already loaded-- likely from iron
     (local-set-key (kbd "<tab>") #'company-indent-or-complete-common) ;tab comp
     (yas-minor-mode-on)  ; turn on
     (abbrev-mode -1)        ; turn off
-    ;; flycheck -- already running Delighted
-    ;; Dap-mod  -- already running Delighted
     (delight 'c++-mode "C++" "C++//l") ; shorten modeline tag
+    ;; edit the modeline-- not needed for doom-modeline  
+    ;; (diminish 'flycheck-mode)
+    ;; (diminish 'yas-minor-mode)
+    ;; (diminish 'eldoc-mode)
     )
   (add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
   (add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
 #+end_src
 
+#+RESULTS:
+| my-c-c++-mode-hook-fn |
+
 * Python
 As of now, all we use is Elpy. Though, for more continuity with my C++-mode, I'd like replace it with  lsp-mode, dap, yasnippet, flycheck, etc. Video showing how to do this is [[https://www.youtube.com/watch?v=jPXIP46BnNA&t=1s][here]].
 ** Elpy
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp   :tangle no
   (use-package elpy
-    :init (elpy-enable) ;enables Elpy in all future python buffers
+    :init
+    (elpy-enable)
     :custom
     (python-shell-interpreter "ipython")
     (python-shell-interpreter-args "-i --simple-prompt")
     (elpy-rpc-python-command "python3")
     (elpy-shell-echo-output nil)
-    ;(elpy-rpc-backend "jedi")
-    ;; Not sure if the following should really be here
-    (python-shell-completion-native-enable nil)
-    (python-indent-offset 4)
-    (python-indent 4)
-    )
+      ;(elpy-rpc-backend "jedi")
+      ;; Not sure if the following should really be here
+      (python-shell-completion-native-enable nil)
+      (python-indent-offset 4)
+      (python-indent 4)
+      )
 #+end_src
 
 ** Hook
-#+begin_src emacs-lisp    
+#+begin_src emacs-lisp  
   (defun my-python-mode-hook-fn ()
     (smartparens-mode)
-    (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
-    )
-  (add-hook 'c-mode-hook #'my-python-mode-hook-fn)
+    (local-set-key (kbd "<tab>") #'company-indent-or-complete-common))
+
+  (add-hook 'python-mode-hook #'my-python-mode-hook-fn)
 #+end_src
 
 * Org-Mode
 ** Mode setup
 #+begin_src emacs-lisp 
-    (defun efs/org-mode-setup ()
-          (org-indent-mode)
-          (variable-pitch-mode 1)
-          (visual-line-mode 1)
-          (rainbow-delimiters-mode 1)
-          (projectile-mode -1) 
-  )
+  (defun efs/org-mode-setup ()
+    (org-indent-mode)
+    (variable-pitch-mode 1)
+    (visual-line-mode 1)
+    (rainbow-delimiters-mode 1)
+    (projectile-mode -1)
+    ;; edit the modeline-- not needed for doom-modeline
+    ;; (diminish 'visual-line-mode)
+    ;; (diminish 'flyspell-mode)
+    ;; (diminish 'org-indent-mode)
+    ;; (diminish 'buffer-face-mode)
+    ;; (diminish 'yas-minor-mode)
+    ;; (diminish 'eldoc-mode)
+    )
 #+end_src
 
 ** Fonts 
@@ -402,16 +506,18 @@ As of now, all we use is Elpy. Though, for more continuity with my C++-mode, I'd
 
 ** Start
 #+begin_src emacs-lisp
-    (use-package org
-        :hook (org-mode . efs/org-mode-setup)
-        :config
-        (efs/org-font-setup))
+  (use-package org
+    :commands (org-capture org-agenda)
+    :hook (org-mode . efs/org-mode-setup)
+    :config
+    (efs/org-font-setup)
+    (setq org-image-actual-width nil) ; fix to allow picture resizing
+  )  
 #+end_src
 
 ** Bullets
 #+begin_src emacs-lisp 
   (use-package org-bullets
-    :after org
     :hook (org-mode . org-bullets-mode)
     :custom
     (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
@@ -431,21 +537,15 @@ As of now, all we use is Elpy. Though, for more continuity with my C++-mode, I'd
 
 ** Block Templates
 #+begin_src emacs-lisp  
+(with-eval-after-load 'org
   ;; This is needed as of Org 9.2
   (require 'org-tempo)
   (add-to-list 'org-structure-template-alist '("sh" . "src sh"))
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (add-to-list 'org-structure-template-alist '("py" . "src python"))
-
+)
 #+end_src
 
-** Fixes
-#+begin_src emacs-lisp  
-   ;; setting to allow sizing of JPG and PNGs in org-mode
-   (setq org-image-actual-width nil)
-#+end_src
-
-#+RESULTS:
 * Terminals
 ** term-mode
 - Slower than vterm at printing large amounts of information. 
@@ -470,6 +570,7 @@ Faster terminal due to being compiled. Default is a better mode than term-mode; 
 #+begin_src emacs-lisp
   (use-package vterm
     :commands vterm
+    :bind (:map vterm-mode-map ("C-o" . other-window))
     :config
     ;(setq term-prompt-regexp "^[^$]*[$] *");; match your custom shell
   ;;(setq vterm-shell "zsh");; Set this to customize the shell to launch
@@ -477,10 +578,12 @@ Faster terminal due to being compiled. Default is a better mode than term-mode; 
 #+end_src
 
 #+RESULTS:
-: t
+: 10000
+
    
 ** shell-mode
-Between term-mode eshell. 
+Between term-mode eshell.
+
 ** eshell
 More customization in Elisp. Supports Tramp. 
 * File Management
@@ -489,18 +592,16 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]].  Could not use "use-packag
 - "(" toggle file info
 - M-x du  shows the size of the files in the buffer (toggle for human readable)
 #+begin_src emacs-lisp
-  (setq dired-listing-switches "-agho --group-directories-first"); organized info
+    (setq dired-listing-switches "-agho --group-directories-first"); organized info
 
-  (use-package treemacs-icons-dired
-    :config (treemacs-icons-dired-mode) )
-
-;A rather janky mode which lists the recursive size of each foler/item in dired. 
-  (use-package dired-du
-  :commands du)
+    (use-package treemacs-icons-dired
+      :config (treemacs-icons-dired-mode) )
+  ;A rather janky mode which lists the recursive size of each foler/item in dired. 
+    (use-package dired-du
+    :commands du)
 #+end_src
 
-#+RESULTS:
-: du
+
 
 * Localwords
 #  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell  Dired dracula clangd ui
