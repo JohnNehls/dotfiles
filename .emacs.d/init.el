@@ -79,12 +79,11 @@
   (ivy-rich-mode 1))
 
 (use-package counsel
-  :bind (("M-x" . counsel-M-x)
-	 ("C-x b" . counsel-ibuffer)
-	 ("C-x C-f" . counsel-find-file)
-	 :map minibuffer-local-map
-	 ;("C-r" . 'counsel-minibuffer-history)
-	 ))
+  :bind (("M-x" . counsel-M-x)      ; displays ivy-rich info in minibuffer
+         ("C-x C-f" . counsel-find-file)
+         :map minibuffer-local-map
+         ("C-r" . 'counsel-minibuffer-history)
+         ))
 
 (use-package which-key
  :delight which-key-mode  ;remove name from minor mode list
@@ -106,6 +105,8 @@
   ([remap describe-key] . helpful-key))
 
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+
+(use-package rainbow-delimiters)
 
 (use-package smartparens
   :delight smartparens-mode)
