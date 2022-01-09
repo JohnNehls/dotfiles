@@ -55,21 +55,16 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
   (add-hook 'text-mode-hook 'flyspell-mode)  ; enable spellcheck on text mode
   (setq make-backup-files nil)               ; stop creating backup~ files
   (setq auto-save-default nil)               ; stop creating #autosave# files
-  (menu-bar-mode -1)                        ; Disable the menu bar
-
+  (menu-bar-mode -1)                         ; Disable the menu bar
+  (setq visible-bell t)                      ; Set up the visible bell
 
   ;; Open text files in Org-Mode
   (add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode)) 
   (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
-
-  ;; Set up the visible bell
-  (setq visible-bell t)
-
 #+end_src
 
-*** Line numbers 
+*** Line numbers
 #+begin_src emacs-lisp
-    ;Disable line numbers for some modes
      (dolist (mode '(org-mode-hook
                      term-mode-hook
                      shell-mode-hook
@@ -82,24 +77,11 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 #+end_src
 
 *** Theme
-Doom and Greduan's themes seem to be better than built-in themes due to their wide support and definitions. They account for the different modes' nuances.
-Favorites: gruvbox, gruvbox-hard, doom-tomorrow-night
-
+Favorites: gruvbox, gruvbox-hard, doom-tomorrow-night, doom-dracula
 #+begin_src emacs-lisp
   (use-package gruvbox-theme
       :init (load-theme 'gruvbox t))
 #+end_src
-
-*** Transparency
-Use the transparency function defined below to adjust levels during a session. 
-#+begin_src emacs-lisp
- (defun transparency (value)
-   "Sets the transparency of the frame window. 0=transparent/100=opaque"
-   (interactive "nTransparency Value 0 - 100 opaque:")
-   (set-frame-parameter (selected-frame) 'alpha value))
-(transparency 94)  ;; Default value (generally e [94,96]
-#+end_src
-
 *** Modeline 
 **** Delight
 Enables you to customize the mode names displayed in the mode line.
@@ -117,6 +99,17 @@ Enables you to customize the mode names displayed in the mode line.
 #+end_src
 
 #+RESULTS:
+*** Transparency
+#+begin_src emacs-lisp
+   (defun transparency (value)
+     "Sets the transparency of the frame window. 0=transparent/100=opaque"
+     (interactive "nTransparency Value 0 - 100 opaque:")
+     (set-frame-parameter (selected-frame) 'alpha value))
+
+  (transparency 94)  ;; Default value generally e [94,96]
+#+end_src
+
+
 ** Input Buffer, Directory Search, and Help
 *** Ivy, Ivy-Rich, and Counsel
 Ivy displays vertical completions of input buffer.
@@ -144,10 +137,10 @@ Along with ivy-rich, counsel displays info along with suggestions in input buffe
 *** Which-key
 #+begin_src emacs-lisp
   (use-package which-key
-   :delight which-key-mode  ;remove name from minor mode list
+    :delight which-key-mode  
     :init (which-key-mode)
     :config
-    (setq which-key-idle-delay 1.0))
+    (setq which-key-idle-delay 0.2))
 #+end_src
 
 *** Treemacs
@@ -173,35 +166,36 @@ Better version of help. Remap normal help keys to Helpful's versions.
   ([remap describe-key] . helpful-key))
 #+end_src
 
-
 ** Keybindings
-Make <Esc> quit prompts
+Make <Esc> quit input prompts.
 #+begin_src emacs-lisp
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 #+end_src
 
 **** Improve work flow (not used)
 Eventually create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. 
-hydra    ; ties related commands into short bindings with a common prefix
+hydra ties related commands into short bindings with a common prefix.
 
 * Development 
 ** Rainbow Delimiters
 #+begin_src emacs-lisp
 (use-package rainbow-delimiters)
 #+end_src
+
 ** Smartparens
-Auto-creates closing parenthesis and bar and, smartly, writes it over. 
+Auto-creates closing parenthesis and bar and, smartly, writes it over if it is typed.
 #+begin_src emacs-lisp
   (use-package smartparens
     :delight smartparens-mode)
 #+end_src
 
 ** Magit
-Git interface. Custom variable displays Magit status buffer in the same buffer rather than splitting it. 
+Git interface. Custom variable 
 #+begin_src emacs-lisp
-(use-package magit
-  :custom
-  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+  (use-package magit
+    :custom
+    ;display Magit status buffer in the same buffer rather than splitting it. 
+    (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 #+end_src
 
 ** Projectile
@@ -225,7 +219,7 @@ Notably: run, debug, project-variables, grep (and rg).
 #+end_src
 
 ** Language Server Protocol (lsp-mode)
-Provides language backend to company-mode (which is run when lsp is run). 
+Provides language backend to company-mode.
 #+begin_src emacs-lisp  
   (use-package lsp-mode
     :delight lsp-mode
@@ -237,35 +231,36 @@ Provides language backend to company-mode (which is run when lsp is run).
 #+end_src
 
 *** lsp-ui
-Provides advanced help and suggestions to the lsp-mode suggestions. Some info is provided in sideline box. 
-Including:  lsp-ui-sideline, lsp-ui-peek, mouse-hover "help box, etc
-Automatically starts along with lsp-mode.  [[https://emacs-lsp.github.io/lsp-ui/][lsp-ui documentation]]
+Provides advanced suggestions and their help to the lsp-mode suggestions. Some info is provided in sideline box. Including:  lsp-ui-sideline, lsp-ui-peek, mouse-hover "help box, etc           [[https://emacs-lsp.github.io/lsp-ui/][lsp-ui documentation]]
 #+begin_src emacs-lisp  
-  (use-package lsp-ui)
+  (use-package lsp-ui) ; automatically starts along with lsp-mode. 
 #+end_src
 
 ** Company-Mode
-Currently gets called by lsp-mode by default. //my understanding// It is the auto-complete box that lsp provides information to. Company-box-mode brings up a another box with information about the highlighted recommended item in the company/lsp box. 
+Currently gets called by lsp-mode by default. //my understanding//: company-mode provides the auto-complete box that lsp provides information to. 
 #+begin_src emacs-lisp  
   (use-package company
     :custom
     (company-minimum-prefix-length 1)
     (company-idle-delay 0.0)
     :bind (:map lsp-mode-map ("<tab>" . company-indent-or-complete-common)))
+#+end_src
 
+*Company-box-mode* brings up a another box with information about the highlighted recommended item in the company/lsp box. 
+#+begin_src emacs-lisp
   (use-package company-box
     :hook (company-mode . company-box-mode))
-
 #+end_src
 
 ** Yasnippet
 #+begin_src emacs-lisp
   (use-package yasnippet
-    :diminish yas-minor-mode)
+    :delight yas-minor-mode)
   (use-package yasnippet-snippets) ; load basic snippets from melpa
 #+end_src
 
 ** Flycheck
+Checks the code for bugs on the fly.
 #+begin_src emacs-lisp
 (use-package flycheck
 :delight flycheck-mode)
@@ -275,8 +270,7 @@ Currently gets called by lsp-mode by default. //my understanding// It is the aut
 Like lsp-mode but for debuggers. 
 #+begin_src emacs-lisp
 (use-package dap-mode
-:delight dap-mode
-)
+:delight dap-mode)
 #+end_src
 
 * C++
@@ -297,14 +291,7 @@ LSP-mode works with clangd (which currently is already loaded-- likely from iron
     )
   (add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
   (add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
-
 #+end_src
-
-** Future Ideas
-   - lsp-treemacs       ; Tree renderer-- have not explored yet
-   - avy      ; Jumping to visible text using a char-based decision tree
-   - company (with company-fix for fuzzy filtering completion)
-   - eldoc-box -documentation popup under curser for supported modes
 
 * Python
 As of now, all we use is Elpy. Though, for more continuity with my C++-mode, I'd like replace it with  lsp-mode, dap, yasnippet, flycheck, etc. Video showing how to do this is [[https://www.youtube.com/watch?v=jPXIP46BnNA&t=1s][here]].
@@ -465,3 +452,4 @@ More customization in Elisp. Supports Tramp.
 * Localwords
 #  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell   Dired
 
+#  LocalWords:  dracula clangd

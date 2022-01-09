@@ -37,18 +37,14 @@
 (add-hook 'text-mode-hook 'flyspell-mode)  ; enable spellcheck on text mode
 (setq make-backup-files nil)               ; stop creating backup~ files
 (setq auto-save-default nil)               ; stop creating #autosave# files
-(menu-bar-mode -1)                        ; Disable the menu bar
-
+(menu-bar-mode -1)                         ; Disable the menu bar
+(setq visible-bell t)                      ; Set up the visible bell
 
 ;; Open text files in Org-Mode
 (add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode)) 
 (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
 
-;; Set up the visible bell
-(setq visible-bell t)
-
-;Disable line numbers for some modes
- (dolist (mode '(org-mode-hook
+(dolist (mode '(org-mode-hook
                  term-mode-hook
                  shell-mode-hook
                  treemacs-mode-hook
@@ -61,13 +57,14 @@
 (use-package gruvbox-theme
     :init (load-theme 'gruvbox t))
 
+(use-package delight)
+
 (defun transparency (value)
    "Sets the transparency of the frame window. 0=transparent/100=opaque"
    (interactive "nTransparency Value 0 - 100 opaque:")
    (set-frame-parameter (selected-frame) 'alpha value))
-(transparency 94)  ;; Default value (generally e [94,96]
 
-(use-package delight)
+(transparency 94)  ;; Default value generally e [94,96]
 
 (use-package ivy
   :delight ivy-mode
@@ -86,10 +83,10 @@
          ))
 
 (use-package which-key
- :delight which-key-mode  ;remove name from minor mode list
+  :delight which-key-mode  
   :init (which-key-mode)
   :config
-  (setq which-key-idle-delay 1.0))
+  (setq which-key-idle-delay 0.2))
 
 (use-package lsp-treemacs
   :after lsp)
@@ -113,6 +110,7 @@
 
 (use-package magit
   :custom
+  ;display Magit status buffer in the same buffer rather than splitting it. 
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
 (use-package projectile
@@ -138,7 +136,7 @@
   :config
   (lsp-enable-which-key-integration t))
 
-(use-package lsp-ui)
+(use-package lsp-ui) ; automatically starts along with lsp-mode.
 
 (use-package company
   :custom
@@ -150,15 +148,14 @@
   :hook (company-mode . company-box-mode))
 
 (use-package yasnippet
-  :diminish yas-minor-mode)
+  :delight yas-minor-mode)
 (use-package yasnippet-snippets) ; load basic snippets from melpa
 
 (use-package flycheck
 :delight flycheck-mode)
 
 (use-package dap-mode
-:delight dap-mode
-)
+:delight dap-mode)
 
 (setq-default c-basic-offset 4)
 
