@@ -326,7 +326,7 @@ Provides language backend to company-mode.
 #+begin_src emacs-lisp  
   (use-package lsp-mode
     :delight lsp-mode
-    :commands (lsp)
+    :commands (lsp lsp-deferred)
     :init
     (setq lsp-keymap-prefix "C-c l") ;; or "C-l"
     :config
@@ -427,7 +427,6 @@ LSP-mode works with clangd (which currently is already loaded-- likely from iron
 | my-c-c++-mode-hook-fn |
 
 * Python
-As of now, all we use is Elpy. Though, for more continuity with my C++-mode, I'd like replace it with  lsp-mode, dap, yasnippet, flycheck, etc. Video showing how to do this is [[https://www.youtube.com/watch?v=jPXIP46BnNA&t=1s][here]].
 ** Elpy
 #+begin_src emacs-lisp   :tangle no
   (use-package elpy
@@ -444,6 +443,28 @@ As of now, all we use is Elpy. Though, for more continuity with my C++-mode, I'd
       (python-indent-offset 4)
       (python-indent 4)
       )
+#+end_src
+** Python-mode
+*** MS Language Server
+ #+begin_src emacs-lisp
+     (use-package lsp-python-ms
+       :init (setq lsp-python-ms-auto-install-server t)
+       :hook (python-mode . (lambda ()
+                               (require 'lsp-python-ms)
+                               (lsp))))  ; or lsp-deferred
+ #+end_src
+
+ 
+*** Setup
+#+begin_src emacs-lisp   
+  (use-package python-mode  
+    :ensure nil  ; don't install, use the pre-installed version. 
+    :custom
+    (dap-python-debugger 'debugpy)
+    :config
+    (require 'dap-python)
+    ; this command doesn't work BUT without, python-mode "won't load".
+    :bind (:map python-mode-map ("C-RET" . python-shell-send-statement)))
 #+end_src
 
 ** Hook
@@ -592,15 +613,18 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]].  Could not use "use-packag
 - "(" toggle file info
 - M-x du  shows the size of the files in the buffer (toggle for human readable)
 #+begin_src emacs-lisp
-    (setq dired-listing-switches "-agho --group-directories-first"); organized info
+  (use-package dired
+    :ensure nil
+    :custom  (setq dired-listing-switches "-agho --group-directories-first"))
 
-    (use-package treemacs-icons-dired
-      :config (treemacs-icons-dired-mode) )
-  ;A rather janky mode which lists the recursive size of each foler/item in dired. 
-    (use-package dired-du
-    :commands du)
+      (use-package treemacs-icons-dired
+        :config (treemacs-icons-dired-mode) )
+    ;A rather janky mode which lists the recursive size of each foler/item in dired. 
+      (use-package dired-du
+      :commands du)
 #+end_src
 
+#+RESULTS:
 
 
 * Localwords

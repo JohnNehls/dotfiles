@@ -209,7 +209,7 @@ what diminished modes would be on the mode-line if they were still minor."
 
 (use-package lsp-mode
   :delight lsp-mode
-  :commands (lsp)
+  :commands (lsp lsp-deferred)
   :init
   (setq lsp-keymap-prefix "C-c l") ;; or "C-l"
   :config
@@ -265,6 +265,21 @@ what diminished modes would be on the mode-line if they were still minor."
   )
 (add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
 (add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
+
+(use-package lsp-python-ms
+  :init (setq lsp-python-ms-auto-install-server t)
+  :hook (python-mode . (lambda ()
+                          (require 'lsp-python-ms)
+                          (lsp))))  ; or lsp-deferred
+
+(use-package python-mode  
+  :ensure nil  ; don't install, use the pre-installed version. 
+  :custom
+  (dap-python-debugger 'debugpy)
+  :config
+  (require 'dap-python)
+  ; this command doesn't work BUT without, python-mode "won't load".
+  :bind (:map python-mode-map ("C-RET" . python-shell-send-statement)))
 
 (defun my-python-mode-hook-fn ()
   (smartparens-mode)
@@ -354,10 +369,12 @@ what diminished modes would be on the mode-line if they were still minor."
 ;;(setq vterm-shell "zsh");; Set this to customize the shell to launch
   (setq vterm-max-scrollback 10000))
 
-(setq dired-listing-switches "-agho --group-directories-first"); organized info
+(use-package dired
+  :ensure nil
+  :custom  (setq dired-listing-switches "-agho --group-directories-first"))
 
-  (use-package treemacs-icons-dired
-    :config (treemacs-icons-dired-mode) )
-;A rather janky mode which lists the recursive size of each foler/item in dired. 
-  (use-package dired-du
-  :commands du)
+    (use-package treemacs-icons-dired
+      :config (treemacs-icons-dired-mode) )
+  ;A rather janky mode which lists the recursive size of each foler/item in dired. 
+    (use-package dired-du
+    :commands du)
