@@ -1,6 +1,3 @@
-;; The default is 800 kilobytes.  Measured in bytes.
-(setq gc-cons-threshold (* 50 1000 1000))
-
 (defun efs/display-startup-time ()
   (message "Emacs loaded in %s with %d garbage collections."
            (format "%.2f seconds"
@@ -28,7 +25,13 @@
 
 (require 'use-package)
 (setq use-package-always-ensure t) ; no need for :ensure t for each package.
-(setq use-package-verbose t) ; to display starup messages in *Messages*
+(setq use-package-verbose t) ; log configure/loading messages in *Messages*
+
+(use-package gcmh
+ :ensure t
+ :config (gcmh-mode 1)
+ ;; :custom (gcmh-verbose t)
+ )
 
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun efs/org-babel-tangle-config ()
@@ -51,18 +54,42 @@
 
 (setq inhibit-startup-message t)           ; inhibit startup message
 (tool-bar-mode -1)                         ; remove toolbar
+(menu-bar-mode -1)                         ; Disable the menu bar
 (scroll-bar-mode -1)                       ; remove side scrollbar
 (tooltip-mode -1)                          ; Disable tooltips
 (set-fringe-mode 10)                       ; Give some breathing room
 (add-hook 'text-mode-hook 'flyspell-mode)  ; enable spellcheck on text mode
-(setq make-backup-files nil)               ; stop creating backup~ files
-(setq auto-save-default nil)               ; stop creating #autosave# files
-(menu-bar-mode -1)                         ; Disable the menu bar
+
 (setq visible-bell t)                      ; Set up the visible bell
 
 ;; Open text files in Org-Mode
 (add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode)) 
 (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
+
+(use-package emacs
+  :custom
+  ;; Fully redraw the display before it processes queued input events.
+  (redisplay-dont-pause            t)
+  ;; Number of lines of continuity to retain when scrolling by full screens
+  (next-screen-context-lines       2)
+  (scroll-conservatively       10000) ;; only 'jump' when moving this far off the screen
+  (scroll-step                     1) ;; Keyboard scroll one line at a time
+  (mouse-wheel-progressive-speed nil) ;; Don't accelerate scrolling
+  (mouse-wheel-follow-mouse        t) ;; Scroll window under mouse
+  (fast-but-imprecise-scrolling    t) ;; No (less) lag while scrolling lots.
+  (auto-window-vscroll           nil) ;; Cursor move faster
+  )
+
+(use-package good-scroll
+:config (good-scroll-mode 1))
+
+(use-package undo-tree
+  :defer 2
+  :config
+  (global-undo-tree-mode 1))
+
+(setq make-backup-files nil)               ; stop creating backup~ files
+(setq auto-save-default nil)               ; stop creating #autosave# files
 
 (dolist (mode '(org-mode-hook
                  term-mode-hook
@@ -75,51 +102,12 @@
 (global-display-line-numbers-mode t)     ; Puts line numbers on ALL buffers
 
 (use-package gruvbox-theme
-    :init (load-theme 'gruvbox t))
+    :init (load-theme 'gruvbox-dark-hard t))
 
 (use-package all-the-icons)
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
   :custom ((doom-modeline-height 15)))
-
-(use-package delight)
-
-(use-package diminish)
-
-(defun diminished-modes ()
-    "Echo all active diminished or minor modes as if they were minor.
-The display goes in the echo area; if it's too long even for that,
-you can see the whole thing in the *Messages* buffer.
-This doesn't change the status of any modes; it just lets you see
-what diminished modes would be on the mode-line if they were still minor."
-    (interactive)
-    (let ((minor-modes minor-mode-alist)
-          message)
-      (while minor-modes
-        (when (symbol-value (caar minor-modes))
-          ;; This minor mode is active in this buffer
-          (let* ((mode-pair (car minor-modes))
-                 (mode (car mode-pair))
-                 (minor-pair (or (assq mode diminished-mode-alist) mode-pair))
-                 (minor-name (cadr minor-pair)))
-            (when (symbolp minor-name)
-              ;; This minor mode uses symbol indirection in the cdr
-              (let ((symbols-seen (list minor-name)))
-                (while (and (symbolp (callf symbol-value minor-name))
-                            (not (memq minor-name symbols-seen)))
-                  (push minor-name symbols-seen))))
-            (push minor-name message)))
-        (callf cdr minor-modes))
-      ;; Handle :eval forms
-      (setq message (mapconcat
-                     (lambda (form)
-                       (if (and (listp form) (eq (car form) :eval))
-                           (apply 'eval (cdr form))
-                         form))
-                     (nreverse message) ""))
-      (when (= (string-to-char message) ?\ )
-        (callf substring message 1))
-      (message "%s" message)))
 
 (defun transparency (value)
    "Sets the transparency of the frame window. 0=transparent/100=opaque"
@@ -128,10 +116,21 @@ what diminished modes would be on the mode-line if they were still minor."
 
 (transparency 94)  ;; Default value generally e [94,96]
 
+(use-package ws-butler
+  :hook ((text-mode . ws-butler-mode)
+         (prog-mode . ws-butler-mode)))
+
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+(use-package goto-last-change
+  :bind (("C-;" . goto-last-change)))
+
 (use-package ivy
   :delight ivy-mode
   :config
-  (ivy-mode 1))
+  (ivy-mode 1)
+  ;; remove ^ on the inputbuffer
+  (setq ivy-initial-inputs-alist nil))
 
 (use-package ivy-rich
   :after ivy
@@ -151,14 +150,14 @@ what diminished modes would be on the mode-line if they were still minor."
   (ivy-prescient-enable-filtering nil)
   :config
   ;; Uncomment the following line to have sorting remembered across sessions!
-  ;(prescient-persist-mode 1)
+  (prescient-persist-mode 1)
   (ivy-prescient-mode 1))
 
 (use-package which-key
   :defer 0
   :delight which-key-mode  
   :config(which-key-mode)
-  (setq which-key-idle-delay 0.2))
+  (setq which-key-idle-delay 0.8))
 
 (use-package lsp-treemacs
   :after lsp)
@@ -176,13 +175,14 @@ what diminished modes would be on the mode-line if they were still minor."
 
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 (global-set-key (kbd "C-o") 'other-window)
-(global-set-key (kbd "M-SPC") 'other-window)
+;; (global-set-key (kbd "M-SPC") 'other-window)
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
 
 (use-package smartparens
-  :delight smartparens-mode)
+  :delight smartparens-mode
+  :hook (prog-mode . rainbow-delimiters-mode))
 
 (use-package magit
   :commands (magit-status)
@@ -212,11 +212,12 @@ what diminished modes would be on the mode-line if they were still minor."
   :commands (lsp lsp-deferred)
   :init
   (setq lsp-keymap-prefix "C-c l") ;; or "C-l"
+  :custom ((lsp-idle-delay 2.0))
   :config
   (lsp-enable-which-key-integration t))
 
 (use-package lsp-ui
-  :hook (lsp-mode . lsp-ui-mode) 
+  :hook (lsp-mode . lsp-ui-mode) ; for elpy
   :custom
   (lsp-ui-doc-position 'bottom))
 
@@ -224,7 +225,7 @@ what diminished modes would be on the mode-line if they were still minor."
   :after lsp)
 
 (use-package company
-  :delight company-mode 
+  :after lsp
   :custom
   (company-minimum-prefix-length 1)
   (company-idle-delay 0.0)
@@ -233,6 +234,12 @@ what diminished modes would be on the mode-line if they were still minor."
 (use-package company-box
   :delight company-box-mode 
   :hook (company-mode . company-box-mode))
+
+(use-package company-prescient
+  :defer 2
+  :after company
+  :config
+  (company-prescient-mode +1))
 
 (use-package yasnippet
   :delight( yas-minor-mode)
@@ -246,42 +253,49 @@ what diminished modes would be on the mode-line if they were still minor."
   :after lsp)
 
 (use-package dap-mode
-:after lsp
-:delight dap-mode)
+  :commands dap-mode)
+
+(use-package evil-nerd-commenter
+:bind ("M-;". evilnc-comment-or-uncomment-lines))
+
+(use-package smart-compile
+  :commands smart-compile)
 
 (setq-default c-basic-offset 4)
 
 (defun my-c-c++-mode-hook-fn ()
   (lsp)                ; turn on
+  (smart-compile)
   (smartparens-mode)   ; turn on
   (local-set-key (kbd "<tab>") #'company-indent-or-complete-common) ;tab comp
   (yas-minor-mode-on)  ; turn on
   (abbrev-mode -1)        ; turn off
-  (delight 'c++-mode "C++" "C++//l") ; shorten modeline tag
-  ;; edit the modeline-- not needed for doom-modeline  
-  ;; (diminish 'flycheck-mode)
-  ;; (diminish 'yas-minor-mode)
-  ;; (diminish 'eldoc-mode)
   )
 (add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
 (add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
 
-(use-package lsp-python-ms
-  :init (setq lsp-python-ms-auto-install-server t)
-  :hook (python-mode . (lambda ()
-                          (require 'lsp-python-ms)
-                          (lsp))))  ; or lsp-deferred
+; npm must be installed on the system.
+  (use-package lsp-pyright
+    :after lsp
+    :hook (python-mode . (lambda ()
+                            (require 'lsp-pyright)
+                            (lsp))))  ; or lsp-deferred
 
-(use-package python-mode  
-  :ensure nil  ; don't install, use the pre-installed version. 
+;; configure pythong-mode
+(use-package python-mode
+  :ensure nil ; don't install, use the pre-installed version
+
   :custom
-  (dap-python-debugger 'debugpy)
-  :config
-  (require 'dap-python)
-  ; this command doesn't work BUT without, python-mode "won't load".
-  :bind (:map python-mode-map ("C-RET" . python-shell-send-statement)))
+  (python-shell-completion-native-enable 1)
+  (python-shell-interpreter "ipython")
+  (python-shell-interpreter-args "-i --simple-prompt")
+                                        ; this command doesn't work BUT without, python-mode "won't load".
+  :bind (:map python-mode-map ("C-RET" . python-shell-send-statement))
+  )
 
 (defun my-python-mode-hook-fn ()
+  (lsp)
+  (company-mode 1)
   (smartparens-mode)
   (local-set-key (kbd "<tab>") #'company-indent-or-complete-common))
 
@@ -350,14 +364,6 @@ what diminished modes would be on the mode-line if they were still minor."
 (use-package visual-fill-column
   :hook (org-mode . efs/org-mode-visual-fill))
 
-(with-eval-after-load 'org
-  ;; This is needed as of Org 9.2
-  (require 'org-tempo)
-  (add-to-list 'org-structure-template-alist '("sh" . "src sh"))
-  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-  (add-to-list 'org-structure-template-alist '("py" . "src python"))
-)
-
 (use-package eterm-256color
   :hook (term-mode . eterm-256color-mode))
 
@@ -370,11 +376,14 @@ what diminished modes would be on the mode-line if they were still minor."
   (setq vterm-max-scrollback 10000))
 
 (use-package dired
-  :ensure nil
-  :custom  (setq dired-listing-switches "-agho --group-directories-first"))
+   :ensure nil
+   :commands dired
+   :custom  (setq dired-listing-switches "-agho --group-directories-first"))
 
-    (use-package treemacs-icons-dired
-      :config (treemacs-icons-dired-mode) )
-  ;A rather janky mode which lists the recursive size of each foler/item in dired. 
-    (use-package dired-du
-    :commands du)
+ (use-package treemacs-icons-dired
+   :after dired
+   :config (treemacs-icons-dired-mode) )
+
+;A rather janky mode which lists the recursive size of each foler/item in dired. 
+ (use-package dired-du
+   :commands du)

@@ -1,28 +1,22 @@
 #+TITLE: Emacs Configuration
 #+PROPERTY: header-args:emacs-lisp :tangle .emacs.d/init.el
-#+STARTUP: content
+#+STARTUP: overview
 * Setup
-** Startup Performance
-Dial the GC threshold back down so that garbage collection happens more frequently but in less time. Display startup time in *Messages*.
-#+begin_src emacs-lisp 
-;; The default is 800 kilobytes.  Measured in bytes.
-(setq gc-cons-threshold (* 50 1000 1000))
+** Startup Timer
+#+begin_src emacs-lisp
+  (defun efs/display-startup-time ()
+    (message "Emacs loaded in %s with %d garbage collections."
+             (format "%.2f seconds"
+                     (float-time
+                       (time-subtract after-init-time before-init-time)))
+             gcs-done))
 
-(defun efs/display-startup-time ()
-  (message "Emacs loaded in %s with %d garbage collections."
-           (format "%.2f seconds"
-                   (float-time
-                     (time-subtract after-init-time before-init-time)))
-           gcs-done))
-
-(add-hook 'emacs-startup-hook #'efs/display-startup-time)
+  (add-hook 'emacs-startup-hook #'efs/display-startup-time)
 #+end_src
-
-A more advanced garbage collection hack is outlined https://github.com/emacsmirror/gcmh
 
 ** Use-package
 Use-package is like a package manager. [[https://github.com/jwiegley/use-package][Use-Package Documentation]]
-Packages: Elpa is default, Melpa is community.
+Package archives: Elpa is default, Melpa is community.
 #+begin_src emacs-lisp
   ;; Initialize package sources
   (require 'package)
@@ -42,13 +36,22 @@ Packages: Elpa is default, Melpa is community.
 
   (require 'use-package)
   (setq use-package-always-ensure t) ; no need for :ensure t for each package.
-  (setq use-package-verbose t) ; to display starup messages in *Messages*
+  (setq use-package-verbose t) ; log configure/loading messages in *Messages*
+#+end_src
 
+** Startup Performance
+A more advanced garbage collection "hack". https://github.com/emacsmirror/gcmh
+For me this does not speed up anything.
+#+begin_src emacs-lisp
+  (use-package gcmh
+   :ensure t
+   :config (gcmh-mode 1)
+   ;; :custom (gcmh-verbose t)
+   )
 #+end_src
 
 ** Auto-tangle
 This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-config= gets executed each time such a buffer gets saved.  This function checks to see if the file being saved is the Emacs.org file you're looking at right now, and if so, automatically exports the configuration here to the associated output files.
-
 #+begin_src emacs-lisp
   ;; Automatically tangle our Emacs.org config file when we save it
   (defun efs/org-babel-tangle-config ()
@@ -60,6 +63,7 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 
   (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 #+end_src
+
 
 ** Automatic Package Updates
 The auto-package-update package helps us keep Emacs packages up to date.  It will prompt you after a certain number of days either at startup or at a specific time of day to remind you to update your packages.
@@ -85,18 +89,58 @@ You can also use =M-x auto-package-update-now= to update right now!
 #+begin_src emacs-lisp
   (setq inhibit-startup-message t)           ; inhibit startup message
   (tool-bar-mode -1)                         ; remove toolbar
+  (menu-bar-mode -1)                         ; Disable the menu bar
   (scroll-bar-mode -1)                       ; remove side scrollbar
   (tooltip-mode -1)                          ; Disable tooltips
   (set-fringe-mode 10)                       ; Give some breathing room
   (add-hook 'text-mode-hook 'flyspell-mode)  ; enable spellcheck on text mode
-  (setq make-backup-files nil)               ; stop creating backup~ files
-  (setq auto-save-default nil)               ; stop creating #autosave# files
-  (menu-bar-mode -1)                         ; Disable the menu bar
+
   (setq visible-bell t)                      ; Set up the visible bell
 
   ;; Open text files in Org-Mode
   (add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode)) 
   (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
+#+end_src
+
+*** Scrolling
+#+begin_src emacs-lisp
+  (use-package emacs
+    :custom
+    ;; Fully redraw the display before it processes queued input events.
+    (redisplay-dont-pause            t)
+    ;; Number of lines of continuity to retain when scrolling by full screens
+    (next-screen-context-lines       2)
+    (scroll-conservatively       10000) ;; only 'jump' when moving this far off the screen
+    (scroll-step                     1) ;; Keyboard scroll one line at a time
+    (mouse-wheel-progressive-speed nil) ;; Don't accelerate scrolling
+    (mouse-wheel-follow-mouse        t) ;; Scroll window under mouse
+    (fast-but-imprecise-scrolling    t) ;; No (less) lag while scrolling lots.
+    (auto-window-vscroll           nil) ;; Cursor move faster
+    )
+#+end_src
+
+
+#+begin_src emacs-lisp
+  (use-package good-scroll
+  :config (good-scroll-mode 1))
+#+end_src
+
+*** Better undo
+    - =C-x u= visualizes undo history as a tree for easy navigation
+    - =C-_= undo
+    - =M-_= redo
+#+begin_src emacs-lisp
+  (use-package undo-tree
+    :defer 2
+    :config
+    (global-undo-tree-mode 1))
+#+end_src
+
+*** TODO Backup files
+As of now I eliminate the creation of backup files with the following steps. A better solution would be to "clean up" the files by creating the backup files in =.emacs.d= rather than the local directory. Daviwill does this in his configuration.
+#+begin_src emacs-lisp
+  (setq make-backup-files nil)               ; stop creating backup~ files
+  (setq auto-save-default nil)               ; stop creating #autosave# files
 #+end_src
 
 *** Line numbers
@@ -116,11 +160,12 @@ You can also use =M-x auto-package-update-now= to update right now!
 Favorites: gruvbox, gruvbox-hard, doom-tomorrow-night, doom-dracula
 #+begin_src emacs-lisp
   (use-package gruvbox-theme
-      :init (load-theme 'gruvbox t))
+      :init (load-theme 'gruvbox-dark-hard t))
 #+end_src
+
 *** Modeline 
 **** Doom-modeline
-*NOTE*: The first time you load your configuration on a new machine, you’ll need to run `M-x all-the-icons-install-fonts` so that mode line icons display correctly.
+*NOTE*: The first time you load your configuration on a new machine, you’ll need to run =M-x all-the-icons-install-fonts= so that mode line icons display correctly.
 #+begin_src emacs-lisp  
   (use-package all-the-icons)
   (use-package doom-modeline
@@ -130,50 +175,13 @@ Favorites: gruvbox, gruvbox-hard, doom-tomorrow-night, doom-dracula
 
 **** Delight (used?)
 Enables you to customize the mode names displayed in the mode line.
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp  :tangle no
 (use-package delight)
 #+end_src
 
 **** Diminish(used?)
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp  :tangle no
   (use-package diminish)
-#+end_src
-
-#+begin_src emacs-lisp
-  (defun diminished-modes ()
-    "Echo all active diminished or minor modes as if they were minor.
-The display goes in the echo area; if it's too long even for that,
-you can see the whole thing in the *Messages* buffer.
-This doesn't change the status of any modes; it just lets you see
-what diminished modes would be on the mode-line if they were still minor."
-    (interactive)
-    (let ((minor-modes minor-mode-alist)
-          message)
-      (while minor-modes
-        (when (symbol-value (caar minor-modes))
-          ;; This minor mode is active in this buffer
-          (let* ((mode-pair (car minor-modes))
-                 (mode (car mode-pair))
-                 (minor-pair (or (assq mode diminished-mode-alist) mode-pair))
-                 (minor-name (cadr minor-pair)))
-            (when (symbolp minor-name)
-              ;; This minor mode uses symbol indirection in the cdr
-              (let ((symbols-seen (list minor-name)))
-                (while (and (symbolp (callf symbol-value minor-name))
-                            (not (memq minor-name symbols-seen)))
-                  (push minor-name symbols-seen))))
-            (push minor-name message)))
-        (callf cdr minor-modes))
-      ;; Handle :eval forms
-      (setq message (mapconcat
-                     (lambda (form)
-                       (if (and (listp form) (eq (car form) :eval))
-                           (apply 'eval (cdr form))
-                         form))
-                     (nreverse message) ""))
-      (when (= (string-to-char message) ?\ )
-        (callf substring message 1))
-      (message "%s" message)))
 #+end_src
 
 *** Transparency
@@ -186,6 +194,28 @@ what diminished modes would be on the mode-line if they were still minor."
   (transparency 94)  ;; Default value generally e [94,96]
 #+end_src
 
+*** Auto-clean white space
+#+begin_src emacs-lisp
+(use-package ws-butler
+  :hook ((text-mode . ws-butler-mode)
+         (prog-mode . ws-butler-mode)))
+#+end_src
+** Preferences
+Make  =yes or no= prompts shorter
+#+begin_src emacs-lisp
+(defalias 'yes-or-no-p 'y-or-n-p)
+#+end_src
+
+** Goto last change
+Sometimes it's useful to step to the last change in a buffer.
+#+begin_src emacs-lisp
+(use-package goto-last-change
+  :bind (("C-;" . goto-last-change)))
+#+end_src
+
+#+RESULTS:
+: goto-last-change
+
 ** Input Buffer, Directory Search, and Help
 *** Ivy, Ivy-Rich, and Counsel
 Ivy displays vertical completions of input buffer.
@@ -193,8 +223,14 @@ Ivy displays vertical completions of input buffer.
   (use-package ivy
     :delight ivy-mode
     :config
-    (ivy-mode 1))
+    (ivy-mode 1)
+    ;; remove ^ on the inputbuffer
+    (setq ivy-initial-inputs-alist nil))
 #+end_src
+
+#+RESULTS:
+: t
+
 Ivy-rich provides information to display in input buffer to counsel.
 #+begin_src emacs-lisp
   (use-package ivy-rich
@@ -202,7 +238,7 @@ Ivy-rich provides information to display in input buffer to counsel.
     :init  
     (ivy-rich-mode 1))
 #+end_src
-Along with ivy-rich, counsel displays info along with suggestions in input buffer.
+Counsel displays ivy-rich info along with suggestions in input buffer. Remember =M-o= allows access of help in input buffer. 
 #+begin_src emacs-lisp
   (use-package counsel
     :bind (("M-x" . counsel-M-x)      ; displays ivy-rich info in minibuffer
@@ -212,19 +248,18 @@ Along with ivy-rich, counsel displays info along with suggestions in input buffe
            ))
 #+end_src
 
-**** Improved Candidate Sorting with prescient.el
 prescient.el provides some helpful behavior for sorting Ivy completion candidates based on how recently or frequently you select them. This can be especially helpful when using M-x to run commands that you don’t have bound to a key but still need to access occasionally.
 
 This Prescient configuration is optimized for use in System Crafters videos and streams, check out the video on prescient.el for more details on how to configure it!
 #+begin_src emacs-lisp
-(use-package ivy-prescient
-  :after counsel
-  :custom
-  (ivy-prescient-enable-filtering nil)
-  :config
-  ;; Uncomment the following line to have sorting remembered across sessions!
-  ;(prescient-persist-mode 1)
-  (ivy-prescient-mode 1))
+  (use-package ivy-prescient
+    :after counsel
+    :custom
+    (ivy-prescient-enable-filtering nil)
+    :config
+    ;; Uncomment the following line to have sorting remembered across sessions!
+    (prescient-persist-mode 1)
+    (ivy-prescient-mode 1))
 #+end_src
 
 *** Which-key
@@ -233,11 +268,11 @@ This Prescient configuration is optimized for use in System Crafters videos and 
     :defer 0
     :delight which-key-mode  
     :config(which-key-mode)
-    (setq which-key-idle-delay 0.2))
+    (setq which-key-idle-delay 0.8))
 #+end_src
 
 *** Treemacs
-- treemacs shows folder contents.
+- Treemacs shows folder contents.
 - lsp-treemacs-symbols shows file contents: classes functions etc
 - lsp-treemacs-references 
 #+begin_src emacs-lisp
@@ -246,7 +281,7 @@ This Prescient configuration is optimized for use in System Crafters videos and 
 #+end_src
 
 *** Helpful
-Better version of help. Remap normal help keys to Helpful's versions. 
+Better version of help. We remap normal help keys to Helpful's versions. 
 #+begin_src emacs-lisp
   (use-package helpful
   :commands (helpful-callable helpful-variavle helpful-command helpful-key)
@@ -261,20 +296,35 @@ Better version of help. Remap normal help keys to Helpful's versions.
 #+end_src
 
 ** Keybindings
-Make <Esc> quit input prompts.
 #+begin_src emacs-lisp
   (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
   (global-set-key (kbd "C-o") 'other-window)
-  (global-set-key (kbd "M-SPC") 'other-window) 
+  ;; (global-set-key (kbd "M-SPC") 'other-window)
 #+end_src
  
-#+RESULTS: 
-: other-window
+Future: create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. hydra ties related commands into short bindings with a common prefix.
 
-**** Improve work flow (not used)
-Eventually create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. 
-hydra ties related commands into short bindings with a common prefix.
+* TODO Grammarly
+There looks to be several packages at the moment. Top two (as of 1/10/22) are installed here without proper hooks. 
+** flycheck-grammarly   
+Works w/o being logged in.                         [[https://github.com/emacs-grammarly/flycheck-grammarly][flycheck-grammarly doc]]
+#+begin_src emacs-lisp  :tangle no
+  (use-package flycheck-grammarly
+  :config
+  (setq flycheck-grammarly-check-time 0.8)
+#+end_src
 
+**  lsp-grammarly
+Gives warning on startup for login.    [[ https://github.com/emacs-grammarly/lsp-grammarly][lsp-grammarly doc]]
+#+begin_src emacs-lisp  :tangle no
+  (use-package lsp-grammarly
+  :ensure t
+  :hook (text-mode . (lambda ()
+                       (require 'lsp-grammarly)
+                       (lsp))))  ; or lsp-deferred
+#+end_src
+
+#+RESULTS:
 * Development 
 ** Rainbow Delimiters
 #+begin_src emacs-lisp
@@ -286,11 +336,12 @@ hydra ties related commands into short bindings with a common prefix.
 Auto-creates closing parenthesis and bar and, smartly, writes it over if it is typed.
 #+begin_src emacs-lisp
   (use-package smartparens
-    :delight smartparens-mode)
+    :delight smartparens-mode
+    :hook (prog-mode . rainbow-delimiters-mode))
 #+end_src
 
 ** Magit
-Git interface. Custom variable 
+[[https://magit.vc/][Magit Documentation]]
 #+begin_src emacs-lisp
   (use-package magit
     :commands (magit-status)
@@ -321,7 +372,8 @@ Notably: run, debug, project-variables, grep (and rg).
     :config (counsel-projectile-mode))
 #+end_src
 
-** Language Server Protocol (lsp-mode)
+** lsp-mode
+*** lsp-mode
 Provides language backend to company-mode.
 #+begin_src emacs-lisp  
   (use-package lsp-mode
@@ -329,17 +381,20 @@ Provides language backend to company-mode.
     :commands (lsp lsp-deferred)
     :init
     (setq lsp-keymap-prefix "C-c l") ;; or "C-l"
+    :custom ((lsp-idle-delay 2.0))
     :config
     (lsp-enable-which-key-integration t))
+
+
 #+end_src
 
 *** lsp-ui
-Provides additional lsp information to the company-mode box.  [[https://emacs-lsp.github.io/lsp-ui/][lsp-ui documentation]]
-The mode provides info when hoovered by mouse.
-*Note:* Functions also display the proceeding comments as documentation
+Provides additional lsp information to the company-mode box. The mode provides info when hoovered by mouse. [[https://emacs-lsp.github.io/lsp-ui/][lsp-ui documentation]]
+
+*Note:* Functions also display the proceeding C++ function comments as documentation
 #+begin_src emacs-lisp  
   (use-package lsp-ui
-    :hook (lsp-mode . lsp-ui-mode) 
+    :hook (lsp-mode . lsp-ui-mode) ; for elpy
     :custom
     (lsp-ui-doc-position 'bottom))
 #+end_src
@@ -348,24 +403,23 @@ The mode provides info when hoovered by mouse.
 [[https://github.com/emacs-lsp/lsp-ivy][lsp-ivy]] integrates Ivy with =lsp-mode= to make it easy to search for things by name in your code.  When you run these commands, a prompt will appear in the minibuffer allowing you to type part of the name of a symbol in your code.  Results will be populated in the minibuffer so that you can find what you're looking for and jump to that location in the code upon selecting the result.
 
 Try these commands with =M-x=:
-
 - =lsp-ivy-workspace-symbol= - Search for a symbol name in the current project workspace
-- =lsp-ivy-global-workspace-symbol= - Search for a symbol name in all active project workspaces
+- =lsp-ivy-global-workspace-symbol= - Search for a symbol name in all active project workspaces.
 
 #+begin_src emacs-lisp
   (use-package lsp-ivy
     :after lsp)
-
 #+end_src
+
 ** Company-Mode
-Currently gets called by lsp-mode by default. //my understanding//: company-mode provides the auto-complete box that lsp provides information to. 
+Currently company-mode gets called with lsp-mode by default. //my understanding//: company-mode provides the auto-complete box that lsp provides information to. 
 #+begin_src emacs-lisp  
-   (use-package company
-     :delight company-mode 
-     :custom
-     (company-minimum-prefix-length 1)
-     (company-idle-delay 0.0)
-     :bind (:map lsp-mode-map ("<tab>" . company-indent-or-complete-common)))
+  (use-package company
+    :after lsp
+    :custom
+    (company-minimum-prefix-length 1)
+    (company-idle-delay 0.0)
+    :bind (:map lsp-mode-map ("<tab>" . company-indent-or-complete-common)))
 #+end_src
 
 *Company-box-mode* brings up a another box with information about the highlighted recommended item in the company/lsp box. 
@@ -375,6 +429,13 @@ Currently gets called by lsp-mode by default. //my understanding//: company-mode
      :hook (company-mode . company-box-mode))
 #+end_src
 
+#+begin_src emacs-lisp
+(use-package company-prescient
+  :defer 2
+  :after company
+  :config
+  (company-prescient-mode +1))
+#+end_src
 ** Yasnippet
 #+begin_src emacs-lisp
   (use-package yasnippet
@@ -397,79 +458,86 @@ Checks the code for bugs on the fly.
 Like lsp-mode but for debuggers. 
 #+begin_src emacs-lisp
   (use-package dap-mode
-  :after lsp
-  :delight dap-mode)
+    :commands dap-mode)
+#+end_src
+
+** Evil nerd commenter
+#+begin_src emacs-lisp
+  (use-package evil-nerd-commenter
+  :bind ("M-;". evilnc-comment-or-uncomment-lines))
 #+end_src
 
 * C++
-**  Hook
-LSP-mode works with clangd (which currently is already loaded-- likely from irony mode (elpy dependency?). 
-#+begin_src emacs-lisp   
-  (setq-default c-basic-offset 4)
-
-  (defun my-c-c++-mode-hook-fn ()
-    (lsp)                ; turn on
-    (smartparens-mode)   ; turn on
-    (local-set-key (kbd "<tab>") #'company-indent-or-complete-common) ;tab comp
-    (yas-minor-mode-on)  ; turn on
-    (abbrev-mode -1)        ; turn off
-    (delight 'c++-mode "C++" "C++//l") ; shorten modeline tag
-    ;; edit the modeline-- not needed for doom-modeline  
-    ;; (diminish 'flycheck-mode)
-    ;; (diminish 'yas-minor-mode)
-    ;; (diminish 'eldoc-mode)
-    )
-  (add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
-  (add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
-#+end_src
-
-#+RESULTS:
-| my-c-c++-mode-hook-fn |
-
-* Python
-** Elpy
-#+begin_src emacs-lisp   :tangle no
-  (use-package elpy
-    :init
-    (elpy-enable)
-    :custom
-    (python-shell-interpreter "ipython")
-    (python-shell-interpreter-args "-i --simple-prompt")
-    (elpy-rpc-python-command "python3")
-    (elpy-shell-echo-output nil)
-      ;(elpy-rpc-backend "jedi")
-      ;; Not sure if the following should really be here
-      (python-shell-completion-native-enable nil)
-      (python-indent-offset 4)
-      (python-indent 4)
-      )
-#+end_src
-** Python-mode
-*** MS Language Server
- #+begin_src emacs-lisp
-     (use-package lsp-python-ms
-       :init (setq lsp-python-ms-auto-install-server t)
-       :hook (python-mode . (lambda ()
-                               (require 'lsp-python-ms)
-                               (lsp))))  ; or lsp-deferred
- #+end_src
-
- 
-*** Setup
-#+begin_src emacs-lisp   
-  (use-package python-mode  
-    :ensure nil  ; don't install, use the pre-installed version. 
-    :custom
-    (dap-python-debugger 'debugpy)
-    :config
-    (require 'dap-python)
-    ; this command doesn't work BUT without, python-mode "won't load".
-    :bind (:map python-mode-map ("C-RET" . python-shell-send-statement)))
+** Smart compile
+#+begin_src emacs-lisp
+    (use-package smart-compile
+      :commands smart-compile)
 #+end_src
 
 ** Hook
+  Currently lsp-mode works with clangd backend without any initial setup.
+  company-clang needs =clang= installed on the system.
+  #+begin_src emacs-lisp   
+    (setq-default c-basic-offset 4)
+
+    (defun my-c-c++-mode-hook-fn ()
+      (lsp)                ; turn on
+      (smart-compile)
+      (smartparens-mode)   ; turn on
+      (local-set-key (kbd "<tab>") #'company-indent-or-complete-common) ;tab comp
+      (yas-minor-mode-on)  ; turn on
+      (abbrev-mode -1)        ; turn off
+      )
+    (add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
+    (add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
+#+end_src
+
+* Python
+** Python-mode
+*** Pyright 
+#+begin_src emacs-lisp   
+  ; npm must be installed on the system.
+    (use-package lsp-pyright
+      :after lsp
+      :hook (python-mode . (lambda ()
+                              (require 'lsp-pyright)
+                              (lsp))))  ; or lsp-deferred
+#+end_src
+
+*** Jedi (not used)
+must have =jedi-language-server= on the system via =pip install jedi-language-server=.
+#+begin_src emacs-lisp     :tangle no
+  (use-package lsp-jedi
+    :ensure t
+    :config
+    (with-eval-after-load "lsp-mode"
+      (add-to-list 'lsp-disabled-clients 'pyright)
+      (add-to-list 'lsp-disabled-clients 'pyls)
+      (add-to-list 'lsp-enabled-clients 'jedi)))
+#+end_src
+
+*** python-mode
+#+begin_src emacs-lisp 
+   ;; configure pythong-mode
+   (use-package python-mode
+     :ensure nil ; don't install, use the pre-installed version
+
+     :custom
+     (python-shell-completion-native-enable 1)
+     (python-shell-interpreter "ipython")
+     (python-shell-interpreter-args "-i --simple-prompt")
+                                           ; this command doesn't work BUT without, python-mode "won't load".
+     :bind (:map python-mode-map ("C-RET" . python-shell-send-statement))
+     )
+#+end_src
+
+*** TODO Formatting
+Want simple formatting checker (flycheck). There is currently an issue with flake8.
+** Hook
 #+begin_src emacs-lisp  
   (defun my-python-mode-hook-fn ()
+    (lsp)
+    (company-mode 1)
     (smartparens-mode)
     (local-set-key (kbd "<tab>") #'company-indent-or-complete-common))
 
@@ -556,15 +624,25 @@ LSP-mode works with clangd (which currently is already loaded-- likely from iron
 
 #+end_src
 
-** Block Templates
-#+begin_src emacs-lisp  
-(with-eval-after-load 'org
-  ;; This is needed as of Org 9.2
-  (require 'org-tempo)
-  (add-to-list 'org-structure-template-alist '("sh" . "src sh"))
-  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-  (add-to-list 'org-structure-template-alist '("py" . "src python"))
-)
+** Org-babel
+#+begin_src emacs-lisp  :tangle no
+  (org-babel-do-load-languages 'org-babel-load-languages
+                                 (append org-babel-load-languages
+                                  '((python . t)
+                                    (latex  . t)
+                                    (C      . t))))
+
+  (setq org-confirm-babel-evaluate nil)
+
+  (with-eval-after-load 'org
+    ;; This is needed as of Org 9.2
+    (require 'org-tempo)
+    (add-to-list 'org-structure-template-alist '("la" . "src latex"))
+    (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+    (add-to-list 'org-structure-template-alist '("py" . "src python  :results output"))
+    (add-to-list 'org-structure-template-alist '("cpp" . "src C++  :includes <iostream>"))
+    (add-to-list 'org-structure-template-alist '("cppnm" . "src C++  :main no"))
+  )
 #+end_src
 
 * Terminals
@@ -583,7 +661,7 @@ C-c C-j  -> line-mode
 #+end_src
 
 ** vterm
-Faster terminal due to being compiled. Default is a better mode than term-mode; it's like a char-mode but with ability to access function list with M-x.  [[https://github.com/akermu/emacs-libvterm][vterm Documentation]]
+Faster terminal due to being compiled. Default is a better mode than term-mode; it's like a Char-mode but with ability to access function list with M-x.  [[https://github.com/akermu/emacs-libvterm][vterm Documentation]]
 - For more than one terminal, you must M-x rename-uniquely the terminal.
 - C-c prefix for term commands
 - C-c C-c = send C-c to the terminal (kill running command)
@@ -600,7 +678,6 @@ Faster terminal due to being compiled. Default is a better mode than term-mode; 
 
 #+RESULTS:
 : 10000
-
    
 ** shell-mode
 Between term-mode eshell.
@@ -613,19 +690,22 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]].  Could not use "use-packag
 - "(" toggle file info
 - M-x du  shows the size of the files in the buffer (toggle for human readable)
 #+begin_src emacs-lisp
-  (use-package dired
-    :ensure nil
-    :custom  (setq dired-listing-switches "-agho --group-directories-first"))
+   (use-package dired
+     :ensure nil
+     :commands dired
+     :custom  (setq dired-listing-switches "-agho --group-directories-first"))
 
-      (use-package treemacs-icons-dired
-        :config (treemacs-icons-dired-mode) )
-    ;A rather janky mode which lists the recursive size of each foler/item in dired. 
-      (use-package dired-du
-      :commands du)
+   (use-package treemacs-icons-dired
+     :after dired
+     :config (treemacs-icons-dired-mode) )
+
+  ;A rather janky mode which lists the recursive size of each foler/item in dired. 
+   (use-package dired-du
+     :commands du)
 #+end_src
 
 #+RESULTS:
 
-
 * Localwords
 #  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell  Dired dracula clangd ui
+#  LocalWords:  Grammarly workspaces commenter Pyright
