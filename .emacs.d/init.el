@@ -1,3 +1,6 @@
+(add-to-list 'load-path "~/.dotfiles/.emacs.d/elpa/gcmh-20201116.2251")
+(gcmh-mode 1)
+
 (defun efs/display-startup-time ()
   (message "Emacs loaded in %s with %d garbage collections."
            (format "%.2f seconds"
@@ -26,12 +29,6 @@
 (require 'use-package)
 (setq use-package-always-ensure t) ; no need for :ensure t for each package.
 (setq use-package-verbose t) ; log configure/loading messages in *Messages*
-
-(use-package gcmh
- :ensure t
- :config (gcmh-mode 1)
- ;; :custom (gcmh-verbose t)
- )
 
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun efs/org-babel-tangle-config ()
@@ -363,6 +360,24 @@
 
 (use-package visual-fill-column
   :hook (org-mode . efs/org-mode-visual-fill))
+
+(org-babel-do-load-languages 'org-babel-load-languages
+                               (append org-babel-load-languages
+                                '((python . t)
+                                  (latex  . t)
+                                  (C      . t))))
+
+(setq org-confirm-babel-evaluate nil)
+
+(with-eval-after-load 'org
+  ;; This is needed as of Org 9.2
+  (require 'org-tempo)
+  (add-to-list 'org-structure-template-alist '("la" . "src latex"))
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  (add-to-list 'org-structure-template-alist '("py" . "src python  :results output"))
+  (add-to-list 'org-structure-template-alist '("cpp" . "src C++  :includes <iostream>"))
+  (add-to-list 'org-structure-template-alist '("cppnm" . "src C++  :main no"))
+)
 
 (use-package eterm-256color
   :hook (term-mode . eterm-256color-mode))

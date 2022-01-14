@@ -2,7 +2,16 @@
 #+PROPERTY: header-args:emacs-lisp :tangle .emacs.d/init.el
 #+STARTUP: overview
 * Setup
-** Startup Timer
+** Startup Performance
+*** Garbage Collection
+A more advanced garbage collection "hack". https://github.com/emacsmirror/gcmh
+For me this does not speed up anything.
+#+begin_src emacs-lisp
+  (add-to-list 'load-path "~/.dotfiles/.emacs.d/elpa/gcmh-20201116.2251")
+  (gcmh-mode 1)
+#+end_src
+
+*** Startup Timer
 #+begin_src emacs-lisp
   (defun efs/display-startup-time ()
     (message "Emacs loaded in %s with %d garbage collections."
@@ -39,17 +48,6 @@ Package archives: Elpa is default, Melpa is community.
   (setq use-package-verbose t) ; log configure/loading messages in *Messages*
 #+end_src
 
-** Startup Performance
-A more advanced garbage collection "hack". https://github.com/emacsmirror/gcmh
-For me this does not speed up anything.
-#+begin_src emacs-lisp
-  (use-package gcmh
-   :ensure t
-   :config (gcmh-mode 1)
-   ;; :custom (gcmh-verbose t)
-   )
-#+end_src
-
 ** Auto-tangle
 This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-config= gets executed each time such a buffer gets saved.  This function checks to see if the file being saved is the Emacs.org file you're looking at right now, and if so, automatically exports the configuration here to the associated output files.
 #+begin_src emacs-lisp
@@ -63,7 +61,6 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 
   (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 #+end_src
-
 
 ** Automatic Package Updates
 The auto-package-update package helps us keep Emacs packages up to date.  It will prompt you after a certain number of days either at startup or at a specific time of day to remind you to update your packages.
@@ -204,6 +201,13 @@ Enables you to customize the mode names displayed in the mode line.
 Make  =yes or no= prompts shorter
 #+begin_src emacs-lisp
 (defalias 'yes-or-no-p 'y-or-n-p)
+#+end_src
+
+*** TODO buffers
+Present a list of currently open buffers when you split the window.
+#+begin_src emacs-lisp  :tangle no
+(defadvice! (switch-to-buffer)
+  :after 'window-split (switch-to-buffer))
 #+end_src
 
 ** Goto last change
@@ -625,7 +629,7 @@ Want simple formatting checker (flycheck). There is currently an issue with flak
 #+end_src
 
 ** Org-babel
-#+begin_src emacs-lisp  :tangle no
+#+begin_src emacs-lisp
   (org-babel-do-load-languages 'org-babel-load-languages
                                  (append org-babel-load-languages
                                   '((python . t)
