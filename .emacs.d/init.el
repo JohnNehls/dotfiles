@@ -1,6 +1,3 @@
-(add-to-list 'load-path "~/.dotfiles/.emacs.d/elpa/gcmh-20201116.2251")
-(gcmh-mode 1)
-
 (defun efs/display-startup-time ()
   (message "Emacs loaded in %s with %d garbage collections."
            (format "%.2f seconds"
@@ -76,9 +73,6 @@
   (fast-but-imprecise-scrolling    t) ;; No (less) lag while scrolling lots.
   (auto-window-vscroll           nil) ;; Cursor move faster
   )
-
-(use-package good-scroll
-:config (good-scroll-mode 1))
 
 (use-package undo-tree
   :defer 2
@@ -298,7 +292,7 @@
 
 (add-hook 'python-mode-hook #'my-python-mode-hook-fn)
 
-(defun efs/org-mode-setup ()
+(defun jmn/org-mode-setup ()
   (org-indent-mode)
   (variable-pitch-mode 1)
   (visual-line-mode 1)
@@ -313,13 +307,14 @@
   ;; (diminish 'eldoc-mode)
   )
 
-(defun efs/org-font-setup ()
+(defun jmn/org-font-setup ()
+
   ;; Replace list hyphen with dot
   (font-lock-add-keywords 'org-mode
                      '(("^ *\\([-]\\) "
-                      (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-  ;; Elipsis
-   (setq org-ellipsis " ▾")
+                      (0 (prog1 () (compose-region (match-beginning 1)
+                                                   (match-end 1) "•"))))))
+
   ;; Set faces for heading levels
   (dolist (face '((org-level-1 . 1.2)
                   (org-level-2 . 1.1)
@@ -329,24 +324,38 @@
                   (org-level-6 . 1.1)
                   (org-level-7 . 1.1)
                   (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
+    (set-face-attribute (car face) nil :font "Cantarell"
+                        :weight 'regular :height (cdr face)))
 
   ;; Ensure that anything that should be fixed-pitch in Org files appears that way
   (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
   (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
   (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
   (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-special-keyword nil
+                      :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-meta-line nil
+                      :inherit '(font-lock-comment-face fixed-pitch))
   (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 
 (use-package org
   :commands (org-capture org-agenda)
-  :hook (org-mode . efs/org-mode-setup)
+  :hook (org-mode . jmn/org-mode-setup)
   :config
-  (efs/org-font-setup)
-  (setq org-image-actual-width nil) ; fix to allow picture resizing
-)
+  (jmn/org-font-setup)
+  (setq org-ellipsis " ▾"
+        org-hide-emphasis-markers t
+        org-src-fontify-natively t
+        org-fontify-quote-and-verse-blocks t
+        org-src-tab-acts-natively t
+        org-edit-src-content-indentation 2
+        org-hide-block-startup nil
+        org-src-preserve-indentation nil
+        org-startup-folded 'content
+        org-cycle-separator-lines 2
+        org-capture-bookmark nil
+        org-image-actual-width nil) ; fix to allow picture resizing
+  )
 
 (use-package org-bullets
   :hook (org-mode . org-bullets-mode)
