@@ -1,3 +1,8 @@
+(setq comp-async-report-warnings-errors nil)
+
+(add-to-list 'load-path "~/.dotfiles/.emacs.d/elpa/gcmh-20201116.2251")
+(gcmh-mode 1)
+
 (defun efs/display-startup-time ()
   (message "Emacs loaded in %s with %d garbage collections."
            (format "%.2f seconds"
@@ -203,7 +208,7 @@
   :commands (lsp lsp-deferred)
   :init
   (setq lsp-keymap-prefix "C-c l") ;; or "C-l"
-  :custom ((lsp-idle-delay 2.0))
+  :custom ((lsp-idle-delay 0.2))
   :config
   (lsp-enable-which-key-integration t))
 

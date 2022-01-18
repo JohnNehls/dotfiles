@@ -2,11 +2,16 @@
 #+PROPERTY: header-args:emacs-lisp :tangle .emacs.d/init.el
 #+STARTUP: overview
 * Setup
+** Silence Native Compilation Warnings
+#+begin_src emacs-lisp
+(setq comp-async-report-warnings-errors nil)
+#+end_src
+
 ** Startup Performance
 *** Garbage Collection
 A more advanced garbage collection "hack". https://github.com/emacsmirror/gcmh
 For me this does not speed up anything.
-#+begin_src emacs-lisp  :tangle no
+#+begin_src emacs-lisp
   (add-to-list 'load-path "~/.dotfiles/.emacs.d/elpa/gcmh-20201116.2251")
   (gcmh-mode 1)
 #+end_src
@@ -61,7 +66,6 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
 
   (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 #+end_src
-
 
 ** Automatic Package Updates
 The auto-package-update package helps us keep Emacs packages up to date.  It will prompt you after a certain number of days either at startup or at a specific time of day to remind you to update your packages.
@@ -381,7 +385,7 @@ Provides language backend to company-mode.
     :commands (lsp lsp-deferred)
     :init
     (setq lsp-keymap-prefix "C-c l") ;; or "C-l"
-    :custom ((lsp-idle-delay 2.0))
+    :custom ((lsp-idle-delay 0.2))
     :config
     (lsp-enable-which-key-integration t))
 
