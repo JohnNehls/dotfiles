@@ -3,15 +3,6 @@
 (add-to-list 'load-path "~/.dotfiles/.emacs.d/elpa/gcmh-20201116.2251")
 (gcmh-mode 1)
 
-(defun efs/display-startup-time ()
-  (message "Emacs loaded in %s with %d garbage collections."
-           (format "%.2f seconds"
-                   (float-time
-                     (time-subtract after-init-time before-init-time)))
-           gcs-done))
-
-(add-hook 'emacs-startup-hook #'efs/display-startup-time)
-
 ;; Initialize package sources
 (require 'package)
 
@@ -71,7 +62,8 @@
   (redisplay-dont-pause            t)
   ;; Number of lines of continuity to retain when scrolling by full screens
   (next-screen-context-lines       2)
-  (scroll-conservatively       10000) ;; only 'jump' when moving this far off the screen
+  ;; only 'jump' when moving this far off the screen
+  (scroll-conservatively       10000)
   (scroll-step                     1) ;; Keyboard scroll one line at a time
   (mouse-wheel-progressive-speed nil) ;; Don't accelerate scrolling
   (mouse-wheel-follow-mouse        t) ;; Scroll window under mouse
@@ -117,6 +109,30 @@
          (prog-mode . ws-butler-mode)))
 
 (defalias 'yes-or-no-p 'y-or-n-p)
+
+(recentf-mode 1) ;; needed for recent files in dashboard
+
+(use-package dashboard
+  :ensure t
+  :config
+  (dashboard-setup-startup-hook)
+  (setq dashboard-center-content 1)
+  (setq dashboard-show-shortcuts nil)
+  (setq dashboard-items '((recents  . 5)
+                          ;; (bookmarks . 5)
+                          (projects . 5)
+                          (agenda . 5)
+                          ;; (registers . 5)
+                          ))
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  (setq dashboard-projects-backend 'projectile)
+
+  (dashboard-modify-heading-icons '((recents . "file-text")))
+
+
+  (setq dashboard-set-footer nil)
+  )
 
 (use-package goto-last-change
   :bind (("C-;" . goto-last-change)))
