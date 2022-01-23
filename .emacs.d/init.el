@@ -71,6 +71,15 @@
   (auto-window-vscroll           nil) ;; Cursor move faster
   )
 
+(use-package fast-scroll
+  :ensure t
+  :demand t
+  :config
+  (add-hook 'fast-scroll-start-hook (lambda () (flycheck-mode -1)))
+  (add-hook 'fast-scroll-end-hook (lambda () (flycheck-mode 1)))
+  (fast-scroll-config)
+  (fast-scroll-mode 1))
+
 (use-package undo-tree
   :defer 2
   :config
@@ -89,8 +98,11 @@
 
 (global-display-line-numbers-mode t)     ; Puts line numbers on ALL buffers
 
-(use-package gruvbox-theme
-    :init (load-theme 'gruvbox-dark-hard t))
+(use-package monokai-theme
+    :init (load-theme 'monokai t))
+;; Saving my SECOND favorite theme which is easier on the eyes.
+;; (use-package gruvbox-theme
+;;     :init (load-theme 'gruvbox-dark-hard t))
 
 (use-package all-the-icons)
 (use-package doom-modeline
@@ -189,6 +201,9 @@
 (global-set-key (kbd "C-o") 'other-window)
 ;; (global-set-key (kbd "M-SPC") 'other-window)
 
+(show-paren-mode    1) ; Highlight parentheses pairs.
+(electric-pair-mode 1) ; Close pairs automatically.
+
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
 
@@ -273,15 +288,14 @@
 (use-package smart-compile
   :commands smart-compile)
 
-(setq-default c-basic-offset 4)
+(setq-default c-basic-offset 2)
 
 (defun my-c-c++-mode-hook-fn ()
   (lsp)                ; turn on
-  (smart-compile)
-  (smartparens-mode)   ; turn on
-  (local-set-key (kbd "<tab>") #'company-indent-or-complete-common) ;tab comp
-  (yas-minor-mode-on)  ; turn on
-  (abbrev-mode -1)        ; turn off
+  (smartparens-mode 1)   ; turn on
+  (local-set-key (kbd "C-<tab>") #'lsp-format-buffer) ;tab comp
+  (yas-minor-mode 1)  ; turn on
+  ;; (abbrev-mode -1)        ; turn off
   )
 (add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
 (add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
