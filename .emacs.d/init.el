@@ -147,7 +147,9 @@
   )
 
 (use-package goto-last-change
-  :bind (("C-;" . goto-last-change)))
+  :ensure t
+  :bind ("C-;" . goto-last-change))
+  ;; :hook (org-mode . goto-last-change))
 
 (use-package ivy
   :delight ivy-mode
@@ -331,7 +333,7 @@
   (org-indent-mode)
   (variable-pitch-mode 1)
   (visual-line-mode 1)
-  (rainbow-delimiters-mode 1)
+  (rainbow-delimiters-mode 0)
   (projectile-mode -1)
   ;; edit the modeline-- not needed for doom-modeline
   ;; (diminish 'visual-line-mode)

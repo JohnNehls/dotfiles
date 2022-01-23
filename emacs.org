@@ -1,7 +1,6 @@
-#+TITLE: Emacs Configuration
+f#+TITLE: Emacs Configuration
 #+PROPERTY: header-args:emacs-lisp :tangle .emacs.d/init.el
 #+STARTUP: overview
-
 * Setup
 ** Silence Native Compilation Warnings
 #+begin_src emacs-lisp
@@ -264,9 +263,15 @@ https://github.com/emacs-dashboard/emacs-dashboard
 ** Goto last change
 Sometimes it's useful to step to the last change in a buffer.
 #+begin_src emacs-lisp
-(use-package goto-last-change
-  :bind (("C-;" . goto-last-change)))
+  (use-package goto-last-change
+    :ensure t
+    :bind ("C-;" . goto-last-change))
+    ;; :hook (org-mode . goto-last-change))
+
 #+end_src
+
+#+RESULTS:
+: goto-last-change
 
 ** Input Buffer, Directory Search, and Help
 *** Ivy, Ivy-Rich, and Counsel
@@ -353,7 +358,10 @@ Better version of help. We remap normal help keys to Helpful's versions.
   (global-set-key (kbd "C-o") 'other-window)
   ;; (global-set-key (kbd "M-SPC") 'other-window)
 #+end_src
- 
+
+#+RESULTS:
+: goto-last-change
+
 Future: create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. hydra ties related commands into short bindings with a common prefix.
 
 * TODO Grammarly
@@ -378,7 +386,7 @@ Gives warning on startup for login.    [[ https://github.com/emacs-grammarly/lsp
 
 #+RESULTS:
 * Development
-** Parens/delimiters
+** Prensa/delimiters
 
 #+begin_src emacs-lisp
 (show-paren-mode    1) ; Highlight parentheses pairs.
@@ -611,7 +619,7 @@ Want simple formatting checker (flycheck). There is currently an issue with flak
     (org-indent-mode)
     (variable-pitch-mode 1)
     (visual-line-mode 1)
-    (rainbow-delimiters-mode 1)
+    (rainbow-delimiters-mode 0)
     (projectile-mode -1)
     ;; edit the modeline-- not needed for doom-modeline
     ;; (diminish 'visual-line-mode)
