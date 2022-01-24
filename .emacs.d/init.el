@@ -432,9 +432,27 @@
   :commands vterm
   :bind (:map vterm-mode-map ("C-o" . other-window))
   :config
-  ;(setq term-prompt-regexp "^[^$]*[$] *");; match your custom shell
-;;(setq vterm-shell "zsh");; Set this to customize the shell to launch
+  ;;(setq term-prompt-regexp "^[^$]*[$] *");; match your custom shell
+  ;;(setq vterm-shell "zsh");; Set this to customize the shell to launch
   (setq vterm-max-scrollback 10000))
+
+(use-package vterm-toggle
+  :ensure t
+  :config
+  (setq vterm-toggle-fullscreen-p nil)
+  (add-to-list 'display-buffer-alist
+               '((lambda(bufname _) (with-current-buffer bufname (equal major-mode 'vterm-mode)))
+                 (display-buffer-reuse-window display-buffer-at-bottom)
+                 ;;(display-buffer-reuse-window display-buffer-in-direction)
+                 ;;display-buffer-in-direction/direction/dedicated is added in emacs27
+                 ;;(direction . bottom)
+                 ;;(dedicated . t) ;dedicated is supported in emacs27
+                 (reusable-frames . visible)
+                 (window-height . 0.3)))
+  )
+
+(global-unset-key (kbd "C-t"))
+(global-set-key (kbd "C-t") 'vterm-toggle)
 
 (use-package dired
    :ensure nil
