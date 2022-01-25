@@ -48,12 +48,13 @@
 (scroll-bar-mode -1)                       ; remove side scrollbar
 (tooltip-mode -1)                          ; Disable tooltips
 (set-fringe-mode 10)                       ; Give some breathing room
-(add-hook 'text-mode-hook 'flyspell-mode)  ; enable spellcheck on text mode
-
 (setq visible-bell t)                      ; Set up the visible bell
 
+(add-hook 'text-mode-hook 'flyspell-mode)  ; enable spellcheck on text mode
+(add-hook 'prog-mode-hook 'hl-line-mode)   ; highlight lines when programming
+
 ;; Open text files in Org-Mode
-(add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode)) 
+(add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode))
 (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
 
 (use-package emacs
@@ -130,7 +131,7 @@
   (dashboard-setup-startup-hook)
   (setq dashboard-center-content 1)
   (setq dashboard-show-shortcuts nil)
-  (setq dashboard-items '((recents  . 5)
+  (setq dashboard-items '((recents  . 7)
                           ;; (bookmarks . 5)
                           (projects . 5)
                           (agenda . 5)
@@ -243,7 +244,14 @@
   (setq lsp-keymap-prefix "C-c l") ;; or "C-l"
   :custom ((lsp-idle-delay 0.2))
   :config
-  (lsp-enable-which-key-integration t))
+  (lsp-enable-which-key-integration t)
+  ;; Annoying stuff (uncomment to turn off)
+  (setq lsp-enable-links nil)
+  ;; (setq lsp-signature-render-documentation nil)
+  ;; (setq lsp-headerline-breadcrumb-enable nil)
+  ;; (setq lsp-ui-doc-enable nil)
+  ;; (setq lsp-completion-enable-additional-text-edit nil)
+  )
 
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode) ; for elpy
@@ -451,7 +459,7 @@
                  (window-height . 0.3)))
   )
 
-(global-unset-key (kbd "C-t"))
+;; (global-unset-key (kbd "C-t"))
 (global-set-key (kbd "C-t") 'vterm-toggle)
 
 (use-package dired

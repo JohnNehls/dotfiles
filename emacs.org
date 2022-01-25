@@ -1,4 +1,4 @@
-f#+TITLE: Emacs Configuration
+#+TITLE: Emacs Configuration
 #+PROPERTY: header-args:emacs-lisp :tangle .emacs.d/init.el
 #+STARTUP: overview
 * Setup
@@ -96,12 +96,13 @@ You can also use =M-x auto-package-update-now= to update right now!
   (scroll-bar-mode -1)                       ; remove side scrollbar
   (tooltip-mode -1)                          ; Disable tooltips
   (set-fringe-mode 10)                       ; Give some breathing room
-  (add-hook 'text-mode-hook 'flyspell-mode)  ; enable spellcheck on text mode
-
   (setq visible-bell t)                      ; Set up the visible bell
 
+  (add-hook 'text-mode-hook 'flyspell-mode)  ; enable spellcheck on text mode
+  (add-hook 'prog-mode-hook 'hl-line-mode)   ; highlight lines when programming
+
   ;; Open text files in Org-Mode
-  (add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode)) 
+  (add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode))
   (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
 #+end_src
 
@@ -243,7 +244,7 @@ https://github.com/emacs-dashboard/emacs-dashboard
     (dashboard-setup-startup-hook)
     (setq dashboard-center-content 1)
     (setq dashboard-show-shortcuts nil)
-    (setq dashboard-items '((recents  . 5)
+    (setq dashboard-items '((recents  . 7)
                             ;; (bookmarks . 5)
                             (projects . 5)
                             (agenda . 5)
@@ -356,11 +357,16 @@ Better version of help. We remap normal help keys to Helpful's versions.
 #+begin_src emacs-lisp
   (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
   (global-set-key (kbd "C-o") 'other-window)
+
+  ;; (global-unset-key (kbd "C-<SPC>"))
+  ;; (global-unset-key (kbd "C-m"))
+  ;; (global-set-key (kbd "C-m") 'set-mark-command)
+  ;; (global-set-key (kbd "C-<SPC>") 'other-window)
   ;; (global-set-key (kbd "M-SPC") 'other-window)
 #+end_src
 
 #+RESULTS:
-: goto-last-change
+: other-window
 
 Future: create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. hydra ties related commands into short bindings with a common prefix.
 
@@ -386,7 +392,7 @@ Gives warning on startup for login.    [[ https://github.com/emacs-grammarly/lsp
 
 #+RESULTS:
 * Development
-** Prensa/delimiters
+** Parens/delimiters
 
 #+begin_src emacs-lisp
 (show-paren-mode    1) ; Highlight parentheses pairs.
@@ -406,7 +412,6 @@ Auto-creates closing parenthesis and bar and, smartly, writes it over if it is t
     :delight smartparens-mode
     :hook (prog-mode . rainbow-delimiters-mode))
 #+end_src
-
 
 ** Magit
 [[https://magit.vc/][Magit Documentation]]
@@ -451,9 +456,14 @@ Provides language backend to company-mode.
     (setq lsp-keymap-prefix "C-c l") ;; or "C-l"
     :custom ((lsp-idle-delay 0.2))
     :config
-    (lsp-enable-which-key-integration t))
-
-
+    (lsp-enable-which-key-integration t)
+    ;; Annoying stuff (uncomment to turn off)
+    (setq lsp-enable-links nil)
+    ;; (setq lsp-signature-render-documentation nil)
+    ;; (setq lsp-headerline-breadcrumb-enable nil)
+    ;; (setq lsp-ui-doc-enable nil)
+    ;; (setq lsp-completion-enable-additional-text-edit nil)
+    )
 #+end_src
 
 *** lsp-ui
@@ -570,18 +580,6 @@ Like lsp-mode but for debuggers.
       :hook (python-mode . (lambda ()
                               (require 'lsp-pyright)
                               (lsp))))  ; or lsp-deferred
-#+end_src
-
-*** Jedi (not used)
-must have =jedi-language-server= on the system via =pip install jedi-language-server=.
-#+begin_src emacs-lisp     :tangle no
-  (use-package lsp-jedi
-    :ensure t
-    :config
-    (with-eval-after-load "lsp-mode"
-      (add-to-list 'lsp-disabled-clients 'pyright)
-      (add-to-list 'lsp-disabled-clients 'pyls)
-      (add-to-list 'lsp-enabled-clients 'jedi)))
 #+end_src
 
 *** python-mode
@@ -773,7 +771,7 @@ Faster terminal due to being compiled. Default is a better mode than term-mode; 
                    (window-height . 0.3)))
     )
 
-  (global-unset-key (kbd "C-t"))
+  ;; (global-unset-key (kbd "C-t"))
   (global-set-key (kbd "C-t") 'vterm-toggle)
 
 #+end_src
