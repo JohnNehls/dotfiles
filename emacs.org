@@ -211,7 +211,7 @@ Enables you to customize the mode names displayed in the mode line.
      (interactive "nTransparency Value 0 - 100 opaque:")
      (set-frame-parameter (selected-frame) 'alpha value))
 
-  (transparency 94)  ;; Default value generally e [94,96]
+  (transparency 96)  ;; Default value generally e [94,96]
 #+end_src
 
 *** Auto-clean white space
@@ -563,11 +563,10 @@ Like lsp-mode but for debuggers.
 
     (defun my-c-c++-mode-hook-fn ()
       (lsp)                ; turn on
-      (smartparens-mode 1)   ; turn on
       (local-set-key (kbd "C-<tab>") #'lsp-format-buffer) ;tab comp
       (yas-minor-mode 1)  ; turn on
-      ;; (abbrev-mode -1)        ; turn off
       )
+
     (add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
     (add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
 #+end_src
@@ -726,6 +725,13 @@ Want simple formatting checker (flycheck). There is currently an issue with flak
     (add-to-list 'org-structure-template-alist '("cpp" . "src C++  :includes <iostream>"))
     (add-to-list 'org-structure-template-alist '("cppnm" . "src C++  :main no"))
   )
+#+end_src
+
+** Keybindings
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-c l") #'org-store-link)
+(global-set-key (kbd "C-c a") #'org-agenda)
+(global-set-key (kbd "C-c c") #'org-capture)
 #+end_src
 
 * Terminals

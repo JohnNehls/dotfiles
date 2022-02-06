@@ -115,7 +115,7 @@
    (interactive "nTransparency Value 0 - 100 opaque:")
    (set-frame-parameter (selected-frame) 'alpha value))
 
-(transparency 94)  ;; Default value generally e [94,96]
+(transparency 96)  ;; Default value generally e [94,96]
 
 (use-package ws-butler
   :hook ((text-mode . ws-butler-mode)
@@ -202,6 +202,11 @@
 
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 (global-set-key (kbd "C-o") 'other-window)
+
+;; (global-unset-key (kbd "C-<SPC>"))
+;; (global-unset-key (kbd "C-m"))
+;; (global-set-key (kbd "C-m") 'set-mark-command)
+;; (global-set-key (kbd "C-<SPC>") 'other-window)
 ;; (global-set-key (kbd "M-SPC") 'other-window)
 
 (show-paren-mode    1) ; Highlight parentheses pairs.
@@ -302,11 +307,10 @@
 
 (defun my-c-c++-mode-hook-fn ()
   (lsp)                ; turn on
-  (smartparens-mode 1)   ; turn on
   (local-set-key (kbd "C-<tab>") #'lsp-format-buffer) ;tab comp
   (yas-minor-mode 1)  ; turn on
-  ;; (abbrev-mode -1)        ; turn off
   )
+
 (add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
 (add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
 
@@ -432,6 +436,10 @@
   (add-to-list 'org-structure-template-alist '("cpp" . "src C++  :includes <iostream>"))
   (add-to-list 'org-structure-template-alist '("cppnm" . "src C++  :main no"))
 )
+
+(global-set-key (kbd "C-c l") #'org-store-link)
+(global-set-key (kbd "C-c a") #'org-agenda)
+(global-set-key (kbd "C-c c") #'org-capture)
 
 (use-package eterm-256color
   :hook (term-mode . eterm-256color-mode))
