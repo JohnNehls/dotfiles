@@ -44,18 +44,18 @@
 
 (setq inhibit-startup-message t)           ; inhibit startup message
 (tool-bar-mode -1)                         ; remove toolbar
-(menu-bar-mode -1)                         ; Disable the menu bar
+;; (menu-bar-mode -1)                         ; Disable the menu bar
 (scroll-bar-mode -1)                       ; remove side scrollbar
 (tooltip-mode -1)                          ; Disable tooltips
 (set-fringe-mode 10)                       ; Give some breathing room
 (setq visible-bell t)                      ; Set up the visible bell
 
 (add-hook 'text-mode-hook 'flyspell-mode)  ; enable spellcheck on text mode
-(add-hook 'prog-mode-hook 'hl-line-mode)   ; highlight lines when programming
+;; (add-hook 'prog-mode-hook 'hl-line-mode)   ; highlight lines when programming
 
 ;; Open text files in Org-Mode
-(add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode))
-(add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
+;; (add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode))
+;; (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
 
 (use-package emacs
   :custom
@@ -80,6 +80,11 @@
   (add-hook 'fast-scroll-end-hook (lambda () (flycheck-mode 1)))
   (fast-scroll-config)
   (fast-scroll-mode 1))
+
+(use-package golden-ratio-scroll-screen
+  :config
+  (global-set-key [remap scroll-down-command] 'golden-ratio-scroll-screen-down)
+  (global-set-key [remap scroll-up-command] 'golden-ratio-scroll-screen-up))
 
 (use-package undo-tree
   :defer 2
@@ -203,14 +208,19 @@
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 (global-set-key (kbd "C-o") 'other-window)
 
-;; (global-unset-key (kbd "C-<SPC>"))
-;; (global-unset-key (kbd "C-m"))
-;; (global-set-key (kbd "C-m") 'set-mark-command)
-;; (global-set-key (kbd "C-<SPC>") 'other-window)
-;; (global-set-key (kbd "M-SPC") 'other-window)
+;; Make font bigger/smaller.
+(global-set-key (kbd "C-+") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
+(global-set-key (kbd "C-0") 'text-scale-adjust)
+
+  ;; (global-unset-key (kbd "C-<SPC>"))
+  ;; (global-unset-key (kbd "C-m"))
+  ;; (global-set-key (kbd "C-m") 'set-mark-command)
+  ;; (global-set-key (kbd "C-<SPC>") 'other-window)
+  ;; (global-set-key (kbd "M-SPC") 'other-window)
 
 (show-paren-mode    1) ; Highlight parentheses pairs.
-(electric-pair-mode 1) ; Close pairs automatically.
+;; (electric-pair-mode 1) ; Close pairs automatically.
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
@@ -242,12 +252,31 @@
   :after projectile-mode
   :config (counsel-projectile-mode))
 
+(use-package company
+  :ensure t
+  :custom
+  (company-minimum-prefix-length 1)
+  (company-idle-delay 0.3)
+  ;; (global-set-key (kbd "C-<tab>") 'company-complete)
+)
+(global-company-mode 1)
+
+(use-package company-box
+  :delight company-box-mode
+  :hook (company-mode . company-box-mode))
+
+(use-package company-prescient
+  :defer 2
+  :after company
+  :config
+  (company-prescient-mode +1))
+
 (use-package lsp-mode
   :delight lsp-mode
   :commands (lsp lsp-deferred)
   :init
   (setq lsp-keymap-prefix "C-c l") ;; or "C-l"
-  :custom ((lsp-idle-delay 0.2))
+  :custom ((lsp-idle-delay 0.5)) ;; 0.5 is the defualt
   :config
   (lsp-enable-which-key-integration t)
   ;; Annoying stuff (uncomment to turn off)
@@ -256,6 +285,10 @@
   ;; (setq lsp-headerline-breadcrumb-enable nil)
   ;; (setq lsp-ui-doc-enable nil)
   ;; (setq lsp-completion-enable-additional-text-edit nil)
+
+
+  ;; `-background-index' requires clangd v8+!
+  (setq lsp-clients-clangd-args '("-j=4" "-background-index" "-log=error"))
   )
 
 (use-package lsp-ui
@@ -266,29 +299,14 @@
 (use-package lsp-ivy
   :after lsp)
 
-(use-package company
-  :after lsp
-  :custom
-  (company-minimum-prefix-length 1)
-  (company-idle-delay 0.0)
-  :bind (:map lsp-mode-map ("<tab>" . company-indent-or-complete-common)))
-
-(use-package company-box
-  :delight company-box-mode 
-  :hook (company-mode . company-box-mode))
-
-(use-package company-prescient
-  :defer 2
-  :after company
-  :config
-  (company-prescient-mode +1))
-
 (use-package yasnippet
   :delight( yas-minor-mode)
   :after lsp)
 
 (use-package yasnippet-snippets
   :after yas-minor-mode) ; load basic snippets from melpa
+
+(yas-global-mode 1)
 
 (use-package flycheck
   :diminish flycheck-mode
@@ -300,15 +318,26 @@
 (use-package evil-nerd-commenter
 :bind ("M-;". evilnc-comment-or-uncomment-lines))
 
-(use-package smart-compile
-  :commands smart-compile)
+(use-package cmake-mode
+  :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'")
+  :hook (cmake-mode . lsp-deferred))
+
+(use-package cmake-font-lock
+:ensure t
+:after cmake-mode
+:config (cmake-font-lock-activate))
+
+(use-package cmake-project
+  :hook ((c++-mode . cmake-project-mode )
+         (c-mode . cmake-project-mode))
+  )
 
 (setq-default c-basic-offset 2)
 
 (defun my-c-c++-mode-hook-fn ()
   (lsp)                ; turn on
   (local-set-key (kbd "C-<tab>") #'lsp-format-buffer) ;tab comp
-  (yas-minor-mode 1)  ; turn on
+  (smartparens-mode 1)
   )
 
 (add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
@@ -335,9 +364,8 @@
 
 (defun my-python-mode-hook-fn ()
   (lsp)
-  (company-mode 1)
-  (smartparens-mode)
-  (local-set-key (kbd "<tab>") #'company-indent-or-complete-common))
+  ;; (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
+  )
 
 (add-hook 'python-mode-hook #'my-python-mode-hook-fn)
 
@@ -347,6 +375,7 @@
   (visual-line-mode 1)
   (rainbow-delimiters-mode 0)
   (projectile-mode -1)
+  ;; (company-mode 1)
   ;; edit the modeline-- not needed for doom-modeline
   ;; (diminish 'visual-line-mode)
   ;; (diminish 'flyspell-mode)
@@ -431,6 +460,7 @@
   ;; This is needed as of Org 9.2
   (require 'org-tempo)
   (add-to-list 'org-structure-template-alist '("la" . "src latex"))
+  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (add-to-list 'org-structure-template-alist '("py" . "src python  :results output"))
   (add-to-list 'org-structure-template-alist '("cpp" . "src C++  :includes <iostream>"))

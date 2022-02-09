@@ -92,18 +92,18 @@ You can also use =M-x auto-package-update-now= to update right now!
 #+begin_src emacs-lisp
   (setq inhibit-startup-message t)           ; inhibit startup message
   (tool-bar-mode -1)                         ; remove toolbar
-  (menu-bar-mode -1)                         ; Disable the menu bar
+  ;; (menu-bar-mode -1)                         ; Disable the menu bar
   (scroll-bar-mode -1)                       ; remove side scrollbar
   (tooltip-mode -1)                          ; Disable tooltips
   (set-fringe-mode 10)                       ; Give some breathing room
   (setq visible-bell t)                      ; Set up the visible bell
 
   (add-hook 'text-mode-hook 'flyspell-mode)  ; enable spellcheck on text mode
-  (add-hook 'prog-mode-hook 'hl-line-mode)   ; highlight lines when programming
+  ;; (add-hook 'prog-mode-hook 'hl-line-mode)   ; highlight lines when programming
 
   ;; Open text files in Org-Mode
-  (add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode))
-  (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
+  ;; (add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode))
+  ;; (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
 #+end_src
 
 *** Scrolling
@@ -141,6 +141,15 @@ To ensure scrolling is fast in Emacs, I use a package that disables non-essentia
 
 #+RESULTS:
 : t
+
+**** Golden-ratio-scroll
+#+begin_src emacs-lisp
+(use-package golden-ratio-scroll-screen
+  :config
+  (global-set-key [remap scroll-down-command] 'golden-ratio-scroll-screen-down)
+  (global-set-key [remap scroll-up-command] 'golden-ratio-scroll-screen-up))
+
+#+end_src
 
 *** Better undo
     - =C-x u= visualizes undo history as a tree for easy navigation
@@ -360,11 +369,16 @@ Better version of help. We remap normal help keys to Helpful's versions.
   (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
   (global-set-key (kbd "C-o") 'other-window)
 
-  ;; (global-unset-key (kbd "C-<SPC>"))
-  ;; (global-unset-key (kbd "C-m"))
-  ;; (global-set-key (kbd "C-m") 'set-mark-command)
-  ;; (global-set-key (kbd "C-<SPC>") 'other-window)
-  ;; (global-set-key (kbd "M-SPC") 'other-window)
+  ;; Make font bigger/smaller.
+  (global-set-key (kbd "C-+") 'text-scale-increase)
+  (global-set-key (kbd "C--") 'text-scale-decrease)
+  (global-set-key (kbd "C-0") 'text-scale-adjust)
+
+    ;; (global-unset-key (kbd "C-<SPC>"))
+    ;; (global-unset-key (kbd "C-m"))
+    ;; (global-set-key (kbd "C-m") 'set-mark-command)
+    ;; (global-set-key (kbd "C-<SPC>") 'other-window)
+    ;; (global-set-key (kbd "M-SPC") 'other-window)
 #+end_src
 
 #+RESULTS:
@@ -372,7 +386,7 @@ Better version of help. We remap normal help keys to Helpful's versions.
 
 Future: create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. hydra ties related commands into short bindings with a common prefix.
 
-* TODO Grammarly
+** TODO Grammarly
 There looks to be several packages at the moment. Top two (as of 1/10/22) are installed here without proper hooks. 
 ** flycheck-grammarly   
 Works w/o being logged in.                         [[https://github.com/emacs-grammarly/flycheck-grammarly][flycheck-grammarly doc]]
@@ -395,12 +409,10 @@ Gives warning on startup for login.    [[ https://github.com/emacs-grammarly/lsp
 #+RESULTS:
 * Development
 ** Parens/delimiters
-
 #+begin_src emacs-lisp
 (show-paren-mode    1) ; Highlight parentheses pairs.
-(electric-pair-mode 1) ; Close pairs automatically.
+;; (electric-pair-mode 1) ; Close pairs automatically.
 #+end_src
-
 *** Rainbow Delimiters
 #+begin_src emacs-lisp
   (use-package rainbow-delimiters
@@ -447,6 +459,38 @@ Notably: run, debug, project-variables, grep (and rg).
     :config (counsel-projectile-mode))
 #+end_src
 
+** TODO Company-Mode
+Currently company-mode gets called with lsp-mode by default. /my understanding/: company-mode provides the auto-complete box that lsp provides information to.
+
+Issue: company mode not working in org-mode. Correct completion keys are not clear.
+#+begin_src emacs-lisp
+  (use-package company
+    :ensure t
+    :custom
+    (company-minimum-prefix-length 1)
+    (company-idle-delay 0.3)
+    ;; (global-set-key (kbd "C-<tab>") 'company-complete)
+  )
+  (global-company-mode 1)
+#+end_src
+
+#+RESULTS:
+
+*Company-box-mode* brings up a another box with information about the highlighted recommended item in the company/lsp box.
+#+begin_src emacs-lisp
+   (use-package company-box
+     :delight company-box-mode
+     :hook (company-mode . company-box-mode))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package company-prescient
+  :defer 2
+  :after company
+  :config
+  (company-prescient-mode +1))
+#+end_src
+
 ** lsp-mode
 *** lsp-mode
 Provides language backend to company-mode.
@@ -456,7 +500,7 @@ Provides language backend to company-mode.
     :commands (lsp lsp-deferred)
     :init
     (setq lsp-keymap-prefix "C-c l") ;; or "C-l"
-    :custom ((lsp-idle-delay 0.2))
+    :custom ((lsp-idle-delay 0.5)) ;; 0.5 is the defualt
     :config
     (lsp-enable-which-key-integration t)
     ;; Annoying stuff (uncomment to turn off)
@@ -465,8 +509,13 @@ Provides language backend to company-mode.
     ;; (setq lsp-headerline-breadcrumb-enable nil)
     ;; (setq lsp-ui-doc-enable nil)
     ;; (setq lsp-completion-enable-additional-text-edit nil)
+
+
+    ;; `-background-index' requires clangd v8+!
+    (setq lsp-clients-clangd-args '("-j=4" "-background-index" "-log=error"))
     )
 #+end_src
+The last line concerning =cangd= comes from [[https://www.mortens.dev/blog/emacs-and-the-language-server-protocol/index.html][mortens.dev]].
 
 *** lsp-ui
 Provides additional lsp information to the company-mode box. The mode provides info when hoovered by mouse. [[https://emacs-lsp.github.io/lsp-ui/][lsp-ui documentation]]
@@ -491,32 +540,6 @@ Try these commands with =M-x=:
     :after lsp)
 #+end_src
 
-** Company-Mode
-Currently company-mode gets called with lsp-mode by default. //my understanding//: company-mode provides the auto-complete box that lsp provides information to. 
-#+begin_src emacs-lisp  
-  (use-package company
-    :after lsp
-    :custom
-    (company-minimum-prefix-length 1)
-    (company-idle-delay 0.0)
-    :bind (:map lsp-mode-map ("<tab>" . company-indent-or-complete-common)))
-#+end_src
-
-*Company-box-mode* brings up a another box with information about the highlighted recommended item in the company/lsp box. 
-#+begin_src emacs-lisp
-   (use-package company-box
-     :delight company-box-mode 
-     :hook (company-mode . company-box-mode))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package company-prescient
-  :defer 2
-  :after company
-  :config
-  (company-prescient-mode +1))
-#+end_src
-
 ** Yasnippet
 #+begin_src emacs-lisp
   (use-package yasnippet
@@ -525,6 +548,8 @@ Currently company-mode gets called with lsp-mode by default. //my understanding/
 
   (use-package yasnippet-snippets
     :after yas-minor-mode) ; load basic snippets from melpa
+
+  (yas-global-mode 1)
 #+end_src
 
 ** Flycheck
@@ -548,13 +573,33 @@ Like lsp-mode but for debuggers.
   :bind ("M-;". evilnc-comment-or-uncomment-lines))
 #+end_src
 
-* C++
-** Smart compile
+** CMake
+Lsp-mode requires the language server on the system:
+=pip install cmake-language-server=
+*** CMake-mode
 #+begin_src emacs-lisp
-  (use-package smart-compile
-    :commands smart-compile)
+  (use-package cmake-mode
+    :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'")
+    :hook (cmake-mode . lsp-deferred))
+
+  (use-package cmake-font-lock
+  :ensure t
+  :after cmake-mode
+  :config (cmake-font-lock-activate))
 #+end_src
 
+*** CMake project
+In the source directory containing ~CMakeLists.txt~ run =M-x cmake-project-configure-project=.
+As a preference, use the =/bin/= option to keep the cmake files out of the source directory.
+After this, the =compile= automatically holds the correct command.
+#+begin_src emacs-lisp
+  (use-package cmake-project
+    :hook ((c++-mode . cmake-project-mode )
+           (c-mode . cmake-project-mode))
+    )
+#+end_src
+
+* C/C++
 ** Hook
   Currently lsp-mode works with clangd backend without any initial setup.
   company-clang needs =clang= installed on the system.
@@ -564,7 +609,7 @@ Like lsp-mode but for debuggers.
     (defun my-c-c++-mode-hook-fn ()
       (lsp)                ; turn on
       (local-set-key (kbd "C-<tab>") #'lsp-format-buffer) ;tab comp
-      (yas-minor-mode 1)  ; turn on
+      (smartparens-mode 1)
       )
 
     (add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
@@ -598,17 +643,14 @@ Like lsp-mode but for debuggers.
      )
 #+end_src
 
-*** TODO Formatting
-Want simple formatting checker (flycheck). There is currently an issue with flake8.
 ** Hook
 #+begin_src emacs-lisp  
-  (defun my-python-mode-hook-fn ()
-    (lsp)
-    (company-mode 1)
-    (smartparens-mode)
-    (local-set-key (kbd "<tab>") #'company-indent-or-complete-common))
+    (defun my-python-mode-hook-fn ()
+      (lsp)
+      ;; (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
+      )
 
-  (add-hook 'python-mode-hook #'my-python-mode-hook-fn)
+    (add-hook 'python-mode-hook #'my-python-mode-hook-fn)
 #+end_src
 
 * Org-Mode
@@ -620,6 +662,7 @@ Want simple formatting checker (flycheck). There is currently an issue with flak
     (visual-line-mode 1)
     (rainbow-delimiters-mode 0)
     (projectile-mode -1)
+    ;; (company-mode 1)
     ;; edit the modeline-- not needed for doom-modeline
     ;; (diminish 'visual-line-mode)
     ;; (diminish 'flyspell-mode)
@@ -720,12 +763,16 @@ Want simple formatting checker (flycheck). There is currently an issue with flak
     ;; This is needed as of Org 9.2
     (require 'org-tempo)
     (add-to-list 'org-structure-template-alist '("la" . "src latex"))
+    (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
     (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
     (add-to-list 'org-structure-template-alist '("py" . "src python  :results output"))
     (add-to-list 'org-structure-template-alist '("cpp" . "src C++  :includes <iostream>"))
     (add-to-list 'org-structure-template-alist '("cppnm" . "src C++  :main no"))
   )
 #+end_src
+
+#+RESULTS:
+: ((sh . src shell) (cppnm . src C++  :main no) (cpp . src C++  :includes <iostream>) (py . src python  :results output) (el . src emacs-lisp) (la . src latex) (a . export ascii) (c . center) (C . comment) (e . example) (E . export) (h . export html) (l . export latex) (q . quote) (s . src) (v . verse))
 
 ** Keybindings
 #+begin_src emacs-lisp
@@ -788,7 +835,6 @@ Faster terminal due to being compiled. Default is a better mode than term-mode; 
 : vterm-toggle
 
 
-
 ** shell-mode
 Between term-mode eshell.
 
@@ -819,4 +865,4 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]].  Could not use "use-packag
 
 * Localwords
 #  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell  Dired dracula clangd ui
-#  LocalWords:  Grammarly workspaces commenter Pyright
+#  LocalWords:  Grammarly workspaces commenter Pyright CMake
