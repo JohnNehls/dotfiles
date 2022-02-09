@@ -1,20 +1,25 @@
 #+TITLE: Hack Configuration
 
-Be it known, here lies a fledgling emacs configuration used for C++ and Python development, also, slowly, a configuration for general note taking and writing. The repository also stores my relatively basic =.bashrc= and =.ipython= (and maybe more) configurations.  For a thorough emacs configuration see [[https://github.com/daviwil/emacs-from-scratch]].
+Be it known, here lies a fledgling Emacs configuration used for C++ and Python development as well as for general note taking and writing. The configuration is written in the /literate programming/ style via Org-Babel in the emacs.org file.
 
+For a more thorough configuration see [[https://github.com/daviwil/emacs-from-scratch]].
+
+Note: the repository also stores my relatively basic =.bashrc= and =.ipython= (and maybe more) configurations.
 
 * Installation
-Execute the following commands starting in the home directory:
+Execute the following commands starting in my home directory:
+#+begin_src bash
+  git clone https://github.com/JohnNehls/.dotfiles
+  cd .dotfiles
+#+end_src
 
-  - =git clone https://github.com/JohnNehls/.dotfiles=
-  - =cd .dotfiles=
-
-For the next step, there may be issues if your home directory already contains versions of configuration files we are now cloning-- rename or delete these files if you'd like them replaced. Then execute:
-
-  - =stow .=
+For the next step, there may be issues if our home directory already contains versions of configuration files we are now cloning-- rename or delete these files if we'd like them replaced. Then execute:
+#+begin_src bash
+stow .
+#+end_src
 
 Here [[https://www.gnu.org/software/stow/][stow]] makes "symlinks" into the parent directory (here the home directory). Before creating the "symlinks", stow checks its =.stow-local-ignore= to find which files do not require links.
 
-Next launch emacs. Since several modules are compiled, emacs prompts us before a few compilations, type =yes= or =y= to continue. If there is an issue compiling (generally a missing a dependency in the system), a helpful message is displayed in the =*Messages*= buffer. Install the dependency, restart emacs, and compile again.
+Next we launch Emacs. Since several modules are now compiled (Emacs native compilation), Emacs prompts us, type =yes= or =y= to continue. If there are issues (generally a missing a dependency in the system), a helpful message is displayed in the =*Messages*= buffer. Install the dependency, restart emacs, and compile again.
 
-Before a few of the icons will display correctly in emacs, a command must be run within the program: =M-x all-the-icons-install-fonts=
+Before icons will splay correctly in Emacs, we must run =M-x all-the-icons-install-fonts= in Emacs.
