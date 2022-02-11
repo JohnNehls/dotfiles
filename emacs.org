@@ -374,7 +374,7 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
   (setq flycheck-grammarly-check-time 0.8)
 #+end_src
 
-**  lsp-grammarly
+** lsp-grammarly
 Gives warning on startup for login.    [[ https://github.com/emacs-grammarly/lsp-grammarly][lsp-grammarly doc]]
 #+begin_src emacs-lisp  :tangle no
   (use-package lsp-grammarly
@@ -601,6 +601,26 @@ After this, the =compile= automatically holds the correct command.
 Have the =*Compilation*= buffer scroll with the output.
 #+begin_src emacs-lisp
   (setq compilation-scroll-output t)
+#+end_src
+
+The following keeps the compilation buffer if there are warnings or errors, and buries it otherwise (after 1 second). [[https://stackoverflow.com/questions/11043004/emacs-compile-buffer-auto-close][source]]
+#+begin_src emacs-lisp
+(defun bury-compile-buffer-if-successful (buffer string)
+ "Bury a compilation buffer if succeeded without warnings "
+ (when (and
+         (buffer-live-p buffer)
+         (string-match "compilation" (buffer-name buffer))
+         (string-match "finished" string)
+         (not
+          (with-current-buffer buffer
+            (goto-char (point-min))
+            (search-forward "warning" nil t))))
+    (run-with-timer 1 nil
+                    (lambda (buf)
+                      (bury-buffer buf)
+                      (switch-to-prev-buffer (get-buffer-window buf) 'kill))
+                    buffer)))
+(add-hook 'compilation-finish-functions 'bury-compile-buffer-if-successful)
 #+end_src
 
 ** Hook
@@ -836,7 +856,6 @@ Faster terminal due to being compiled. Default is a better mode than term-mode; 
 
 #+RESULTS:
 : vterm-toggle
-
 
 ** shell-mode
 Between term-mode eshell.
