@@ -364,31 +364,9 @@ Better version of help. We remap normal help keys to Helpful's versions.
     ([remap describe-key] . helpful-key))
 #+end_src
 
-** Keybindings
-#+begin_src emacs-lisp
-  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-  (global-set-key (kbd "C-o") 'other-window)
-
-  ;; Make font bigger/smaller.
-  (global-set-key (kbd "C-+") 'text-scale-increase)
-  (global-set-key (kbd "C--") 'text-scale-decrease)
-  (global-set-key (kbd "C-0") 'text-scale-adjust)
-
-    ;; (global-unset-key (kbd "C-<SPC>"))
-    ;; (global-unset-key (kbd "C-m"))
-    ;; (global-set-key (kbd "C-m") 'set-mark-command)
-    ;; (global-set-key (kbd "C-<SPC>") 'other-window)
-    ;; (global-set-key (kbd "M-SPC") 'other-window)
-#+end_src
-
-#+RESULTS:
-: other-window
-
-Future: create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. hydra ties related commands into short bindings with a common prefix.
-
 ** TODO Grammarly
 There looks to be several packages at the moment. Top two (as of 1/10/22) are installed here without proper hooks. 
-** flycheck-grammarly   
+** flycheck-grammarly
 Works w/o being logged in.                         [[https://github.com/emacs-grammarly/flycheck-grammarly][flycheck-grammarly doc]]
 #+begin_src emacs-lisp  :tangle no
   (use-package flycheck-grammarly
@@ -407,6 +385,26 @@ Gives warning on startup for login.    [[ https://github.com/emacs-grammarly/lsp
 #+end_src
 
 #+RESULTS:
+** Keybindings
+#+begin_src emacs-lisp
+  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+  (global-set-key (kbd "C-o") 'other-window)
+
+  ;; Make font bigger/smaller.
+  (global-set-key (kbd "C-=") 'text-scale-increase)
+  (global-set-key (kbd "C--") 'text-scale-decrease)
+  (global-set-key (kbd "C-0") 'text-scale-adjust)
+
+    ;; (global-unset-key (kbd "C-<SPC>"))
+    ;; (global-unset-key (kbd "C-m"))
+    ;; (global-set-key (kbd "C-m") 'set-mark-command)
+    ;; (global-set-key (kbd "C-<SPC>") 'other-window)
+    ;; (global-set-key (kbd "M-SPC") 'other-window)
+#+end_src
+
+
+Future: create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. hydra ties related commands into short bindings with a common prefix.
+
 * Development
 ** Parens/delimiters
 #+begin_src emacs-lisp
@@ -468,7 +466,7 @@ Issue: company mode not working in org-mode. Correct completion keys are not cle
     :ensure t
     :custom
     (company-minimum-prefix-length 1)
-    (company-idle-delay 0.3)
+    (company-idle-delay 0.5)
     ;; (global-set-key (kbd "C-<tab>") 'company-complete)
   )
   (global-company-mode 1)
@@ -527,7 +525,6 @@ Provides additional lsp information to the company-mode box. The mode provides i
     :custom
     (lsp-ui-doc-position 'bottom))
 #+end_src
-
 *** lsp-ivy
 [[https://github.com/emacs-lsp/lsp-ivy][lsp-ivy]] integrates Ivy with =lsp-mode= to make it easy to search for things by name in your code.  When you run these commands, a prompt will appear in the minibuffer allowing you to type part of the name of a symbol in your code.  Results will be populated in the minibuffer so that you can find what you're looking for and jump to that location in the code upon selecting the result.
 
@@ -575,7 +572,7 @@ Like lsp-mode but for debuggers.
 
 ** CMake
 Lsp-mode requires the language server on the system:
-=pip install cmake-language-server=
+=pip install cmake-language-server=.
 *** CMake-mode
 #+begin_src emacs-lisp
   (use-package cmake-mode
@@ -600,6 +597,12 @@ After this, the =compile= automatically holds the correct command.
 #+end_src
 
 * C/C++
+** Compilation Buffer
+Have the =*Compilation*= buffer scroll with the output.
+#+begin_src emacs-lisp
+  (setq compilation-scroll-output t)
+#+end_src
+
 ** Hook
   Currently lsp-mode works with clangd backend without any initial setup.
   company-clang needs =clang= installed on the system.

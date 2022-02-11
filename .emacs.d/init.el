@@ -209,7 +209,7 @@
 (global-set-key (kbd "C-o") 'other-window)
 
 ;; Make font bigger/smaller.
-(global-set-key (kbd "C-+") 'text-scale-increase)
+(global-set-key (kbd "C-=") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 (global-set-key (kbd "C-0") 'text-scale-adjust)
 
@@ -256,7 +256,7 @@
   :ensure t
   :custom
   (company-minimum-prefix-length 1)
-  (company-idle-delay 0.3)
+  (company-idle-delay 0.5)
   ;; (global-set-key (kbd "C-<tab>") 'company-complete)
 )
 (global-company-mode 1)
@@ -331,6 +331,8 @@
   :hook ((c++-mode . cmake-project-mode )
          (c-mode . cmake-project-mode))
   )
+
+(setq compilation-scroll-output t)
 
 (setq-default c-basic-offset 2)
 
@@ -512,3 +514,16 @@
 ;A rather janky mode which lists the recursive size of each foler/item in dired. 
  (use-package dired-du
    :commands du)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("d14f3df28603e9517eb8fb7518b662d653b25b26e83bd8e129acea042b774298" "234dbb732ef054b109a9e5ee5b499632c63cc24f7c2383a849815dacc1727cb6" "4699e3a86b1863bbc695236036158d175a81f0f3ea504e2b7c71f8f7025e19e3" "e19ac4ef0f028f503b1ccafa7c337021834ce0d1a2bca03fcebc1ef635776bea" "1bddd01e6851f5c4336f7d16c56934513d41cc3d0233863760d1798e74809b4b" "78e6be576f4a526d212d5f9a8798e5706990216e9be10174e3f3b015b8662e27" "6b5c518d1c250a8ce17463b7e435e9e20faa84f3f7defba8b579d4f5925f60c1" default)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
