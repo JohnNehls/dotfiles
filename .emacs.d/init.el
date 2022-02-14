@@ -219,6 +219,8 @@
   ;; (global-set-key (kbd "C-<SPC>") 'other-window)
   ;; (global-set-key (kbd "M-SPC") 'other-window)
 
+(add-hook 'prog-mode-hook #'flyspell-prog-mode)
+
 (show-paren-mode    1) ; Highlight parentheses pairs.
 ;; (electric-pair-mode 1) ; Close pairs automatically.
 
