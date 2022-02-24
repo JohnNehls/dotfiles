@@ -3,12 +3,12 @@
 #+STARTUP: overview
 * Setup
 ** Silence Native Compilation Warnings
+These do not seem to work.
 #+begin_src emacs-lisp
-  (setq comp-async-report-warnings-errors nil)
-  (setq warning-suppress-log-types 1)
-  (setq warning-suppress-types 1)
+  ;; (setq comp-async-report-warnings-errors nil)
+  ;; (setq warning-suppress-log-types 1)
+  ;; (setq warning-suppress-types 1)
 #+end_src
-
 ** Startup Performance
 *** Garbage Collection
 A more advanced garbage collection "hack". https://github.com/emacsmirror/gcmh
@@ -408,11 +408,11 @@ Gives warning on startup for login.    [[ https://github.com/emacs-grammarly/lsp
 Future: create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. hydra ties related commands into short bindings with a common prefix.
 
 * Development
-** Flyspell comments
+** TODO Flyspell comments
+Does not work well at the moment.
 #+begin_src emacs-lisp
-(add-hook 'prog-mode-hook #'flyspell-prog-mode)
+;; (add-hook 'prog-mode-hook #'flyspell-prog-mode)
 #+end_src
-
 ** Parens/delimiters
 #+begin_src emacs-lisp
 (show-paren-mode    1) ; Highlight parentheses pairs.
@@ -647,6 +647,31 @@ The following keeps the compilation buffer if there are warnings or errors, and 
 #+end_src
 
 * Python
+** Pyvenv
+#+begin_src emacs-lisp
+  (use-package pyvenv
+  :ensure t
+  :defer t
+  :diminish
+  :config
+
+  (setenv "WORKON_HOME" "/home/ape/.conda/envs")
+          ; Show python venv name in modeline
+          (setq pyvenv-mode-line-indicator '(pyvenv-virtual-env-name ("[venv:" pyvenv-virtual-env-name "] ")))
+          (pyvenv-mode t))
+#+end_src
+
+After package installation, you should have =M-x pyvenv-workon= command with a list of your virtual environments.
+
+The only lack of this is that you need to restart LSP workspace at least once when you change venv by pyvenv-workon command.
+
+So the flow should be like this:
+
+=M-x pyvenv-workon <your-venv>=
+=M-x lsp-restart-workspace=
+
+After changing venv all installed packages from venv should be visible for LSP server.
+
 ** Python-mode
 *** Pyright 
 #+begin_src emacs-lisp   
@@ -684,6 +709,19 @@ The following keeps the compilation buffer if there are warnings or errors, and 
 #+end_src
 
 * Org-Mode
+** Inline latex
+Note: I had to install texlive dependencies for latex framents to work. I found what needed to be installed by running =pdflatex= on the generated tex file in =/tmp/= created by org.
+*** Font size
+Create a function to align the size of displayed latex framents with overall org-mode font size.
+#+begin_src emacs-lisp
+(defun update-org-latex-fragments ()
+  (org-latex-preview '(64))
+  (plist-put org-format-latex-options :scale (* 1.3 text-scale-mode-amount))
+  (org-latex-preview '(16)))
+(add-hook 'text-scale-mode-hook 'update-org-latex-fragments)
+#+end_src
+
+
 ** Mode setup
 #+begin_src emacs-lisp 
   (defun jmn/org-mode-setup ()
@@ -897,3 +935,4 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]].  Could not use "use-packag
 * Localwords
 #  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell  Dired dracula clangd ui
 #  LocalWords:  Grammarly workspaces commenter Pyright CMake Flyspell
+#  LocalWords:  Pyvenv

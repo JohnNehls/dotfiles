@@ -1,4 +1,6 @@
-(setq comp-async-report-warnings-errors nil)
+;; (setq comp-async-report-warnings-errors nil)
+;; (setq warning-suppress-log-types 1)
+;; (setq warning-suppress-types 1)
 
 (add-to-list 'load-path "~/.dotfiles/.emacs.d/elpa/gcmh-20201116.2251")
 (gcmh-mode 1)
@@ -219,7 +221,7 @@
   ;; (global-set-key (kbd "C-<SPC>") 'other-window)
   ;; (global-set-key (kbd "M-SPC") 'other-window)
 
-(add-hook 'prog-mode-hook #'flyspell-prog-mode)
+;; (add-hook 'prog-mode-hook #'flyspell-prog-mode)
 
 (show-paren-mode    1) ; Highlight parentheses pairs.
 ;; (electric-pair-mode 1) ; Close pairs automatically.
@@ -364,6 +366,17 @@
 (add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
 (add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
 
+(use-package pyvenv
+:ensure t
+:defer t
+:diminish
+:config
+
+(setenv "WORKON_HOME" "/home/ape/.conda/envs")
+        ; Show python venv name in modeline
+        (setq pyvenv-mode-line-indicator '(pyvenv-virtual-env-name ("[venv:" pyvenv-virtual-env-name "] ")))
+        (pyvenv-mode t))
+
 ; npm must be installed on the system.
   (use-package lsp-pyright
     :after lsp
@@ -389,6 +402,12 @@
   )
 
 (add-hook 'python-mode-hook #'my-python-mode-hook-fn)
+
+(defun update-org-latex-fragments ()
+  (org-latex-preview '(64))
+  (plist-put org-format-latex-options :scale (* 1.3 text-scale-mode-amount))
+  (org-latex-preview '(16)))
+(add-hook 'text-scale-mode-hook 'update-org-latex-fragments)
 
 (defun jmn/org-mode-setup ()
   (org-indent-mode)
