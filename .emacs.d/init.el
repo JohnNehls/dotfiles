@@ -366,6 +366,17 @@
 (add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
 (add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
 
+(use-package ein
+  :commands (ein:notebooklist-open)
+  ;; :config
+  ;; (require 'ein-loaddefs)
+  ;; (require 'ein)
+  ;; (define-key ein:notebook-mode-map (kbd "<C-tab>") 'my-function)
+  )
+
+;; (use-package elpy
+;;   :after ein)
+
 (use-package pyvenv
 :ensure t
 :defer t

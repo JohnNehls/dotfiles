@@ -647,6 +647,27 @@ The following keeps the compilation buffer if there are warnings or errors, and 
 #+end_src
 
 * Python
+** Ipython Notebook
+#+begin_src emacs-lisp
+  (use-package ein
+    :commands (ein:notebooklist-open)
+    ;; :config
+    ;; (require 'ein-loaddefs)
+    ;; (require 'ein)
+    ;; (define-key ein:notebook-mode-map (kbd "<C-tab>") 'my-function)
+    )
+#+end_src
+*** TODO completion
+In [[https://www.youtube.com/watch?v=OB9vFu9Za8w][EIN video]], Miller says that the completion is based on =auto-complete= rather than =company=. So here we are going to try to get completion setup for =EIN=.
+Also, in [[https://github.com/millejoh/emacs-ipython-notebook#ob-ein][EIN github]], Miller says that =EIN= is an =elpy= module, so maybe we need =elpy= for completion?
+#+begin_src emacs-lisp
+;; (use-package elpy
+;;   :after ein)
+#+end_src
+
+#+RESULTS:
+
+
 ** Pyvenv
 #+begin_src emacs-lisp
   (use-package pyvenv
