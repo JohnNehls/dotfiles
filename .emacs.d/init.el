@@ -366,17 +366,6 @@
 (add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
 (add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
 
-(use-package ein
-  :commands (ein:notebooklist-open)
-  ;; :config
-  ;; (require 'ein-loaddefs)
-  ;; (require 'ein)
-  ;; (define-key ein:notebook-mode-map (kbd "<C-tab>") 'my-function)
-  )
-
-;; (use-package elpy
-;;   :after ein)
-
 (use-package pyvenv
 :ensure t
 :defer t
@@ -521,6 +510,23 @@
 (global-set-key (kbd "C-c l") #'org-store-link)
 (global-set-key (kbd "C-c a") #'org-agenda)
 (global-set-key (kbd "C-c c") #'org-capture)
+
+;; (use-package jupyter
+;;     :after (org)
+;;     ;; :straight t
+;;     )
+
+;; (org-babel-do-load-languages 'org-babel-load-languages
+;;                              (append org-babel-load-languages
+;;                                      '((jupyter . t))))
+
+(use-package ein
+  :commands (ein:notebooklist-open)
+  ;; :config
+  ;; (require 'ein-loaddefs)
+  ;; (require 'ein)
+  ;; (define-key ein:notebook-mode-map (kbd "<C-tab>") 'my-function)
+  )
 
 (use-package eterm-256color
   :hook (term-mode . eterm-256color-mode))

@@ -1,4 +1,4 @@
-#+TITLE: Emacs Configuration
+\#+TITLE: Emacs Configuration
 #+PROPERTY: header-args:emacs-lisp :tangle .emacs.d/init.el
 #+STARTUP: overview
 * Setup
@@ -647,27 +647,6 @@ The following keeps the compilation buffer if there are warnings or errors, and 
 #+end_src
 
 * Python
-** Ipython Notebook
-#+begin_src emacs-lisp
-  (use-package ein
-    :commands (ein:notebooklist-open)
-    ;; :config
-    ;; (require 'ein-loaddefs)
-    ;; (require 'ein)
-    ;; (define-key ein:notebook-mode-map (kbd "<C-tab>") 'my-function)
-    )
-#+end_src
-*** TODO completion
-In [[https://www.youtube.com/watch?v=OB9vFu9Za8w][EIN video]], Miller says that the completion is based on =auto-complete= rather than =company=. So here we are going to try to get completion setup for =EIN=.
-Also, in [[https://github.com/millejoh/emacs-ipython-notebook#ob-ein][EIN github]], Miller says that =EIN= is an =elpy= module, so maybe we need =elpy= for completion?
-#+begin_src emacs-lisp
-;; (use-package elpy
-;;   :after ein)
-#+end_src
-
-#+RESULTS:
-
-
 ** Pyvenv
 #+begin_src emacs-lisp
   (use-package pyvenv
@@ -741,7 +720,6 @@ Create a function to align the size of displayed latex framents with overall org
   (org-latex-preview '(16)))
 (add-hook 'text-scale-mode-hook 'update-org-latex-fragments)
 #+end_src
-
 
 ** Mode setup
 #+begin_src emacs-lisp 
@@ -870,6 +848,36 @@ Create a function to align the size of displayed latex framents with overall org
 (global-set-key (kbd "C-c c") #'org-capture)
 #+end_src
 
+* TODO Jupyter Notebook
+** TODO run Jupyter in babel
+[[https://sqrtminusone.xyz/posts/2021-05-01-org-python/][Reference]] and https://github.com/jkitchin/scimax
+Cannot get zmq (Jupyter dependency)  to work currently
+#+begin_src emacs-lisp
+    ;; (use-package jupyter
+    ;;     :after (org)
+    ;;     ;; :straight t
+    ;;     )
+
+    ;; (org-babel-do-load-languages 'org-babel-load-languages
+    ;;                              (append org-babel-load-languages
+    ;;                                      '((jupyter . t))))
+#+end_src
+
+** TODO open notebook in Emacs
+If I use EIN, add the setting for displaying the figures inline.
+#+begin_src emacs-lisp
+  (use-package ein
+    :commands (ein:notebooklist-open)
+    ;; :config
+    ;; (require 'ein-loaddefs)
+    ;; (require 'ein)
+    ;; (define-key ein:notebook-mode-map (kbd "<C-tab>") 'my-function)
+    )
+#+end_src
+*** TODO completion
+In [[https://www.youtube.com/watch?v=OB9vFu9Za8w][EIN video]], Miller says that the completion is based on =auto-complete= rather than =company=. So here we are going to try to get completion setup for =EIN=.
+Also, in [[https://github.com/millejoh/emacs-ipython-notebook#ob-ein][EIN github]], Miller says that =EIN= is an =elpy= module, so maybe we need =elpy= for completion?
+
 * Terminals
 ** term-mode
 - Slower than vterm at printing large amounts of information. 
@@ -919,7 +927,6 @@ Faster terminal due to being compiled. Default is a better mode than term-mode; 
     (global-set-key (kbd "C-t") 'vterm-toggle)
 
 #+end_src
-
 
 
 
