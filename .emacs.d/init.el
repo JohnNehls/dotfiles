@@ -63,8 +63,10 @@
   :custom
   ;; Fully redraw the display before it processes queued input events.
   (redisplay-dont-pause            t)
+
   ;; Number of lines of continuity to retain when scrolling by full screens
-  (next-screen-context-lines       2)
+  ;; (next-screen-context-lines       2)  ;; golden ration pkg replaced this
+
   ;; only 'jump' when moving this far off the screen
   (scroll-conservatively       10000)
   (scroll-step                     1) ;; Keyboard scroll one line at a time
@@ -72,6 +74,7 @@
   (mouse-wheel-follow-mouse        t) ;; Scroll window under mouse
   (fast-but-imprecise-scrolling    t) ;; No (less) lag while scrolling lots.
   (auto-window-vscroll           nil) ;; Cursor move faster
+  (pixel-scroll-precision-mode     1) ;; pixel based scrolling
   )
 
 (use-package fast-scroll
