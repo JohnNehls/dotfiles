@@ -406,12 +406,6 @@
 
 (add-hook 'python-mode-hook #'my-python-mode-hook-fn)
 
-(defun update-org-latex-fragments ()
-  (org-latex-preview '(64))
-  (plist-put org-format-latex-options :scale (* 1.3 text-scale-mode-amount))
-  (org-latex-preview '(16)))
-(add-hook 'text-scale-mode-hook 'update-org-latex-fragments)
-
 (defun jmn/org-mode-setup ()
   (org-indent-mode)
   (variable-pitch-mode 1)
@@ -509,6 +503,15 @@
   (add-to-list 'org-structure-template-alist '("cpp" . "src C++  :includes <iostream>"))
   (add-to-list 'org-structure-template-alist '("cppnm" . "src C++  :main no"))
 )
+
+(defconst jmn-latex-scale 1.1 "scaling factor for latex fragments")
+(setq org-format-latex-options (plist-put org-format-latex-options :scale jmn-latex-scale))
+
+(defun update-org-latex-fragments ()
+  (org-latex-preview '(64))
+  (plist-put org-format-latex-options :scale (+ jmn-latex-scale  (* 0.2 text-scale-mode-amount)))
+  (org-latex-preview '(16)))
+(add-hook 'text-scale-mode-hook 'update-org-latex-fragments)
 
 (global-set-key (kbd "C-c l") #'org-store-link)
 (global-set-key (kbd "C-c a") #'org-agenda)
