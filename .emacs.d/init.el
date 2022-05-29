@@ -1,9 +1,12 @@
-;; (setq comp-async-report-warnings-errors nil)
-;; (setq warning-suppress-log-types 1)
-;; (setq warning-suppress-types 1)
+;; Automatically tangle our Emacs.org config file when we save it
+(defun efs/org-babel-tangle-config ()
+  (when (string-equal (buffer-file-name)
+                      (expand-file-name "~/.dotfiles/emacs.org"))
+    ;; Dynamic scoping to the rescue
+    (let ((org-confirm-babel-evaluate nil))
+      (org-babel-tangle))))
 
-(add-to-list 'load-path "~/.dotfiles/.emacs.d/elpa/gcmh-20201116.2251")
-(gcmh-mode 1)
+(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 
 ;; Initialize package sources
 (require 'package)
@@ -24,16 +27,6 @@
 (require 'use-package)
 (setq use-package-always-ensure t) ; no need for :ensure t for each package.
 (setq use-package-verbose t) ; log configure/loading messages in *Messages*
-
-;; Automatically tangle our Emacs.org config file when we save it
-(defun efs/org-babel-tangle-config ()
-  (when (string-equal (buffer-file-name)
-                      (expand-file-name "~/.dotfiles/emacs.org"))
-    ;; Dynamic scoping to the rescue
-    (let ((org-confirm-babel-evaluate nil))
-      (org-babel-tangle))))
-
-(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 
 (use-package auto-package-update
   :custom
