@@ -808,7 +808,7 @@ Note: I had to install texlive dependencies for latex framents to work. I found 
 
 *Font size*:
 #+begin_src emacs-lisp
-  (defconst jmn-latex-scale 1.1 "scaling factor for latex fragments")
+  (defconst jmn-latex-scale 1.0 "scaling factor for latex fragments")
   (setq org-format-latex-options (plist-put org-format-latex-options :scale jmn-latex-scale))
 #+end_src
 
@@ -817,7 +817,7 @@ Create a function to align the size of displayed latex framents with overall org
 #+begin_src emacs-lisp
     (defun update-org-latex-fragments ()
       (org-latex-preview '(64))
-      (plist-put org-format-latex-options :scale (+ jmn-latex-scale  (* 0.2 text-scale-mode-amount)))
+      (plist-put org-format-latex-options :scale (+ jmn-latex-scale  (* 0.3 text-scale-mode-amount)))
       (org-latex-preview '(16)))
     (add-hook 'text-scale-mode-hook 'update-org-latex-fragments)
 #+end_src
@@ -904,8 +904,8 @@ Faster terminal due to being compiled. Default is a better mode than term-mode; 
                      (window-height . 0.3)))
       )
 
-    ;; (global-unset-key (kbd "C-t"))
-    (global-set-key (kbd "C-t") 'vterm-toggle)
+    ;; (global-unset-key (kbd "C-t"))`
+    (global-set-key (kbd "C-`") 'vterm-toggle)
 
 #+end_src
 

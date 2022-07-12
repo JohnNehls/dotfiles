@@ -497,12 +497,12 @@
   (add-to-list 'org-structure-template-alist '("cppnm" . "src C++  :main no"))
 )
 
-(defconst jmn-latex-scale 1.1 "scaling factor for latex fragments")
+(defconst jmn-latex-scale 1.0 "scaling factor for latex fragments")
 (setq org-format-latex-options (plist-put org-format-latex-options :scale jmn-latex-scale))
 
 (defun update-org-latex-fragments ()
   (org-latex-preview '(64))
-  (plist-put org-format-latex-options :scale (+ jmn-latex-scale  (* 0.2 text-scale-mode-amount)))
+  (plist-put org-format-latex-options :scale (+ jmn-latex-scale  (* 0.3 text-scale-mode-amount)))
   (org-latex-preview '(16)))
 (add-hook 'text-scale-mode-hook 'update-org-latex-fragments)
 
@@ -553,8 +553,8 @@
                  (window-height . 0.3)))
   )
 
-;; (global-unset-key (kbd "C-t"))
-(global-set-key (kbd "C-t") 'vterm-toggle)
+;; (global-unset-key (kbd "C-t"))`
+(global-set-key (kbd "C-`") 'vterm-toggle)
 
 (use-package dired
    :ensure nil
