@@ -30,12 +30,8 @@ export TERM=xterm-256color
 # User specific aliases and functions
 alias ema='setsid emacs'
 alias emac='emacs -nw'
-
 alias open='gnome-open'
 alias okular='setsid okular'
-
-
-alias sizeDirs='du -hsx ./* | sort -rh | head -n 40'
 
 # # quicker ls
 alias ll='ls -alF'
@@ -44,16 +40,6 @@ alias l='ls -CF'
 
 #sizing
 alias sizeDirs='du -hsx ./* | sort -rh | head -n 40'
-
-#alias mendeleydesktop='setsid mendeleydesktop'
-
-# #ssh
-# alias sboole='ssh -X ape@boole'
-# alias stgpu='ssh -X ape@192.168.1.136'
-# alias sisak='ssh -X ape@192.168.1.148'
-# alias stesla='ssh -X ape@WS-Tesla-1'
-# alias sboyle='ssh -X ape@boyle'
-
 
 #activate openMPI (only aware of modules in Fedora)
 # module load  mpi/mpich-x86_64 
