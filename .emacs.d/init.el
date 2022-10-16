@@ -479,23 +479,26 @@
   :hook (org-mode . efs/org-mode-visual-fill))
 
 (org-babel-do-load-languages 'org-babel-load-languages
-                               (append org-babel-load-languages
-                                '((python . t)
-                                  (latex  . t)
-                                  (C      . t))))
+                                             (append org-babel-load-languages
+                                              '((python . t)
+                                                (latex  . t)
+                                                (C      . t))))
 
-(setq org-confirm-babel-evaluate nil)
+              (setq org-confirm-babel-evaluate nil)
 
-(with-eval-after-load 'org
-  ;; This is needed as of Org 9.2
-  (require 'org-tempo)
-  (add-to-list 'org-structure-template-alist '("la" . "src latex"))
-  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
-  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-  (add-to-list 'org-structure-template-alist '("py" . "src python  :results output"))
-  (add-to-list 'org-structure-template-alist '("cpp" . "src C++  :includes <iostream>"))
-  (add-to-list 'org-structure-template-alist '("cppnm" . "src C++  :main no"))
-)
+              (with-eval-after-load 'org
+                ;; This is needed as of Org 9.2
+                (require 'org-tempo)
+                (add-to-list 'org-structure-template-alist '("la" . "src latex"))
+                (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+                (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+                (add-to-list 'org-structure-template-alist '("py" . "src python  :results output"))
+                (add-to-list 'org-structure-template-alist '("pyim" . "src python :results file :var f=REPLACE
+import matplotlib.pyplot as plt
+plt.savefig(f)
+return f"))
+                (add-to-list 'org-structure-template-alist '("cpp" . "src C++  :includes <iostream>"))
+                (add-to-list 'org-structure-template-alist '("cppnm" . "src C++  :main no")))
 
 (defconst jmn-latex-scale 1.0 "scaling factor for latex fragments")
 (setq org-format-latex-options (plist-put org-format-latex-options :scale jmn-latex-scale))
