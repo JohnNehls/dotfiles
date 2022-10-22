@@ -16,6 +16,8 @@ export PATH
 ##############################################################################
 # User specific aliases and functions
 ##############################################################################
+# Paths
+export PATH="$HOME/Dropbox/bin/:$PATH"
 
 # Give terminal 256 colors (rather than 16 or so)
 # Also helps emacs look like emacs -nw (or the terminal)
@@ -26,6 +28,8 @@ export TERM=xterm-256color
 # PATH=$PATH:/home/ape/Downloads/mendeleydesktop-1.17.9-linux-x86_64/bin
 
 ############# aliases ##########################
+# recursivly replace all spaces in filenames with _
+
 
 # User specific aliases and functions
 alias ema='setsid emacs'
