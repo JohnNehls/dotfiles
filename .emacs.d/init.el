@@ -150,6 +150,8 @@
   (setq dashboard-set-footer nil)
   )
 
+(setq native-comp-async-report-warnings-errors nil)
+
 (use-package goto-last-change
   :ensure t
   :bind ("C-;" . goto-last-change))
