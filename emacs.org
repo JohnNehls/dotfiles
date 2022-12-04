@@ -70,6 +70,8 @@ You can also use =M-x auto-package-update-now= to update right now!
   (tooltip-mode -1)                          ; Disable tooltips
   (set-fringe-mode 10)                       ; Give some breathing room
   (setq visible-bell t)                      ; Set up the visible bell
+  (save-place-mode 1)                        ; Open file where last visited
+  (global-auto-revert-mode 1)                ; refresh buffer if changed on disk
 
   (add-hook 'text-mode-hook 'flyspell-mode)  ; enable spellcheck on text mode
   ;; (add-hook 'prog-mode-hook 'hl-line-mode)   ; highlight lines when programming
@@ -170,25 +172,20 @@ As of now I eliminate the creation of backup files with the following steps. A b
 
 *** Modeline 
 **** Doom-modeline
-*NOTE*: The first time you load your configuration on a new machine, you’ll need to run =M-x all-the-icons-install-fonts= so that mode line icons display correctly.
+*NOTE*: The first time you load your configuration on a new machine, you’ll need to run =M-x all-the-icons-install-fonts= so that mode line icons display correctly. (Fixed?)
 #+begin_src emacs-lisp  
-  (use-package all-the-icons)
+  (use-package all-the-icons
+  :init
+  (when (and (not (member "all-the-icons" (font-family-list))) ;; autoinstall fonts
+             (window-system))
+    (all-the-icons-install-fonts t)))
+
   (use-package doom-modeline
     :init (doom-modeline-mode 1)
     :custom ((doom-modeline-height 15)))
 #+end_src
 
-**** Delight (used?)
-Enables you to customize the mode names displayed in the mode line.
-#+begin_src emacs-lisp  :tangle no
-(use-package delight)
-#+end_src
-
-**** Diminish(used?)
-#+begin_src emacs-lisp  :tangle no
-  (use-package diminish)
-#+end_src
-
+#+RESULTS:
 *** Transparency
 #+begin_src emacs-lisp
    (defun transparency (value)

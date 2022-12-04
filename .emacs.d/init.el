@@ -44,6 +44,8 @@
 (tooltip-mode -1)                          ; Disable tooltips
 (set-fringe-mode 10)                       ; Give some breathing room
 (setq visible-bell t)                      ; Set up the visible bell
+(save-place-mode 1)                        ; Open file where last visited
+(global-auto-revert-mode 1)                ; refresh buffer if changed on disk
 
 (add-hook 'text-mode-hook 'flyspell-mode)  ; enable spellcheck on text mode
 ;; (add-hook 'prog-mode-hook 'hl-line-mode)   ; highlight lines when programming
@@ -108,7 +110,12 @@
 ;; (use-package gruvbox-theme
 ;;     :init (load-theme 'gruvbox-dark-hard t))
 
-(use-package all-the-icons)
+(use-package all-the-icons
+:init
+(when (and (not (member "all-the-icons" (font-family-list))) ;; autoinstall fonts
+           (window-system))
+  (all-the-icons-install-fonts t)))
+
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
   :custom ((doom-modeline-height 15)))
