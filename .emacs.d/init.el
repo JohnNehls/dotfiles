@@ -149,7 +149,7 @@
                           ))
   (setq dashboard-set-heading-icons t)
   (setq dashboard-set-file-icons t)
-  (setq dashboard-projects-backend 'projectile)
+  (setq dashboard-projects-backend 'project-el)
 
   (dashboard-modify-heading-icons '((recents . "file-text")))
 
@@ -243,23 +243,6 @@
   :custom
   ;display Magit status buffer in the same buffer rather than splitting it. 
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
-
-(use-package projectile
-  :after lsp
-  ;; :delight projectile-mode
-  :config (projectile-mode)
-  :custom ((projectile-completion-system 'ivy))
-  :bind-keymap
-  ("C-c p" . projectile-command-map)
-  :init
-  ;; NOTE: Set this to the folder where you keep your Git repos!
-  (when (file-directory-p "~/Projects/Code")
-    (setq projectile-project-search-path '("~/Projects/Code")))
-  (setq projectile-switch-project-action #'projectile-dired))
-
-(use-package counsel-projectile
-  :after projectile-mode
-  :config (counsel-projectile-mode))
 
 (use-package company
   :ensure t
@@ -413,7 +396,6 @@
   (variable-pitch-mode 1)
   (visual-line-mode 1)
   (rainbow-delimiters-mode 0)
-  (projectile-mode -1)
   ;; (company-mode 1)
   ;; edit the modeline-- not needed for doom-modeline
   ;; (diminish 'visual-line-mode)
