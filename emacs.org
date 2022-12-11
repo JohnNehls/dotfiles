@@ -1,5 +1,5 @@
 #+TITLE: Emacs Configuration
-#+PROPERTY: header-args:emacs-lisp :tangle .emacs.d/init.el
+#+PROPERTY: header-args:emacs-lisp :tangle .emacs.d/init.el :results output silent
 #+STARTUP: overview
 #+OPTIONS: toc:2
 * Setup
@@ -65,7 +65,7 @@ You can also use =M-x auto-package-update-now= to update right now!
 #+begin_src emacs-lisp
   (setq inhibit-startup-message t)           ; inhibit startup message
   (tool-bar-mode -1)                         ; remove toolbar
-  ;; (menu-bar-mode -1)                         ; Disable the menu bar
+  (menu-bar-mode -1)                         ; Disable the menu bar
   (scroll-bar-mode -1)                       ; remove side scrollbar
   (tooltip-mode -1)                          ; Disable tooltips
   (set-fringe-mode 10)                       ; Give some breathing room
@@ -102,10 +102,8 @@ You can also use =M-x auto-package-update-now= to update right now!
       )
 #+end_src
 
-#+RESULTS:
-
 **** Fast Scroll
-To ensure scrolling is fast in Emacs, I use a package that disables non-essential things while the window is being scrolled:
+To ensure scrolling is fast in Emacs, disable  non-essential things while the window is being scrolled:
 #+begin_src emacs-lisp
 (use-package fast-scroll
   :ensure t
@@ -117,284 +115,19 @@ To ensure scrolling is fast in Emacs, I use a package that disables non-essentia
   (fast-scroll-mode 1))
 #+end_src
 
-#+RESULTS:
-: t
-
-**** Golden-ratio-scroll
-#+begin_src emacs-lisp
-(use-package golden-ratio-scroll-screen
-  :config
-  (global-set-key [remap scroll-down-command] 'golden-ratio-scroll-screen-down)
-  (global-set-key [remap scroll-up-command] 'golden-ratio-scroll-screen-up))
-
-#+end_src
-
-*** Better undo
-    - =C-x u= visualizes undo history as a tree for easy navigation
-    - =C-_= undo
-    - =M-_= redo
-#+begin_src emacs-lisp
-  (use-package undo-tree
-    :defer 2
-    :config
-    (global-undo-tree-mode 1))
-#+end_src
-
-*** TODO Backup files
-As of now I eliminate the creation of backup files with the following steps. A better solution would be to "clean up" the files by creating the backup files in =.emacs.d= rather than the local directory. Daviwill does this in his configuration.
-#+begin_src emacs-lisp
-  (setq make-backup-files nil)               ; stop creating backup~ files
-  (setq auto-save-default nil)               ; stop creating #autosave# files
-#+end_src
-
-*** Line numbers
-#+begin_src emacs-lisp
-     (dolist (mode '(org-mode-hook
-                     term-mode-hook
-                     shell-mode-hook
-                     treemacs-mode-hook
-                     eshell-mode-hook
-                     vterm-mode-hook))
-       (add-hook mode (lambda () (display-line-numbers-mode 0))))
-
-    (global-display-line-numbers-mode t)     ; Puts line numbers on ALL buffers
-#+end_src
-
-*** Theme
-#+begin_src emacs-lisp
-  (use-package monokai-theme
-      :init (load-theme 'monokai t))
-  ;; Saving my SECOND favorite theme which is easier on the eyes.
-  ;; (use-package gruvbox-theme
-  ;;     :init (load-theme 'gruvbox-dark-hard t))
-
-#+end_src
-
-*** Modeline 
-**** Doom-modeline
-*NOTE*: The first time you load your configuration on a new machine, you’ll need to run =M-x all-the-icons-install-fonts= so that mode line icons display correctly. (Fixed?)
-#+begin_src emacs-lisp  
-  (use-package all-the-icons
-  :init
-  (when (and (not (member "all-the-icons" (font-family-list))) ;; autoinstall fonts
-             (window-system))
-    (all-the-icons-install-fonts t)))
-
-  (use-package doom-modeline
-    :init (doom-modeline-mode 1)
-    :custom ((doom-modeline-height 15)))
-#+end_src
-
-#+RESULTS:
-*** Transparency
-#+begin_src emacs-lisp
-   (defun transparency (value)
-     "Sets the transparency of the frame window. 0=transparent/100=opaque"
-     (interactive "nTransparency Value 0 - 100 opaque:")
-     (set-frame-parameter (selected-frame) 'alpha value))
-
-  (transparency 96)  ;; Default value generally e [94,96]
-#+end_src
-
-*** Auto-clean white space
-#+begin_src emacs-lisp
-(use-package ws-butler
-  :hook ((text-mode . ws-butler-mode)
-         (prog-mode . ws-butler-mode)))
-#+end_src
-
-*** Make  =yes or no= prompts shorter
-#+begin_src emacs-lisp
-(defalias 'yes-or-no-p 'y-or-n-p)
-#+end_src
-
-*** TODO buffers
-Present a list of currently open buffers when you split the window.
-#+begin_src emacs-lisp  :tangle no
-(defadvice! (switch-to-buffer)
-  :after 'window-split (switch-to-buffer))
-#+end_src
-
-*** Dashboard
-https://github.com/emacs-dashboard/emacs-dashboard
-
-For the icons to display correctly, I needed to =all-of-the-icons-install-fonts=.
-#+begin_src emacs-lisp
-  (recentf-mode 1) ;; needed for recent files in dashboard
-
-  (use-package dashboard
-    :ensure t
-    :config
-    (dashboard-setup-startup-hook)
-    (setq dashboard-center-content 1)
-    (setq dashboard-show-shortcuts nil)
-    (setq dashboard-items '((recents  . 7)
-                            ;; (bookmarks . 5)
-                            (projects . 5)
-                            (agenda . 5)
-                            ;; (registers . 5)
-                            ))
-    (setq dashboard-set-heading-icons t)
-    (setq dashboard-set-file-icons t)
-    (setq dashboard-projects-backend 'project-el)
-
-    (dashboard-modify-heading-icons '((recents . "file-text")))
-
-
-    (setq dashboard-set-footer nil)
-    )
-#+end_src
-
-** Native Compilation
-*** Suppress compilation warnings
-#+begin_src emacs-lisp
-  (setq native-comp-async-report-warnings-errors nil)
-#+end_src
-
-** Goto last change
-Sometimes it's useful to step to the last change in a buffer.
-#+begin_src emacs-lisp
-  (use-package goto-last-change
-    :ensure t
-    :bind ("C-;" . goto-last-change))
-    ;; :hook (org-mode . goto-last-change))
-
-#+end_src
-
-#+RESULTS:
-: goto-last-change
-
-** Input Buffer, Directory Search, and Help
-*** Ivy, Ivy-Rich, and Counsel
-Ivy displays vertical completions of input buffer.
-#+begin_src emacs-lisp
-  (use-package ivy
-    :delight ivy-mode
-    :config
-    (ivy-mode 1)
-    ;; remove ^ on the inputbuffer
-    (setq ivy-initial-inputs-alist nil))
-#+end_src
-
-#+RESULTS:
-: t
-
-Ivy-rich provides information to display in input buffer to counsel.
-#+begin_src emacs-lisp
-  (use-package ivy-rich
-    :after ivy
-    :init  
-    (ivy-rich-mode 1))
-#+end_src
-Counsel displays ivy-rich info along with suggestions in input buffer. Remember =M-o= allows access of help in input buffer. 
-#+begin_src emacs-lisp
-  (use-package counsel
-    :bind (("M-x" . counsel-M-x)      ; displays ivy-rich info in minibuffer
-           ("C-x C-f" . counsel-find-file)
-           :map minibuffer-local-map
-           ("C-r" . 'counsel-minibuffer-history)
-           ))
-#+end_src
-
-prescient.el provides some helpful behavior for sorting Ivy completion candidates based on how recently or frequently you select them. This can be especially helpful when using M-x to run commands that you don’t have bound to a key but still need to access occasionally.
-
-This Prescient configuration is optimized for use in System Crafters videos and streams, check out the video on prescient.el for more details on how to configure it!
-#+begin_src emacs-lisp
-  (use-package ivy-prescient
-    :after counsel
-    :custom
-    (ivy-prescient-enable-filtering nil)
-    :config
-    ;; Uncomment the following line to have sorting remembered across sessions!
-    (prescient-persist-mode 1)
-    (ivy-prescient-mode 1))
-#+end_src
-
-*** Which-key
-#+begin_src emacs-lisp
-  (use-package which-key
-    :defer 0
-    :delight which-key-mode  
-    :config(which-key-mode)
-    (setq which-key-idle-delay 0.8))
-#+end_src
-
-*** Treemacs
-- Treemacs shows folder contents.
-- lsp-treemacs-symbols shows file contents: classes functions etc
-- lsp-treemacs-references 
-#+begin_src emacs-lisp
-  (use-package lsp-treemacs
-    :after lsp)
-#+end_src
-
-*** Helpful
-Better version of help. We remap normal help keys to Helpful's versions. 
-#+begin_src emacs-lisp
-  (use-package helpful
-  :commands (helpful-callable helpful-variavle helpful-command helpful-key)
-    :custom
-    (counsel-describe-function-function #'helpful-callable)
-    (counsel-describe-variable-function #'helpful-variable)
-    :bind
-    ([remap describe-function] . counsel-describe-function)
-    ([remap describe-command] . helpful-command)
-    ([remap describe-variable] . counsel-describe-variable)
-    ([remap describe-key] . helpful-key))
-#+end_src
-
-** TODO Grammarly
-There looks to be several packages at the moment. Top two (as of 1/10/22) are installed here without proper hooks. 
-** flycheck-grammarly
-Works w/o being logged in.                         [[https://github.com/emacs-grammarly/flycheck-grammarly][flycheck-grammarly doc]]
-#+begin_src emacs-lisp  :tangle no
-  (use-package flycheck-grammarly
-  :config
-  (setq flycheck-grammarly-check-time 0.8)
-#+end_src
-
-** lsp-grammarly
-Gives warning on startup for login.   [[https://github.com/emacs-grammarly/lsp-grammarly][lsp-grammarly doc]
-#+begin_src emacs-lisp  :tangle no
-  (use-package lsp-grammarly
-  :ensure t
-  :hook (text-mode . (lambda ()
-                       (require 'lsp-grammarly)
-                       (lsp))))  ; or lsp-deferred
-#+end_src
-
-#+RESULTS:
-** Keybindings
-#+begin_src emacs-lisp
-  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-  (global-set-key (kbd "C-o") 'other-window)
-
-  ;; Make font bigger/smaller.
-  (global-set-key (kbd "C-=") 'text-scale-increase)
-  (global-set-key (kbd "C--") 'text-scale-decrease)
-  (global-set-key (kbd "C-0") 'text-scale-adjust)
-
-    ;; (global-unset-key (kbd "C-<SPC>"))
-    ;; (global-unset-key (kbd "C-m"))
-    ;; (global-set-key (kbd "C-m") 'set-mark-command)
-    ;; (global-set-key (kbd "C-<SPC>") 'other-window)
-    ;; (global-set-key (kbd "M-SPC") 'other-window)
-#+end_src
-
-
-Future: create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. hydra ties related commands into short bindings with a common prefix.
-
 * Development
 ** TODO Flyspell comments
 Does not work well at the moment.
 #+begin_src emacs-lisp
 ;; (add-hook 'prog-mode-hook #'flyspell-prog-mode)
 #+end_src
+
 ** Parens/delimiters
 #+begin_src emacs-lisp
 (show-paren-mode    1) ; Highlight parentheses pairs.
 ;; (electric-pair-mode 1) ; Close pairs automatically.
 #+end_src
+
 *** Rainbow Delimiters
 #+begin_src emacs-lisp
   (use-package rainbow-delimiters
@@ -456,15 +189,16 @@ Issue: company mode not working in org-mode. Correct completion keys are not cle
   (global-company-mode 1)
 #+end_src
 
-#+RESULTS:
-
-*Company-box-mode* brings up a another box with information about the highlighted recommended item in the company/lsp box.
+*** company-box-mode
+Brings up a another box with information about the highlighted recommended item in the company/lsp box.
 #+begin_src emacs-lisp
    (use-package company-box
      :delight company-box-mode
      :hook (company-mode . company-box-mode))
 #+end_src
 
+*** company-prescient
+Help in sorting the completion results.
 #+begin_src emacs-lisp
 (use-package company-prescient
   :defer 2
@@ -473,7 +207,7 @@ Issue: company mode not working in org-mode. Correct completion keys are not cle
   (company-prescient-mode +1))
 #+end_src
 
-** lsp-mode
+** LSP and DAP
 *** lsp-mode
 Provides language backend to company-mode.
 #+begin_src emacs-lisp  
@@ -521,16 +255,19 @@ Try these commands with =M-x=:
     :after lsp)
 #+end_src
 
-** Yasnippet
+*** lsp-treemacs
+Shows file contents: classes functions etc
+- See lsp-treemacs-references
 #+begin_src emacs-lisp
-  (use-package yasnippet
-    :delight( yas-minor-mode)
+  (use-package lsp-treemacs
     :after lsp)
+#+end_src
 
-  (use-package yasnippet-snippets
-    :after yas-minor-mode) ; load basic snippets from melpa
-
-  (yas-global-mode 1)
+*** Dap Debugging
+Like lsp-mode but for debuggers.
+#+begin_src emacs-lisp
+  (use-package dap-mode
+    :commands dap-mode)
 #+end_src
 
 ** Flycheck
@@ -541,19 +278,6 @@ Checks the code for bugs on the fly.
     :after lsp)
 #+end_src
 
-** Dap Debugging
-Like lsp-mode but for debuggers. 
-#+begin_src emacs-lisp
-  (use-package dap-mode
-    :commands dap-mode)
-#+end_src
-
-** Evil nerd commenter
-#+begin_src emacs-lisp
-  (use-package evil-nerd-commenter
-  :bind ("M-;". evilnc-comment-or-uncomment-lines))
-#+end_src
-
 ** CMake
 Lsp-mode requires the language server on the system:
 =pip install cmake-language-server=.
@@ -561,7 +285,7 @@ Lsp-mode requires the language server on the system:
 #+begin_src emacs-lisp
   (use-package cmake-mode
     :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'")
-    :hook (cmake-mode . lsp-deferred))
+    :hook (cmake-mode . lsp))
 
   (use-package cmake-font-lock
   :ensure t
@@ -578,6 +302,24 @@ After this, the =compile= automatically holds the correct command.
     :hook ((c++-mode . cmake-project-mode )
            (c-mode . cmake-project-mode))
     )
+#+end_src
+
+** Yasnippet
+#+begin_src emacs-lisp
+  (use-package yasnippet
+    :delight( yas-minor-mode)
+    :after lsp)
+
+  (use-package yasnippet-snippets
+    :after yas-minor-mode) ; load basic snippets from melpa
+
+  (yas-global-mode 1)
+#+end_src
+
+** Evil nerd commenter
+#+begin_src emacs-lisp
+  (use-package evil-nerd-commenter
+  :bind ("M-;". evilnc-comment-or-uncomment-lines))
 #+end_src
 
 * C/C++
@@ -670,19 +412,25 @@ After changing venv all installed packages from venv should be visible for LSP s
      (python-shell-completion-native-enable 1)
      (python-shell-interpreter "ipython")
      (python-shell-interpreter-args "-i --simple-prompt")
-                                           ; this command doesn't work BUT without, python-mode "won't load".
+     ; this command doesn't work BUT without, python-mode "won't load".
      :bind (:map python-mode-map ("C-RET" . python-shell-send-statement))
      )
 #+end_src
 
 ** Hook
 #+begin_src emacs-lisp  
-    (defun my-python-mode-hook-fn ()
-      (lsp)
-      ;; (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
-      )
+  (defun my-python-mode-hook-fn ()
+    (lsp)
+    ;; (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
+    )
 
-    (add-hook 'python-mode-hook #'my-python-mode-hook-fn)
+  (add-hook 'python-mode-hook #'my-python-mode-hook-fn)
+#+end_src
+
+* TODO Emacs-lisp
+Need to setup an elisp development environment.
+#+begin_src emacs-lisp
+(defalias 'run-elisp 'ielm)
 #+end_src
 
 * Org-Mode
@@ -706,36 +454,37 @@ After changing venv all installed packages from venv should be visible for LSP s
 
 ** Fonts 
 #+begin_src emacs-lisp
-         (defun jmn/org-font-setup ()
+           (defun jmn/org-font-setup ()
 
-           ;; Replace list hyphen with dot
-           (font-lock-add-keywords 'org-mode
-                              '(("^ *\\([-]\\) "
-                               (0 (prog1 () (compose-region (match-beginning 1)
-                                                            (match-end 1) "•"))))))
+             ;; Replace list hyphen with dot
+             (font-lock-add-keywords 'org-mode
+                                '(("^ *\\([-]\\) "
+                                 (0 (prog1 () (compose-region (match-beginning 1)
+                                                              (match-end 1) "•"))))))
 
-           ;; Set faces for heading levels
-           (dolist (face '((org-level-1 . 1.2)
-                           (org-level-2 . 1.1)
-                           (org-level-3 . 1.05)
-                           (org-level-4 . 1.0)
-                           (org-level-5 . 1.1)
-                           (org-level-6 . 1.1)
-                           (org-level-7 . 1.1)
-                           (org-level-8 . 1.1)))
-             (set-face-attribute (car face) nil :font "Cantarell"
-                                 :weight 'regular :height (cdr face)))
+             ;; Set faces for heading levels
+             (dolist (face '((org-level-1 . 1.2)
+                             (org-level-2 . 1.1)
+                             (org-level-3 . 1.1)
+                             (org-level-4 . 1.1)
+                             (org-level-5 . 1.1)
+                             (org-level-6 . 1.1)
+                             (org-level-7 . 1.1)
+                             (org-level-8 . 1.1)
+                             ))
+               (set-face-attribute (car face) nil :font "Cantarell"
+                                   :weight 'regular :height (cdr face)))
 
-           ;; Ensure that anything that should be fixed-pitch in Org files appears that way
-           (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
-           (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
-           (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
-           (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-           (set-face-attribute 'org-special-keyword nil
-                               :inherit '(font-lock-comment-face fixed-pitch))
-           (set-face-attribute 'org-meta-line nil
-                               :inherit '(font-lock-comment-face fixed-pitch))
-           (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
+             ;; Ensure that anything that should be fixed-pitch in Org files appears that way
+             (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+             (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+             (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
+             (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+             (set-face-attribute 'org-special-keyword nil
+                                 :inherit '(font-lock-comment-face fixed-pitch))
+             (set-face-attribute 'org-meta-line nil
+                                 :inherit '(font-lock-comment-face fixed-pitch))
+             (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 #+end_src
 
 ** Start
@@ -806,12 +555,6 @@ After changing venv all installed packages from venv should be visible for LSP s
                       (add-to-list 'org-structure-template-alist '("cppnm" . "src C++  :main no")))
 #+end_src
 
-#+RESULTS:
-: ((cppnm . src C++  :main no) (cpp . src C++  :includes <iostream>) (pyim . src python :results file :var f=REPLACE
-: import matplotlib.pyplot as plt
-: plt.savefig(f)
-: return f) (py . src python  :results output) (el . src emacs-lisp) (sh . src shell) (la . src latex) (a . export ascii) (c . center) (C . comment) (e . example) (E . export) (h . export html) (l . export latex) (q . quote) (s . src) (v . verse))
-
 ** Inline latex
 Note: I had to install texlive dependencies for latex framents to work. I found what needed to be installed by running =pdflatex= on the generated tex file in =/tmp/= created by org.
 
@@ -842,15 +585,15 @@ Create a function to align the size of displayed latex framents with overall org
 ** TODO run Jupyter in babel
 [[https://sqrtminusone.xyz/posts/2021-05-01-org-python/][Reference]] and https://github.com/jkitchin/scimax
 Cannot get zmq (Jupyter dependency)  to work currently
-#+begin_src emacs-lisp
-    ;; (use-package jupyter
-    ;;     :after (org)
-    ;;     ;; :straight t
-    ;;     )
+#+begin_src emacs-lisp :tangle no
+    (use-package jupyter
+        :after (org)
+        ;; :straight t
+        )
 
-    ;; (org-babel-do-load-languages 'org-babel-load-languages
-    ;;                              (append org-babel-load-languages
-    ;;                                      '((jupyter . t))))
+    (org-babel-do-load-languages 'org-babel-load-languages
+                                 (append org-babel-load-languages
+                                         '((jupyter . t))))
 #+end_src
 
 ** TODO open notebook in Emacs
@@ -918,10 +661,6 @@ Faster terminal due to being compiled. Default is a better mode than term-mode; 
 
 #+end_src
 
-
-
-
-
 ** shell-mode
 Between term-mode eshell.
 
@@ -930,20 +669,24 @@ More customization in Elisp. Supports Tramp.
 
 * File Management
 ** TODO Dired
-More to do at [[https://youtu.be/PMWwM8QJAtU][here]].  Could not use "use-package" since dired packaged did not exist. Here we just modify dired without "use-package".
+More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
 - "(" toggle file info
 - M-x du  shows the size of the files in the buffer (toggle for human readable)
 #+begin_src emacs-lisp
    (use-package dired
      :ensure nil
      :commands dired
-     :custom  (setq dired-listing-switches "-agho --group-directories-first"))
+     :config (setq dired-listing-switches "-agho --group-directories-first" )
+     (define-key dired-mode-map (kbd "C-o") 'other-window))
+
+  ;; (with-eval-after-load "dired"
+  ;;   (define-key dired-mode-map (kbd "C-o") 'other-window))
 
    (use-package treemacs-icons-dired
      :after dired
      :config (treemacs-icons-dired-mode) )
 
-  ;A rather janky mode which lists the recursive size of each foler/item in dired. 
+  ;A rather janky mode which lists the recursive size of each foler/item in dired.
    (use-package dired-du
      :commands du)
 #+end_src
@@ -953,4 +696,4 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]].  Could not use "use-packag
 * Localwords
 #  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell  Dired dracula clangd ui
 #  LocalWords:  Grammarly workspaces commenter Pyright CMake Flyspell
-#  LocalWords:  Pyvenv
+#  LocalWords:  Pyvenv treemacs

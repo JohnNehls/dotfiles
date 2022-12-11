@@ -39,7 +39,7 @@
 
 (setq inhibit-startup-message t)           ; inhibit startup message
 (tool-bar-mode -1)                         ; remove toolbar
-;; (menu-bar-mode -1)                         ; Disable the menu bar
+(menu-bar-mode -1)                         ; Disable the menu bar
 (scroll-bar-mode -1)                       ; remove side scrollbar
 (tooltip-mode -1)                          ; Disable tooltips
 (set-fringe-mode 10)                       ; Give some breathing room
@@ -80,151 +80,6 @@
   (add-hook 'fast-scroll-end-hook (lambda () (flycheck-mode 1)))
   (fast-scroll-config)
   (fast-scroll-mode 1))
-
-(use-package golden-ratio-scroll-screen
-  :config
-  (global-set-key [remap scroll-down-command] 'golden-ratio-scroll-screen-down)
-  (global-set-key [remap scroll-up-command] 'golden-ratio-scroll-screen-up))
-
-(use-package undo-tree
-  :defer 2
-  :config
-  (global-undo-tree-mode 1))
-
-(setq make-backup-files nil)               ; stop creating backup~ files
-(setq auto-save-default nil)               ; stop creating #autosave# files
-
-(dolist (mode '(org-mode-hook
-                 term-mode-hook
-                 shell-mode-hook
-                 treemacs-mode-hook
-                 eshell-mode-hook
-                 vterm-mode-hook))
-   (add-hook mode (lambda () (display-line-numbers-mode 0))))
-
-(global-display-line-numbers-mode t)     ; Puts line numbers on ALL buffers
-
-(use-package monokai-theme
-    :init (load-theme 'monokai t))
-;; Saving my SECOND favorite theme which is easier on the eyes.
-;; (use-package gruvbox-theme
-;;     :init (load-theme 'gruvbox-dark-hard t))
-
-(use-package all-the-icons
-:init
-(when (and (not (member "all-the-icons" (font-family-list))) ;; autoinstall fonts
-           (window-system))
-  (all-the-icons-install-fonts t)))
-
-(use-package doom-modeline
-  :init (doom-modeline-mode 1)
-  :custom ((doom-modeline-height 15)))
-
-(defun transparency (value)
-   "Sets the transparency of the frame window. 0=transparent/100=opaque"
-   (interactive "nTransparency Value 0 - 100 opaque:")
-   (set-frame-parameter (selected-frame) 'alpha value))
-
-(transparency 96)  ;; Default value generally e [94,96]
-
-(use-package ws-butler
-  :hook ((text-mode . ws-butler-mode)
-         (prog-mode . ws-butler-mode)))
-
-(defalias 'yes-or-no-p 'y-or-n-p)
-
-(recentf-mode 1) ;; needed for recent files in dashboard
-
-(use-package dashboard
-  :ensure t
-  :config
-  (dashboard-setup-startup-hook)
-  (setq dashboard-center-content 1)
-  (setq dashboard-show-shortcuts nil)
-  (setq dashboard-items '((recents  . 7)
-                          ;; (bookmarks . 5)
-                          (projects . 5)
-                          (agenda . 5)
-                          ;; (registers . 5)
-                          ))
-  (setq dashboard-set-heading-icons t)
-  (setq dashboard-set-file-icons t)
-  (setq dashboard-projects-backend 'project-el)
-
-  (dashboard-modify-heading-icons '((recents . "file-text")))
-
-
-  (setq dashboard-set-footer nil)
-  )
-
-(setq native-comp-async-report-warnings-errors nil)
-
-(use-package goto-last-change
-  :ensure t
-  :bind ("C-;" . goto-last-change))
-  ;; :hook (org-mode . goto-last-change))
-
-(use-package ivy
-  :delight ivy-mode
-  :config
-  (ivy-mode 1)
-  ;; remove ^ on the inputbuffer
-  (setq ivy-initial-inputs-alist nil))
-
-(use-package ivy-rich
-  :after ivy
-  :init  
-  (ivy-rich-mode 1))
-
-(use-package counsel
-  :bind (("M-x" . counsel-M-x)      ; displays ivy-rich info in minibuffer
-         ("C-x C-f" . counsel-find-file)
-         :map minibuffer-local-map
-         ("C-r" . 'counsel-minibuffer-history)
-         ))
-
-(use-package ivy-prescient
-  :after counsel
-  :custom
-  (ivy-prescient-enable-filtering nil)
-  :config
-  ;; Uncomment the following line to have sorting remembered across sessions!
-  (prescient-persist-mode 1)
-  (ivy-prescient-mode 1))
-
-(use-package which-key
-  :defer 0
-  :delight which-key-mode  
-  :config(which-key-mode)
-  (setq which-key-idle-delay 0.8))
-
-(use-package lsp-treemacs
-  :after lsp)
-
-(use-package helpful
-:commands (helpful-callable helpful-variavle helpful-command helpful-key)
-  :custom
-  (counsel-describe-function-function #'helpful-callable)
-  (counsel-describe-variable-function #'helpful-variable)
-  :bind
-  ([remap describe-function] . counsel-describe-function)
-  ([remap describe-command] . helpful-command)
-  ([remap describe-variable] . counsel-describe-variable)
-  ([remap describe-key] . helpful-key))
-
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-(global-set-key (kbd "C-o") 'other-window)
-
-;; Make font bigger/smaller.
-(global-set-key (kbd "C-=") 'text-scale-increase)
-(global-set-key (kbd "C--") 'text-scale-decrease)
-(global-set-key (kbd "C-0") 'text-scale-adjust)
-
-  ;; (global-unset-key (kbd "C-<SPC>"))
-  ;; (global-unset-key (kbd "C-m"))
-  ;; (global-set-key (kbd "C-m") 'set-mark-command)
-  ;; (global-set-key (kbd "C-<SPC>") 'other-window)
-  ;; (global-set-key (kbd "M-SPC") 'other-window)
 
 ;; (add-hook 'prog-mode-hook #'flyspell-prog-mode)
 
@@ -291,28 +146,19 @@
 (use-package lsp-ivy
   :after lsp)
 
-(use-package yasnippet
-  :delight( yas-minor-mode)
-  :after lsp)
-
-(use-package yasnippet-snippets
-  :after yas-minor-mode) ; load basic snippets from melpa
-
-(yas-global-mode 1)
-
-(use-package flycheck
-  :diminish flycheck-mode
+(use-package lsp-treemacs
   :after lsp)
 
 (use-package dap-mode
   :commands dap-mode)
 
-(use-package evil-nerd-commenter
-:bind ("M-;". evilnc-comment-or-uncomment-lines))
+(use-package flycheck
+  :diminish flycheck-mode
+  :after lsp)
 
 (use-package cmake-mode
   :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'")
-  :hook (cmake-mode . lsp-deferred))
+  :hook (cmake-mode . lsp))
 
 (use-package cmake-font-lock
 :ensure t
@@ -323,6 +169,18 @@
   :hook ((c++-mode . cmake-project-mode )
          (c-mode . cmake-project-mode))
   )
+
+(use-package yasnippet
+  :delight( yas-minor-mode)
+  :after lsp)
+
+(use-package yasnippet-snippets
+  :after yas-minor-mode) ; load basic snippets from melpa
+
+(yas-global-mode 1)
+
+(use-package evil-nerd-commenter
+:bind ("M-;". evilnc-comment-or-uncomment-lines))
 
 (setq compilation-scroll-output t)
 
@@ -380,7 +238,7 @@
   (python-shell-completion-native-enable 1)
   (python-shell-interpreter "ipython")
   (python-shell-interpreter-args "-i --simple-prompt")
-                                        ; this command doesn't work BUT without, python-mode "won't load".
+  ; this command doesn't work BUT without, python-mode "won't load".
   :bind (:map python-mode-map ("C-RET" . python-shell-send-statement))
   )
 
@@ -390,6 +248,8 @@
   )
 
 (add-hook 'python-mode-hook #'my-python-mode-hook-fn)
+
+(defalias 'run-elisp 'ielm)
 
 (defun jmn/org-mode-setup ()
   (org-indent-mode)
@@ -417,12 +277,13 @@
   ;; Set faces for heading levels
   (dolist (face '((org-level-1 . 1.2)
                   (org-level-2 . 1.1)
-                  (org-level-3 . 1.05)
-                  (org-level-4 . 1.0)
+                  (org-level-3 . 1.1)
+                  (org-level-4 . 1.1)
                   (org-level-5 . 1.1)
                   (org-level-6 . 1.1)
                   (org-level-7 . 1.1)
-                  (org-level-8 . 1.1)))
+                  (org-level-8 . 1.1)
+                  ))
     (set-face-attribute (car face) nil :font "Cantarell"
                         :weight 'regular :height (cdr face)))
 
@@ -505,15 +366,6 @@ return f"))
 (global-set-key (kbd "C-c a") #'org-agenda)
 (global-set-key (kbd "C-c c") #'org-capture)
 
-;; (use-package jupyter
-;;     :after (org)
-;;     ;; :straight t
-;;     )
-
-;; (org-babel-do-load-languages 'org-babel-load-languages
-;;                              (append org-babel-load-languages
-;;                                      '((jupyter . t))))
-
 (use-package ein
   :commands (ein:notebooklist-open)
   ;; :config
@@ -554,12 +406,16 @@ return f"))
 (use-package dired
    :ensure nil
    :commands dired
-   :custom  (setq dired-listing-switches "-agho --group-directories-first"))
+   :config (setq dired-listing-switches "-agho --group-directories-first" )
+   (define-key dired-mode-map (kbd "C-o") 'other-window))
+
+;; (with-eval-after-load "dired"
+;;   (define-key dired-mode-map (kbd "C-o") 'other-window))
 
  (use-package treemacs-icons-dired
    :after dired
    :config (treemacs-icons-dired-mode) )
 
-;A rather janky mode which lists the recursive size of each foler/item in dired. 
+;A rather janky mode which lists the recursive size of each foler/item in dired.
  (use-package dired-du
    :commands du)
