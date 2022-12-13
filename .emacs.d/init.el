@@ -81,6 +81,145 @@
   (fast-scroll-config)
   (fast-scroll-mode 1))
 
+(use-package undo-tree
+  :defer 2
+  :config
+  (global-undo-tree-mode 1))
+
+(setq backup-directory-alist
+      '( ("." . "~/.dotfiles/.emacs.d/filebackups")))
+
+(dolist (mode '(org-mode-hook
+                 term-mode-hook
+                 shell-mode-hook
+                 treemacs-mode-hook
+                 eshell-mode-hook
+                 vterm-mode-hook))
+   (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
+;; (global-display-line-numbers-mode t)     ; Puts line numbers on ALL buffers
+
+;; (use-package monokai-theme
+ ;;     :init (load-theme 'monokai t))
+;; Saving my SECOND favorite theme which is easier on the eyes.
+(use-package gruvbox-theme
+    :init (load-theme 'gruvbox-dark-hard t))
+
+(use-package all-the-icons
+:init
+(when (and (not (member "all-the-icons" (font-family-list))) ;; autoinstall fonts
+           (window-system))
+  (all-the-icons-install-fonts t)))
+
+(use-package doom-modeline
+  :init (doom-modeline-mode 1)
+  :custom ((doom-modeline-height 15)))
+
+(defun transparency (value)
+   "Sets the transparency of the frame window. 0=transparent/100=opaque"
+   (interactive "nTransparency Value 0 - 100 opaque:")
+   (set-frame-parameter (selected-frame) 'alpha value))
+
+(transparency 96)  ;; Default value generally e [94,96]
+
+(use-package ws-butler
+  :hook ((text-mode . ws-butler-mode)
+         (prog-mode . ws-butler-mode)))
+
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+(recentf-mode 1) ;; needed for recent files in dashboard
+
+(use-package dashboard
+  :ensure t
+  :config
+  (dashboard-setup-startup-hook)
+  (setq dashboard-center-content 1)
+  (setq dashboard-show-shortcuts nil)
+  (setq dashboard-items '((recents  . 7)
+                          ;; (bookmarks . 5)
+                          (projects . 5)
+                          (agenda . 5)
+                          ;; (registers . 5)
+                          ))
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  (setq dashboard-projects-backend 'project-el)
+
+  (dashboard-modify-heading-icons '((recents . "file-text")))
+
+  (setq dashboard-set-footer nil)
+  )
+
+(setq native-comp-async-report-warnings-errors nil)
+
+(use-package goto-last-change
+  :ensure t
+  :bind ("C-;" . goto-last-change))
+  ;; :hook (org-mode . goto-last-change))
+
+(use-package ivy
+  :delight ivy-mode
+  :config
+  (ivy-mode 1)
+  ;; remove ^ on the inputbuffer
+  (setq ivy-initial-inputs-alist nil))
+
+(use-package ivy-rich
+  :after ivy
+  :init  
+  (ivy-rich-mode 1))
+
+(use-package ivy-prescient
+  :after counsel
+  :custom
+  (ivy-prescient-enable-filtering nil)
+  :config
+  ;; Uncomment the following line to have sorting remembered across sessions!
+  (prescient-persist-mode 1)
+  (ivy-prescient-mode 1))
+
+(use-package counsel
+  :bind (("M-x" . counsel-M-x)      ; displays ivy-rich info in minibuffer
+         ("C-x C-f" . counsel-find-file)
+         :map minibuffer-local-map
+         ("C-r" . 'counsel-minibuffer-history)
+         ))
+
+(use-package helpful
+:commands (helpful-callable helpful-variavle helpful-command helpful-key)
+  :custom
+  (counsel-describe-function-function #'helpful-callable)
+  (counsel-describe-variable-function #'helpful-variable)
+  :bind
+  ([remap describe-function] . counsel-describe-function)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-variable] . counsel-describe-variable)
+  ([remap describe-key] . helpful-key))
+
+(use-package which-key
+  :defer 0
+  :delight which-key-mode  
+  :config(which-key-mode)
+  (setq which-key-idle-delay 0.8))
+
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+(global-set-key (kbd "C-o") 'other-window)
+(global-set-key (kbd "C-x C-b") 'buffer-menu) ;; open buffer menue in current buffer
+
+;; Make font bigger/smaller.
+(global-set-key (kbd "C-=") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
+(global-set-key (kbd "C-0") 'text-scale-adjust)
+
+  ;; (global-unset-key (kbd "C-<SPC>"))
+  ;; (global-unset-key (kbd "C-m"))
+  ;; (global-set-key (kbd "C-m") 'set-mark-command)
+  ;; (global-set-key (kbd "C-<SPC>") 'other-window)
+  ;; (global-set-key (kbd "M-SPC") 'other-window)
+
+(set-face-attribute 'default nil :height 110) ;; needed on laptop
+
 ;; (add-hook 'prog-mode-hook #'flyspell-prog-mode)
 
 (show-paren-mode    1) ; Highlight parentheses pairs.
@@ -404,18 +543,37 @@ return f"))
 (global-set-key (kbd "C-`") 'vterm-toggle)
 
 (use-package dired
-   :ensure nil
-   :commands dired
-   :config (setq dired-listing-switches "-agho --group-directories-first" )
-   (define-key dired-mode-map (kbd "C-o") 'other-window))
+  :ensure nil
+  :commands dired
+  :config (setq dired-listing-switches "-agho --group-directories-first" )
+  (define-key dired-mode-map (kbd "C-o") 'other-window))
 
-;; (with-eval-after-load "dired"
-;;   (define-key dired-mode-map (kbd "C-o") 'other-window))
+;; nice icons in dired
+(use-package treemacs-icons-dired
+  :after dired
+  :config (treemacs-icons-dired-mode) )
 
- (use-package treemacs-icons-dired
-   :after dired
-   :config (treemacs-icons-dired-mode) )
+;; janky mode which lists the recursive size of each foler/item in dired.
+(use-package dired-du
+  :commands du)
 
-;A rather janky mode which lists the recursive size of each foler/item in dired.
- (use-package dired-du
-   :commands du)
+;; use a single dired session
+(use-package dired-single)
+
+(defun my-dired-init ()
+  "Bunch of stuff to run for dired, either immediately or when it's
+         loaded."
+  ;; <add other stuff here>
+  (define-key dired-mode-map [remap dired-find-file]
+              'dired-single-buffer)
+  (define-key dired-mode-map [remap dired-mouse-find-file-other-window]
+              'dired-single-buffer-mouse)
+  (define-key dired-mode-map [remap dired-up-directory]
+              'dired-single-up-directory))
+
+;; if dired's already loaded, then the keymap will be bound
+(if (boundp 'dired-mode-map)
+    ;; we're good to go; just add our bindings
+    (my-dired-init)
+  ;; it's not loaded yet, so add our bindings to the load-hook
+  (add-hook 'dired-load-hook 'my-dired-init))
