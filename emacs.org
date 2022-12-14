@@ -490,6 +490,7 @@ Provides additional lsp information to the company-mode box. The mode provides i
     :custom
     (lsp-ui-doc-position 'bottom))
 #+end_src
+
 *** lsp-ivy
 [[https://github.com/emacs-lsp/lsp-ivy][lsp-ivy]] integrates Ivy with =lsp-mode= to make it easy to search for things by name in your code.  When you run these commands, a prompt will appear in the minibuffer allowing you to type part of the name of a symbol in your code.  Results will be populated in the minibuffer so that you can find what you're looking for and jump to that location in the code upon selecting the result.
 
@@ -639,8 +640,8 @@ So the flow should be like this:
 After changing venv all installed packages from venv should be visible for LSP server.
 
 ** Python-mode
-*** Pyright 
-#+begin_src emacs-lisp   
+*** Pyright
+#+begin_src emacs-lisp
   ; npm must be installed on the system.
     (use-package lsp-pyright
       :after lsp
@@ -668,6 +669,7 @@ After changing venv all installed packages from venv should be visible for LSP s
 #+begin_src emacs-lisp  
   (defun my-python-mode-hook-fn ()
     (lsp)
+    (require 'dap-python)
     ;; (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
     )
 
@@ -958,7 +960,18 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
 
 #+end_src
 
-#+RESULTS:
+** TODO Dired-open
+How do i get certain extensions to open externally
+#+begin_src emacs-lisp
+  ;; setup which programs to use to open file types
+  (use-package dired-open
+  :commands (dired dired-jump)
+  :config
+  (setq dired-open-extensions '(("pdf" . "evince")
+                                ("mp4" . "vlc")
+                                ("mkv" . "vlc"))))
+
+#+end_src
 
 * Localwords
 #  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell  Dired dracula clangd ui

@@ -383,6 +383,7 @@
 
 (defun my-python-mode-hook-fn ()
   (lsp)
+  (require 'dap-python)
   ;; (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
   )
 
@@ -577,3 +578,11 @@ return f"))
     (my-dired-init)
   ;; it's not loaded yet, so add our bindings to the load-hook
   (add-hook 'dired-load-hook 'my-dired-init))
+
+;; setup which programs to use to open file types
+(use-package dired-open
+:commands (dired dired-jump)
+:config
+(setq dired-open-extensions '(("pdf" . "evince")
+                              ("mp4" . "vlc")
+                              ("mkv" . "vlc"))))
