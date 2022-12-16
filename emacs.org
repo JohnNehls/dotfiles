@@ -342,6 +342,7 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
   (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
   (global-set-key (kbd "C-o") 'other-window)
   (global-set-key (kbd "C-x C-b") 'buffer-menu) ;; open buffer menue in current buffer
+  (global-set-key (kbd "C-x C-k") 'kill-current-buffer) ;; "C-x k" asks which buffer
 
   ;; Make font bigger/smaller.
   (global-set-key (kbd "C-=") 'text-scale-increase)
@@ -919,13 +920,16 @@ More customization in Elisp. Supports Tramp.
 * File Management
 ** TODO Dired
 More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
+- "W" will open file in native environment (including another Emacs)
 - "(" toggle file info
 - M-x du  shows the size of the files in the buffer (toggle for human readable)
 #+begin_src emacs-lisp
   (use-package dired
     :ensure nil
     :commands dired
-    :config (setq dired-listing-switches "-agho --group-directories-first" )
+    :config
+    (setq dired-listing-switches "-agho --group-directories-first" )
+    (setq dired-dwim-target t);; guess other directory for copy and rename
     (define-key dired-mode-map (kbd "C-o") 'other-window))
 
   ;; nice icons in dired
@@ -943,7 +947,6 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
   (defun my-dired-init ()
     "Bunch of stuff to run for dired, either immediately or when it's
            loaded."
-    ;; <add other stuff here>
     (define-key dired-mode-map [remap dired-find-file]
                 'dired-single-buffer)
     (define-key dired-mode-map [remap dired-mouse-find-file-other-window]
@@ -957,19 +960,6 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
       (my-dired-init)
     ;; it's not loaded yet, so add our bindings to the load-hook
     (add-hook 'dired-load-hook 'my-dired-init))
-
-#+end_src
-
-** TODO Dired-open
-How do i get certain extensions to open externally
-#+begin_src emacs-lisp
-  ;; setup which programs to use to open file types
-  (use-package dired-open
-  :commands (dired dired-jump)
-  :config
-  (setq dired-open-extensions '(("pdf" . "evince")
-                                ("mp4" . "vlc")
-                                ("mkv" . "vlc"))))
 
 #+end_src
 
