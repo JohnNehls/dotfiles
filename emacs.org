@@ -137,22 +137,21 @@ Save backups in =.emacs.d=.
 #+begin_src emacs-lisp
      (dolist (mode '(org-mode-hook
                      term-mode-hook
-                     shell-mode-hook
                      treemacs-mode-hook
                      eshell-mode-hook
                      vterm-mode-hook))
        (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-    ;; (global-display-line-numbers-mode t)     ; Puts line numbers on ALL buffers
+    (global-display-line-numbers-mode t)
 #+end_src
 
 *** Theme
 #+begin_src emacs-lisp
-  ;; (use-package monokai-theme
-  ;;     :init (load-theme 'monokai t))
- ;; Saving my SECOND favorite theme which is easier on the eyes.
- (use-package gruvbox-theme
-     :init (load-theme 'gruvbox-dark-hard t))
+  (use-package monokai-theme
+      :init (load-theme 'monokai t))
+ ;;;;;; Saving my SECOND favorite theme which is easier on the eyes.
+ ;; (use-package gruvbox-theme
+ ;;     :init (load-theme 'gruvbox-dark-hard t))
 #+end_src
 
 *** Modeline 
@@ -334,7 +333,7 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
 #+begin_src emacs-lisp  :tangle no
   (use-package flycheck-grammarly
   :config
-  (setq flycheck-grammarly-check-time 0.8)
+  (setq flycheck-grammarly-check-time 0.8))
 #+end_src
 
 ** Keybindings
@@ -363,17 +362,15 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
 (set-face-attribute 'default nil :height 110) ;; needed on laptop
 #+end_src
 
-* Development
-** TODO Flyspell comments
-Does not work well at the moment.
+* General Development
+** Flyspell comments
 #+begin_src emacs-lisp
-;; (add-hook 'prog-mode-hook #'flyspell-prog-mode)
+(add-hook 'prog-mode-hook #'flyspell-prog-mode)
 #+end_src
 
 ** Parens/delimiters
 #+begin_src emacs-lisp
 (show-paren-mode    1) ; Highlight parentheses pairs.
-;; (electric-pair-mode 1) ; Close pairs automatically.
 #+end_src
 
 *** Rainbow Delimiters
@@ -400,7 +397,7 @@ Auto-creates closing parenthesis and bar and, smartly, writes it over if it is t
     (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 #+end_src
 
-** Projectile
+** Projectile NOT USED
 Allows me to set project-wide commands and variables. [[https://docs.projectile.mx/projectile/index.html][Projectile Documentation]]
 Notably: run, debug, project-variables, grep (and rg).
 #+begin_src emacs-lisp :tangle no
@@ -422,7 +419,7 @@ Notably: run, debug, project-variables, grep (and rg).
     :config (counsel-projectile-mode))
 #+end_src
 
-** TODO Company-Mode
+** Company-Mode
 Currently company-mode gets called with lsp-mode by default. /my understanding/: company-mode provides the auto-complete box that lsp provides information to.
 
 Issue: company mode not working in org-mode. Correct completion keys are not clear.
@@ -468,7 +465,7 @@ Provides language backend to company-mode.
     :config
     (lsp-enable-which-key-integration t)
     ;; Annoying stuff (uncomment to turn off)
-    (setq lsp-enable-links nil)
+    ;; (setq lsp-enable-links nil)
     ;; (setq lsp-signature-render-documentation nil)
     ;; (setq lsp-headerline-breadcrumb-enable nil)
     ;; (setq lsp-ui-doc-enable nil)
@@ -568,7 +565,23 @@ After this, the =compile= automatically holds the correct command.
 ** Evil nerd commenter
 #+begin_src emacs-lisp
   (use-package evil-nerd-commenter
-  :bind ("M-;". evilnc-comment-or-uncomment-lines))
+  :bind ("C-;". evilnc-comment-or-uncomment-lines))
+#+end_src
+
+* Bash
+- shellcheck, requires ~sudo dnf install -y shellcheck~
+- Debuggers available (dap-mode?)
+- If language server doesn't install automatically either:
+  1. ~sudo dnf -y nodejs-bash-language-server.noarch~
+  2. =M-x lsp-install-server=
+#+begin_src emacs-lisp
+  (defun my-sh-mode-hook-fn()
+    (setq sh-basic-offset 2
+          sh-indentation 2) ;; defaults are 4
+    (lsp)
+    (display-line-numbers-mode))
+
+  (add-hook 'sh-mode-hook #'my-sh-mode-hook-fn)
 #+end_src
 
 * C/C++
@@ -918,7 +931,7 @@ Between term-mode eshell.
 More customization in Elisp. Supports Tramp. 
 
 * File Management
-** TODO Dired
+** Dired
 More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
 - "W" will open file in native environment (including another Emacs)
 - "(" toggle file info
@@ -966,4 +979,4 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
 * Localwords
 #  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell  Dired dracula clangd ui
 #  LocalWords:  Grammarly workspaces commenter Pyright CMake Flyspell
-#  LocalWords:  Pyvenv treemacs
+#  LocalWords:  Pyvenv treemacs shellcheck

@@ -91,19 +91,18 @@
 
 (dolist (mode '(org-mode-hook
                  term-mode-hook
-                 shell-mode-hook
                  treemacs-mode-hook
                  eshell-mode-hook
                  vterm-mode-hook))
    (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-;; (global-display-line-numbers-mode t)     ; Puts line numbers on ALL buffers
+(global-display-line-numbers-mode t)
 
-;; (use-package monokai-theme
- ;;     :init (load-theme 'monokai t))
-;; Saving my SECOND favorite theme which is easier on the eyes.
-(use-package gruvbox-theme
-    :init (load-theme 'gruvbox-dark-hard t))
+(use-package monokai-theme
+     :init (load-theme 'monokai t))
+;;;;;; Saving my SECOND favorite theme which is easier on the eyes.
+;; (use-package gruvbox-theme
+;;     :init (load-theme 'gruvbox-dark-hard t))
 
 (use-package all-the-icons
 :init
@@ -221,10 +220,9 @@
 
 (set-face-attribute 'default nil :height 110) ;; needed on laptop
 
-;; (add-hook 'prog-mode-hook #'flyspell-prog-mode)
+(add-hook 'prog-mode-hook #'flyspell-prog-mode)
 
 (show-paren-mode    1) ; Highlight parentheses pairs.
-;; (electric-pair-mode 1) ; Close pairs automatically.
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
@@ -267,7 +265,7 @@
   :config
   (lsp-enable-which-key-integration t)
   ;; Annoying stuff (uncomment to turn off)
-  (setq lsp-enable-links nil)
+  ;; (setq lsp-enable-links nil)
   ;; (setq lsp-signature-render-documentation nil)
   ;; (setq lsp-headerline-breadcrumb-enable nil)
   ;; (setq lsp-ui-doc-enable nil)
@@ -320,7 +318,15 @@
 (yas-global-mode 1)
 
 (use-package evil-nerd-commenter
-:bind ("M-;". evilnc-comment-or-uncomment-lines))
+:bind ("C-;". evilnc-comment-or-uncomment-lines))
+
+(defun my-sh-mode-hook-fn()
+  (setq sh-basic-offset 2
+        sh-indentation 2) ;; defaults are 4
+  (lsp)
+  (display-line-numbers-mode))
+
+(add-hook 'sh-mode-hook #'my-sh-mode-hook-fn)
 
 (setq compilation-scroll-output t)
 
