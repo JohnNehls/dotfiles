@@ -54,33 +54,6 @@
 ;; (add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode))
 ;; (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
 
-(use-package emacs
-  :custom
-  ;; Fully redraw the display before it processes queued input events.
-  (redisplay-dont-pause            t)
-
-  ;; Number of lines of continuity to retain when scrolling by full screens
-  ;; (next-screen-context-lines       2)  ;; golden ration pkg replaced this
-
-  ;; only 'jump' when moving this far off the screen
-  (scroll-conservatively       10000)
-  (scroll-step                     1) ;; Keyboard scroll one line at a time
-  (mouse-wheel-progressive-speed nil) ;; Don't accelerate scrolling
-  (mouse-wheel-follow-mouse        t) ;; Scroll window under mouse
-  (fast-but-imprecise-scrolling    t) ;; No (less) lag while scrolling lots.
-  (auto-window-vscroll           nil) ;; Cursor move faster
-  (pixel-scroll-precision-mode     1) ;; pixel based scrolling
-  )
-
-(use-package fast-scroll
-  :ensure t
-  :demand t
-  :config
-  (add-hook 'fast-scroll-start-hook (lambda () (flycheck-mode -1)))
-  (add-hook 'fast-scroll-end-hook (lambda () (flycheck-mode 1)))
-  (fast-scroll-config)
-  (fast-scroll-mode 1))
-
 (use-package undo-tree
   :defer 2
   :config
@@ -94,9 +67,9 @@
                  treemacs-mode-hook
                  eshell-mode-hook
                  vterm-mode-hook))
-   (add-hook mode (lambda () (display-line-numbers-mode 0))))
+   (add-hook mode (lambda () (linum-mode 0))))
 
-(global-display-line-numbers-mode t)
+(global-linum-mode 1)
 
 (use-package monokai-theme
      :init (load-theme 'monokai t))
@@ -149,6 +122,45 @@
 
   (setq dashboard-set-footer nil)
   )
+
+(use-package dired
+  :ensure nil
+  :commands dired
+  :config
+  (setq dired-listing-switches "-agho --group-directories-first" )
+  (setq dired-dwim-target t);; guess other directory for copy and rename
+  (define-key dired-mode-map (kbd "C-o") 'other-window))
+
+;; nice icons in dired
+(use-package treemacs-icons-dired
+  :after dired
+  :defer t
+  :config (treemacs-icons-dired-mode) )
+
+;; janky mode which lists the recursive size of each foler/item in dired.
+(use-package dired-du
+  :commands dired-du-mode
+  :defer t)
+
+;; use a single dired session
+(use-package dired-single)
+
+(defun my-dired-init ()
+  "Bunch of stuff to run for dired, either immediately or when it's
+         loaded."
+  (define-key dired-mode-map [remap dired-find-file]
+              'dired-single-buffer)
+  (define-key dired-mode-map [remap dired-mouse-find-file-other-window]
+              'dired-single-buffer-mouse)
+  (define-key dired-mode-map [remap dired-up-directory]
+              'dired-single-up-directory))
+
+;; if dired's already loaded, then the keymap will be bound
+(if (boundp 'dired-mode-map)
+    ;; we're good to go; just add our bindings
+    (my-dired-init)
+  ;; it's not loaded yet, so add our bindings to the load-hook
+  (add-hook 'dired-load-hook 'my-dired-init))
 
 (setq native-comp-async-report-warnings-errors nil)
 
@@ -237,6 +249,10 @@
   ;display Magit status buffer in the same buffer rather than splitting it. 
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
+(use-package git-gutter-fringe+
+  :commands git-gutter+-mode
+  :defer t)
+
 (use-package company
   :ensure t
   :custom
@@ -258,7 +274,7 @@
 
 (use-package lsp-mode
   :delight lsp-mode
-  :commands (lsp lsp-deferred)
+  :commands (lsp)
   :init
   (setq lsp-keymap-prefix "C-c l") ;; or "C-l"
   :custom ((lsp-idle-delay 0.5)) ;; 0.5 is the defualt
@@ -318,13 +334,13 @@
 (yas-global-mode 1)
 
 (use-package evil-nerd-commenter
-:bind ("C-;". evilnc-comment-or-uncomment-lines))
+:bind ("M-;". evilnc-comment-or-uncomment-lines))
 
 (defun my-sh-mode-hook-fn()
   (setq sh-basic-offset 2
         sh-indentation 2) ;; defaults are 4
-  (lsp)
-  (display-line-numbers-mode))
+  (lsp))
+
 
 (add-hook 'sh-mode-hook #'my-sh-mode-hook-fn)
 
@@ -374,9 +390,8 @@
     :after lsp
     :hook (python-mode . (lambda ()
                             (require 'lsp-pyright)
-                            (lsp))))  ; or lsp-deferred
+                            (lsp))))
 
-;; configure pythong-mode
 (use-package python-mode
   :ensure nil ; don't install, use the pre-installed version
 
@@ -403,14 +418,6 @@
   (variable-pitch-mode 1)
   (visual-line-mode 1)
   (rainbow-delimiters-mode 0)
-  ;; (company-mode 1)
-  ;; edit the modeline-- not needed for doom-modeline
-  ;; (diminish 'visual-line-mode)
-  ;; (diminish 'flyspell-mode)
-  ;; (diminish 'org-indent-mode)
-  ;; (diminish 'buffer-face-mode)
-  ;; (diminish 'yas-minor-mode)
-  ;; (diminish 'eldoc-mode)
   )
 
 (defun jmn/org-font-setup ()
@@ -521,11 +528,9 @@ return f"))
   ;; (define-key ein:notebook-mode-map (kbd "<C-tab>") 'my-function)
   )
 
-(use-package eterm-256color
-  :hook (term-mode . eterm-256color-mode))
-
 (use-package vterm
   :commands vterm
+  :defer t
   :bind (:map vterm-mode-map ("C-o" . other-window))
   :config
   ;;(setq term-prompt-regexp "^[^$]*[$] *");; match your custom shell
@@ -533,7 +538,7 @@ return f"))
   (setq vterm-max-scrollback 10000))
 
 (use-package vterm-toggle
-  :ensure t
+  :after vterm
   :config
   (setq vterm-toggle-fullscreen-p nil)
   (add-to-list 'display-buffer-alist
@@ -550,39 +555,5 @@ return f"))
 ;; (global-unset-key (kbd "C-t"))`
 (global-set-key (kbd "C-`") 'vterm-toggle)
 
-(use-package dired
-  :ensure nil
-  :commands dired
-  :config
-  (setq dired-listing-switches "-agho --group-directories-first" )
-  (setq dired-dwim-target t);; guess other directory for copy and rename
-  (define-key dired-mode-map (kbd "C-o") 'other-window))
-
-;; nice icons in dired
-(use-package treemacs-icons-dired
-  :after dired
-  :config (treemacs-icons-dired-mode) )
-
-;; janky mode which lists the recursive size of each foler/item in dired.
-(use-package dired-du
-  :commands du)
-
-;; use a single dired session
-(use-package dired-single)
-
-(defun my-dired-init ()
-  "Bunch of stuff to run for dired, either immediately or when it's
-         loaded."
-  (define-key dired-mode-map [remap dired-find-file]
-              'dired-single-buffer)
-  (define-key dired-mode-map [remap dired-mouse-find-file-other-window]
-              'dired-single-buffer-mouse)
-  (define-key dired-mode-map [remap dired-up-directory]
-              'dired-single-up-directory))
-
-;; if dired's already loaded, then the keymap will be bound
-(if (boundp 'dired-mode-map)
-    ;; we're good to go; just add our bindings
-    (my-dired-init)
-  ;; it's not loaded yet, so add our bindings to the load-hook
-  (add-hook 'dired-load-hook 'my-dired-init))
+(use-package eterm-256color
+  :hook (term-mode . eterm-256color-mode))

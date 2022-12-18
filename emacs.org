@@ -134,7 +134,20 @@ Save backups in =.emacs.d=.
 #+end_src
 
 *** Line numbers
+**** Linum
 #+begin_src emacs-lisp
+   (dolist (mode '(org-mode-hook
+                   term-mode-hook
+                   treemacs-mode-hook
+                   eshell-mode-hook
+                   vterm-mode-hook))
+     (add-hook mode (lambda () (linum-mode 0))))
+
+  (global-linum-mode 1)
+#+end_src
+
+**** Display Line Numbers NOT USED
+#+begin_src emacs-lisp  :tangle no
      (dolist (mode '(org-mode-hook
                      term-mode-hook
                      treemacs-mode-hook
@@ -225,6 +238,53 @@ Dash board for initial startup of emacs. [[https://github.com/emacs-dashboard/em
 
     (setq dashboard-set-footer nil)
     )
+#+end_src
+
+** Dired
+More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
+- "W" will open file in native environment (including another Emacs)
+- "(" toggle file info
+- M-x du  shows the size of the files in the buffer (toggle for human readable)
+#+begin_src emacs-lisp
+    (use-package dired
+      :ensure nil
+      :commands dired
+      :config
+      (setq dired-listing-switches "-agho --group-directories-first" )
+      (setq dired-dwim-target t);; guess other directory for copy and rename
+      (define-key dired-mode-map (kbd "C-o") 'other-window))
+
+    ;; nice icons in dired
+    (use-package treemacs-icons-dired
+      :after dired
+      :defer t
+      :config (treemacs-icons-dired-mode) )
+
+    ;; janky mode which lists the recursive size of each foler/item in dired.
+    (use-package dired-du
+      :commands dired-du-mode
+      :defer t)
+
+    ;; use a single dired session
+    (use-package dired-single)
+
+    (defun my-dired-init ()
+      "Bunch of stuff to run for dired, either immediately or when it's
+             loaded."
+      (define-key dired-mode-map [remap dired-find-file]
+                  'dired-single-buffer)
+      (define-key dired-mode-map [remap dired-mouse-find-file-other-window]
+                  'dired-single-buffer-mouse)
+      (define-key dired-mode-map [remap dired-up-directory]
+                  'dired-single-up-directory))
+
+    ;; if dired's already loaded, then the keymap will be bound
+    (if (boundp 'dired-mode-map)
+        ;; we're good to go; just add our bindings
+        (my-dired-init)
+      ;; it's not loaded yet, so add our bindings to the load-hook
+      (add-hook 'dired-load-hook 'my-dired-init))
+
 #+end_src
 
 ** Native Compilation
@@ -325,7 +385,7 @@ Gives warning on startup for login.   [[https://github.com/emacs-grammarly/lsp-g
   :ensure t
   :hook (text-mode . (lambda ()
                        (require 'lsp-grammarly)
-                       (lsp))))  ; or lsp-deferred
+                       (lsp))))
 #+end_src
 
 *** flycheck-grammarly
@@ -397,6 +457,29 @@ Auto-creates closing parenthesis and bar and, smartly, writes it over if it is t
     (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 #+end_src
 
+** Git-Gutter
+Have it installed to be turned on and off when wanted-- depends on:
+- linum vs display-line-numbers  (fringe or normal)
+- TTy vs not    [[https://github.com/nonsequitur/git-gutter-fringe-plus][reference]]
+|                          | git-gutter+.el | git-gutter-fringe+.el |
+|--------------------------+----------------+-----------------------|
+| Works in tty frame       | +              | -                     |
+| Works with linum-mode    | -              | +                     |
+| Gutter on the right side | -              | +                     |
+
+*** Git Gutter+
+#+begin_src emacs-lisp :tangle no
+    (use-package git-gutter+
+      :after git-gutter)
+#+end_src
+
+*** Git Gutter-fringe+
+#+begin_src emacs-lisp
+  (use-package git-gutter-fringe+
+    :commands git-gutter+-mode
+    :defer t)
+#+end_src
+
 ** Projectile NOT USED
 Allows me to set project-wide commands and variables. [[https://docs.projectile.mx/projectile/index.html][Projectile Documentation]]
 Notably: run, debug, project-variables, grep (and rg).
@@ -458,7 +541,7 @@ Provides language backend to company-mode.
 #+begin_src emacs-lisp  
   (use-package lsp-mode
     :delight lsp-mode
-    :commands (lsp lsp-deferred)
+    :commands (lsp)
     :init
     (setq lsp-keymap-prefix "C-c l") ;; or "C-l"
     :custom ((lsp-idle-delay 0.5)) ;; 0.5 is the defualt
@@ -562,10 +645,10 @@ After this, the =compile= automatically holds the correct command.
   (yas-global-mode 1)
 #+end_src
 
-** Evil nerd commenter
+** TODO Evil nerd commenter
 #+begin_src emacs-lisp
   (use-package evil-nerd-commenter
-  :bind ("C-;". evilnc-comment-or-uncomment-lines))
+  :bind ("M-;". evilnc-comment-or-uncomment-lines))
 #+end_src
 
 * Bash
@@ -578,8 +661,8 @@ After this, the =compile= automatically holds the correct command.
   (defun my-sh-mode-hook-fn()
     (setq sh-basic-offset 2
           sh-indentation 2) ;; defaults are 4
-    (lsp)
-    (display-line-numbers-mode))
+    (lsp))
+
 
   (add-hook 'sh-mode-hook #'my-sh-mode-hook-fn)
 #+end_src
@@ -661,22 +744,21 @@ After changing venv all installed packages from venv should be visible for LSP s
       :after lsp
       :hook (python-mode . (lambda ()
                               (require 'lsp-pyright)
-                              (lsp))))  ; or lsp-deferred
+                              (lsp))))
 #+end_src
 
 *** python-mode
 #+begin_src emacs-lisp 
-   ;; configure pythong-mode
-   (use-package python-mode
-     :ensure nil ; don't install, use the pre-installed version
+  (use-package python-mode
+    :ensure nil ; don't install, use the pre-installed version
 
-     :custom
-     (python-shell-completion-native-enable 1)
-     (python-shell-interpreter "ipython")
-     (python-shell-interpreter-args "-i --simple-prompt")
-     ; this command doesn't work BUT without, python-mode "won't load".
-     :bind (:map python-mode-map ("C-RET" . python-shell-send-statement))
-     )
+    :custom
+    (python-shell-completion-native-enable 1)
+    (python-shell-interpreter "ipython")
+    (python-shell-interpreter-args "-i --simple-prompt")
+    ; this command doesn't work BUT without, python-mode "won't load".
+    :bind (:map python-mode-map ("C-RET" . python-shell-send-statement))
+    )
 #+end_src
 
 ** Hook
@@ -704,14 +786,6 @@ Need to setup an elisp development environment.
     (variable-pitch-mode 1)
     (visual-line-mode 1)
     (rainbow-delimiters-mode 0)
-    ;; (company-mode 1)
-    ;; edit the modeline-- not needed for doom-modeline
-    ;; (diminish 'visual-line-mode)
-    ;; (diminish 'flyspell-mode)
-    ;; (diminish 'org-indent-mode)
-    ;; (diminish 'buffer-face-mode)
-    ;; (diminish 'yas-minor-mode)
-    ;; (diminish 'eldoc-mode)
     )
 #+end_src
 
@@ -870,11 +944,48 @@ If I use EIN, add the setting for displaying the figures inline.
     ;; (define-key ein:notebook-mode-map (kbd "<C-tab>") 'my-function)
     )
 #+end_src
+
 *** TODO completion
 In [[https://www.youtube.com/watch?v=OB9vFu9Za8w][EIN video]], Miller says that the completion is based on =auto-complete= rather than =company=. So here we are going to try to get completion setup for =EIN=.
 Also, in [[https://github.com/millejoh/emacs-ipython-notebook#ob-ein][EIN github]], Miller says that =EIN= is an =elpy= module, so maybe we need =elpy= for completion?
 
 * Terminals
+** vterm
+Faster terminal due to being compiled. Default is a better mode than term-mode; it's like a Char-mode but with ability to access function list with M-x.  [[https://github.com/akermu/emacs-libvterm][vterm Documentation]]
+- For more than one terminal, you must M-x rename-uniquely the terminal.
+- C-c prefix for term commands
+- C-c C-c = send C-c to the terminal (kill running command)
+
+#+begin_src emacs-lisp
+  (use-package vterm
+    :commands vterm
+    :defer t
+    :bind (:map vterm-mode-map ("C-o" . other-window))
+    :config
+    ;;(setq term-prompt-regexp "^[^$]*[$] *");; match your custom shell
+    ;;(setq vterm-shell "zsh");; Set this to customize the shell to launch
+    (setq vterm-max-scrollback 10000))
+
+  (use-package vterm-toggle
+    :after vterm
+    :config
+    (setq vterm-toggle-fullscreen-p nil)
+    (add-to-list 'display-buffer-alist
+                 '((lambda(bufname _) (with-current-buffer bufname (equal major-mode 'vterm-mode)))
+                   (display-buffer-reuse-window display-buffer-at-bottom)
+                   ;;(display-buffer-reuse-window display-buffer-in-direction)
+                   ;;display-buffer-in-direction/direction/dedicated is added in emacs27
+                   ;;(direction . bottom)
+                   ;;(dedicated . t) ;dedicated is supported in emacs27
+                   (reusable-frames . visible)
+                   (window-height . 0.3)))
+    )
+
+  ;; (global-unset-key (kbd "C-t"))`
+  (global-set-key (kbd "C-`") 'vterm-toggle)
+
+#+end_src
+
 ** term-mode
 - Slower than vterm at printing large amounts of information. 
 - For more than one terminal, you must M-x rename-uniquely the terminal.
@@ -889,94 +1000,13 @@ C-c C-j  -> line-mode
   :hook (term-mode . eterm-256color-mode))
 #+end_src
 
-** vterm
-Faster terminal due to being compiled. Default is a better mode than term-mode; it's like a Char-mode but with ability to access function list with M-x.  [[https://github.com/akermu/emacs-libvterm][vterm Documentation]]
-- For more than one terminal, you must M-x rename-uniquely the terminal.
-- C-c prefix for term commands
-- C-c C-c = send C-c to the terminal (kill running command)
-
-#+begin_src emacs-lisp
-    (use-package vterm
-      :commands vterm
-      :bind (:map vterm-mode-map ("C-o" . other-window))
-      :config
-      ;;(setq term-prompt-regexp "^[^$]*[$] *");; match your custom shell
-      ;;(setq vterm-shell "zsh");; Set this to customize the shell to launch
-      (setq vterm-max-scrollback 10000))
-
-    (use-package vterm-toggle
-      :ensure t
-      :config
-      (setq vterm-toggle-fullscreen-p nil)
-      (add-to-list 'display-buffer-alist
-                   '((lambda(bufname _) (with-current-buffer bufname (equal major-mode 'vterm-mode)))
-                     (display-buffer-reuse-window display-buffer-at-bottom)
-                     ;;(display-buffer-reuse-window display-buffer-in-direction)
-                     ;;display-buffer-in-direction/direction/dedicated is added in emacs27
-                     ;;(direction . bottom)
-                     ;;(dedicated . t) ;dedicated is supported in emacs27
-                     (reusable-frames . visible)
-                     (window-height . 0.3)))
-      )
-
-    ;; (global-unset-key (kbd "C-t"))`
-    (global-set-key (kbd "C-`") 'vterm-toggle)
-
-#+end_src
-
 ** shell-mode
 Between term-mode eshell.
 
 ** eshell
 More customization in Elisp. Supports Tramp. 
 
-* File Management
-** Dired
-More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
-- "W" will open file in native environment (including another Emacs)
-- "(" toggle file info
-- M-x du  shows the size of the files in the buffer (toggle for human readable)
-#+begin_src emacs-lisp
-  (use-package dired
-    :ensure nil
-    :commands dired
-    :config
-    (setq dired-listing-switches "-agho --group-directories-first" )
-    (setq dired-dwim-target t);; guess other directory for copy and rename
-    (define-key dired-mode-map (kbd "C-o") 'other-window))
-
-  ;; nice icons in dired
-  (use-package treemacs-icons-dired
-    :after dired
-    :config (treemacs-icons-dired-mode) )
-
-  ;; janky mode which lists the recursive size of each foler/item in dired.
-  (use-package dired-du
-    :commands du)
-
-  ;; use a single dired session
-  (use-package dired-single)
-
-  (defun my-dired-init ()
-    "Bunch of stuff to run for dired, either immediately or when it's
-           loaded."
-    (define-key dired-mode-map [remap dired-find-file]
-                'dired-single-buffer)
-    (define-key dired-mode-map [remap dired-mouse-find-file-other-window]
-                'dired-single-buffer-mouse)
-    (define-key dired-mode-map [remap dired-up-directory]
-                'dired-single-up-directory))
-
-  ;; if dired's already loaded, then the keymap will be bound
-  (if (boundp 'dired-mode-map)
-      ;; we're good to go; just add our bindings
-      (my-dired-init)
-    ;; it's not loaded yet, so add our bindings to the load-hook
-    (add-hook 'dired-load-hook 'my-dired-init))
-
-#+end_src
-
 * Localwords
 #  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell  Dired dracula clangd ui
 #  LocalWords:  Grammarly workspaces commenter Pyright CMake Flyspell
-#  LocalWords:  Pyvenv treemacs shellcheck
+#  LocalWords:  Pyvenv treemacs shellcheck Linum
