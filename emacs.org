@@ -115,13 +115,12 @@ To ensure scrolling is fast in Emacs, disable  non-essential things while the wi
   (fast-scroll-mode 1))
 #+end_src
 
-*** Better undo
+*** Undo-tree
     - =C-x u= visualizes undo history as a tree for easy navigation
     - =C-_= undo
     - =M-_= redo
 #+begin_src emacs-lisp
   (use-package undo-tree
-    :defer 2
     :config
     (global-undo-tree-mode 1))
 #+end_src
@@ -202,13 +201,6 @@ Save backups in =.emacs.d=.
 *** Make  =yes or no= prompts shorter
 #+begin_src emacs-lisp
 (defalias 'yes-or-no-p 'y-or-n-p)
-#+end_src
-
-*** TODO buffers
-Present a list of currently open buffers when you split the window.
-#+begin_src emacs-lisp  :tangle no
-(defadvice! (switch-to-buffer)
-  :after 'window-split (switch-to-buffer))
 #+end_src
 
 *** Dashboard
@@ -351,7 +343,7 @@ Counsel displays ivy-rich info along with suggestions in input buffer.
            ))
 #+end_src
 
-** Help
+** Helpful and Which-key
 *** Helpful
 Better version of help. We remap normal help keys to Helpful's versions.
 #+begin_src emacs-lisp
@@ -645,15 +637,27 @@ After this, the =compile= automatically holds the correct command.
   (yas-global-mode 1)
 #+end_src
 
+** Flyspell
+#+begin_src emacs-lisp
+  (use-package flyspell
+    :ensure nil
+    :bind (:map flyspell-mode-map ("C-;" . nil)))
+#+end_src
+
 ** TODO Evil nerd commenter
 #+begin_src emacs-lisp
   (use-package evil-nerd-commenter
   :bind ("M-;". evilnc-comment-or-uncomment-lines))
 #+end_src
 
+* Emacs-lisp
+#+begin_src emacs-lisp
+  (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
+#+end_src
+
 * Bash
-- shellcheck, requires ~sudo dnf install -y shellcheck~
-- Debuggers available (dap-mode?)
+- Flycheck uses shellcheck, which requires ~sudo dnf install -y shellcheck~
+- debuggers are available
 - If language server doesn't install automatically either:
   1. ~sudo dnf -y nodejs-bash-language-server.noarch~
   2. =M-x lsp-install-server=
@@ -667,50 +671,38 @@ After this, the =compile= automatically holds the correct command.
   (add-hook 'sh-mode-hook #'my-sh-mode-hook-fn)
 #+end_src
 
-* C/C++
-** Compilation Buffer
-Have the =*Compilation*= buffer scroll with the output.
-#+begin_src emacs-lisp
-  (setq compilation-scroll-output t)
-#+end_src
-
-The following keeps the compilation buffer if there are warnings or errors, and buries it otherwise (after 1 second). [[https://stackoverflow.com/questions/11043004/emacs-compile-buffer-auto-close][source]]
-#+begin_src emacs-lisp
-(defun bury-compile-buffer-if-successful (buffer string)
- "Bury a compilation buffer if succeeded without warnings "
- (when (and
-         (buffer-live-p buffer)
-         (string-match "compilation" (buffer-name buffer))
-         (string-match "finished" string)
-         (not
-          (with-current-buffer buffer
-            (goto-char (point-min))
-            (search-forward "warning" nil t))))
-    (run-with-timer 1 nil
-                    (lambda (buf)
-                      (bury-buffer buf)
-                      (switch-to-prev-buffer (get-buffer-window buf) 'kill))
-                    buffer)))
-(add-hook 'compilation-finish-functions 'bury-compile-buffer-if-successful)
-#+end_src
-
-** Hook
-  Currently lsp-mode works with clangd backend without any initial setup.
-  company-clang needs =clang= installed on the system.
-  #+begin_src emacs-lisp   
-    (setq-default c-basic-offset 2)
-
-    (defun my-c-c++-mode-hook-fn ()
-      (lsp)                ; turn on
-      (local-set-key (kbd "C-<tab>") #'lsp-format-buffer) ;tab comp
-      (smartparens-mode 1)
-      )
-
-    (add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
-    (add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
-#+end_src
-
 * Python
+** TODO Jupyter Notebooks
+*** TODO run Jupyter in babel
+[[https://sqrtminusone.xyz/posts/2021-05-01-org-python/][Reference]] and https://github.com/jkitchin/scimax
+Cannot get zmq (Jupyter dependency)  to work currently
+#+begin_src emacs-lisp :tangle no
+    (use-package jupyter
+        :after (org)
+        ;; :straight t
+        )
+
+    (org-babel-do-load-languages 'org-babel-load-languages
+                                 (append org-babel-load-languages
+                                         '((jupyter . t))))
+#+end_src
+
+*** TODO open notebook in Emacs
+If I use EIN, add the setting for displaying the figures inline.
+#+begin_src emacs-lisp
+  (use-package ein
+    :commands (ein:notebooklist-open)
+    ;; :config
+    ;; (require 'ein-loaddefs)
+    ;; (require 'ein)
+    ;; (define-key ein:notebook-mode-map (kbd "<C-tab>") 'my-function)
+    )
+#+end_src
+
+*** TODO completion
+In [[https://www.youtube.com/watch?v=OB9vFu9Za8w][EIN video]], Miller says that the completion is based on =auto-complete= rather than =company=. So here we are going to try to get completion setup for =EIN=.
+Also, in [[https://github.com/millejoh/emacs-ipython-notebook#ob-ein][EIN github]], Miller says that =EIN= is an =elpy= module, so maybe we need =elpy= for completion?
+
 ** Pyvenv
 #+begin_src emacs-lisp
   (use-package pyvenv
@@ -772,10 +764,47 @@ After changing venv all installed packages from venv should be visible for LSP s
   (add-hook 'python-mode-hook #'my-python-mode-hook-fn)
 #+end_src
 
-* TODO Emacs-lisp
-Need to setup an elisp development environment.
+* C/C++
+** Compilation Buffer
+Have the =*Compilation*= buffer scroll with the output.
 #+begin_src emacs-lisp
-(defalias 'run-elisp 'ielm)
+  (setq compilation-scroll-output t)
+#+end_src
+
+The following keeps the compilation buffer if there are warnings or errors, and buries it otherwise (after 1 second). [[https://stackoverflow.com/questions/11043004/emacs-compile-buffer-auto-close][source]]
+#+begin_src emacs-lisp
+(defun bury-compile-buffer-if-successful (buffer string)
+ "Bury a compilation buffer if succeeded without warnings "
+ (when (and
+         (buffer-live-p buffer)
+         (string-match "compilation" (buffer-name buffer))
+         (string-match "finished" string)
+         (not
+          (with-current-buffer buffer
+            (goto-char (point-min))
+            (search-forward "warning" nil t))))
+    (run-with-timer 1 nil
+                    (lambda (buf)
+                      (bury-buffer buf)
+                      (switch-to-prev-buffer (get-buffer-window buf) 'kill))
+                    buffer)))
+(add-hook 'compilation-finish-functions 'bury-compile-buffer-if-successful)
+#+end_src
+
+** Hook
+  Currently lsp-mode works with clangd backend without any initial setup.
+  company-clang needs =clang= installed on the system.
+  #+begin_src emacs-lisp
+    (setq-default c-basic-offset 2)
+
+    (defun my-c-c++-mode-hook-fn ()
+      (lsp)                ; turn on
+      (local-set-key (kbd "C-<tab>") #'lsp-format-buffer) ;tab comp
+      (smartparens-mode 1)
+      )
+
+    (add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
+    (add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
 #+end_src
 
 * Org-Mode
@@ -918,37 +947,6 @@ Create a function to align the size of displayed latex framents with overall org
 (global-set-key (kbd "C-c c") #'org-capture)
 #+end_src
 
-* TODO Jupyter Notebook
-** TODO run Jupyter in babel
-[[https://sqrtminusone.xyz/posts/2021-05-01-org-python/][Reference]] and https://github.com/jkitchin/scimax
-Cannot get zmq (Jupyter dependency)  to work currently
-#+begin_src emacs-lisp :tangle no
-    (use-package jupyter
-        :after (org)
-        ;; :straight t
-        )
-
-    (org-babel-do-load-languages 'org-babel-load-languages
-                                 (append org-babel-load-languages
-                                         '((jupyter . t))))
-#+end_src
-
-** TODO open notebook in Emacs
-If I use EIN, add the setting for displaying the figures inline.
-#+begin_src emacs-lisp
-  (use-package ein
-    :commands (ein:notebooklist-open)
-    ;; :config
-    ;; (require 'ein-loaddefs)
-    ;; (require 'ein)
-    ;; (define-key ein:notebook-mode-map (kbd "<C-tab>") 'my-function)
-    )
-#+end_src
-
-*** TODO completion
-In [[https://www.youtube.com/watch?v=OB9vFu9Za8w][EIN video]], Miller says that the completion is based on =auto-complete= rather than =company=. So here we are going to try to get completion setup for =EIN=.
-Also, in [[https://github.com/millejoh/emacs-ipython-notebook#ob-ein][EIN github]], Miller says that =EIN= is an =elpy= module, so maybe we need =elpy= for completion?
-
 * Terminals
 ** vterm
 Faster terminal due to being compiled. Default is a better mode than term-mode; it's like a Char-mode but with ability to access function list with M-x.  [[https://github.com/akermu/emacs-libvterm][vterm Documentation]]
@@ -1001,7 +999,7 @@ C-c C-j  -> line-mode
 #+end_src
 
 ** shell-mode
-Between term-mode eshell.
+Between term-mode and eshell.
 
 ** eshell
 More customization in Elisp. Supports Tramp. 

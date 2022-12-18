@@ -54,8 +54,34 @@
 ;; (add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode))
 ;; (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
 
+(use-package emacs
+  :custom
+  ;; Fully redraw the display before it processes queued input events.
+  (redisplay-dont-pause            t)
+
+  ;; Number of lines of continuity to retain when scrolling by full screens
+  ;; (next-screen-context-lines       2)  ;; golden ration pkg replaced this
+
+  ;; only 'jump' when moving this far off the screen
+  (scroll-conservatively       10000)
+  (scroll-step                     1) ;; Keyboard scroll one line at a time
+  (mouse-wheel-progressive-speed nil) ;; Don't accelerate scrolling
+  (mouse-wheel-follow-mouse        t) ;; Scroll window under mouse
+  (fast-but-imprecise-scrolling    t) ;; No (less) lag while scrolling lots.
+  (auto-window-vscroll           nil) ;; Cursor move faster
+  (pixel-scroll-precision-mode     1) ;; pixel based scrolling
+  )
+
+(use-package fast-scroll
+  :ensure t
+  :demand t
+  :config
+  (add-hook 'fast-scroll-start-hook (lambda () (flycheck-mode -1)))
+  (add-hook 'fast-scroll-end-hook (lambda () (flycheck-mode 1)))
+  (fast-scroll-config)
+  (fast-scroll-mode 1))
+
 (use-package undo-tree
-  :defer 2
   :config
   (global-undo-tree-mode 1))
 
@@ -333,8 +359,14 @@
 
 (yas-global-mode 1)
 
+(use-package flyspell
+  :ensure nil
+  :bind (:map flyspell-mode-map ("C-;" . nil)))
+
 (use-package evil-nerd-commenter
 :bind ("M-;". evilnc-comment-or-uncomment-lines))
+
+(add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
 
 (defun my-sh-mode-hook-fn()
   (setq sh-basic-offset 2
@@ -344,35 +376,13 @@
 
 (add-hook 'sh-mode-hook #'my-sh-mode-hook-fn)
 
-(setq compilation-scroll-output t)
-
-(defun bury-compile-buffer-if-successful (buffer string)
- "Bury a compilation buffer if succeeded without warnings "
- (when (and
-         (buffer-live-p buffer)
-         (string-match "compilation" (buffer-name buffer))
-         (string-match "finished" string)
-         (not
-          (with-current-buffer buffer
-            (goto-char (point-min))
-            (search-forward "warning" nil t))))
-    (run-with-timer 1 nil
-                    (lambda (buf)
-                      (bury-buffer buf)
-                      (switch-to-prev-buffer (get-buffer-window buf) 'kill))
-                    buffer)))
-(add-hook 'compilation-finish-functions 'bury-compile-buffer-if-successful)
-
-(setq-default c-basic-offset 2)
-
-(defun my-c-c++-mode-hook-fn ()
-  (lsp)                ; turn on
-  (local-set-key (kbd "C-<tab>") #'lsp-format-buffer) ;tab comp
-  (smartparens-mode 1)
+(use-package ein
+  :commands (ein:notebooklist-open)
+  ;; :config
+  ;; (require 'ein-loaddefs)
+  ;; (require 'ein)
+  ;; (define-key ein:notebook-mode-map (kbd "<C-tab>") 'my-function)
   )
-
-(add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
-(add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
 
 (use-package pyvenv
 :ensure t
@@ -411,7 +421,35 @@
 
 (add-hook 'python-mode-hook #'my-python-mode-hook-fn)
 
-(defalias 'run-elisp 'ielm)
+(setq compilation-scroll-output t)
+
+(defun bury-compile-buffer-if-successful (buffer string)
+ "Bury a compilation buffer if succeeded without warnings "
+ (when (and
+         (buffer-live-p buffer)
+         (string-match "compilation" (buffer-name buffer))
+         (string-match "finished" string)
+         (not
+          (with-current-buffer buffer
+            (goto-char (point-min))
+            (search-forward "warning" nil t))))
+    (run-with-timer 1 nil
+                    (lambda (buf)
+                      (bury-buffer buf)
+                      (switch-to-prev-buffer (get-buffer-window buf) 'kill))
+                    buffer)))
+(add-hook 'compilation-finish-functions 'bury-compile-buffer-if-successful)
+
+(setq-default c-basic-offset 2)
+
+(defun my-c-c++-mode-hook-fn ()
+  (lsp)                ; turn on
+  (local-set-key (kbd "C-<tab>") #'lsp-format-buffer) ;tab comp
+  (smartparens-mode 1)
+  )
+
+(add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
+(add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
 
 (defun jmn/org-mode-setup ()
   (org-indent-mode)
@@ -519,14 +557,6 @@ return f"))
 (global-set-key (kbd "C-c l") #'org-store-link)
 (global-set-key (kbd "C-c a") #'org-agenda)
 (global-set-key (kbd "C-c c") #'org-capture)
-
-(use-package ein
-  :commands (ein:notebooklist-open)
-  ;; :config
-  ;; (require 'ein-loaddefs)
-  ;; (require 'ein)
-  ;; (define-key ein:notebook-mode-map (kbd "<C-tab>") 'my-function)
-  )
 
 (use-package vterm
   :commands vterm
