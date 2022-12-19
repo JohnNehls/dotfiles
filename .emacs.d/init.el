@@ -83,7 +83,9 @@
 
 (use-package undo-tree
   :config
-  (global-undo-tree-mode 1))
+  (global-undo-tree-mode 1)
+  (setq undo-tree-auto-save-history nil) ;; don't save ~undo-tree~ file
+  )
 
 (setq backup-directory-alist
       '( ("." . "~/.dotfiles/.emacs.d/filebackups")))
@@ -97,11 +99,11 @@
 
 (global-linum-mode 1)
 
-(use-package monokai-theme
-     :init (load-theme 'monokai t))
+;; (use-package monokai-theme
+;;      :init (load-theme 'monokai t))
 ;;;;;; Saving my SECOND favorite theme which is easier on the eyes.
-;; (use-package gruvbox-theme
-;;     :init (load-theme 'gruvbox-dark-hard t))
+(use-package gruvbox-theme
+    :init (load-theme 'gruvbox-dark-hard t))
 
 (use-package all-the-icons
 :init
@@ -193,7 +195,6 @@
 (use-package goto-last-change
   :ensure t
   :bind ("C-;" . goto-last-change))
-  ;; :hook (org-mode . goto-last-change))
 
 (use-package ivy
   :delight ivy-mode

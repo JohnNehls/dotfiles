@@ -122,7 +122,9 @@ To ensure scrolling is fast in Emacs, disable  non-essential things while the wi
 #+begin_src emacs-lisp
   (use-package undo-tree
     :config
-    (global-undo-tree-mode 1))
+    (global-undo-tree-mode 1)
+    (setq undo-tree-auto-save-history nil) ;; don't save ~undo-tree~ file
+    )
 #+end_src
 
 *** Backup files
@@ -285,14 +287,13 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
   (setq native-comp-async-report-warnings-errors nil)
 #+end_src
 
-** Goto last change
-Sometimes it's useful to step to the last change in a buffer.
+** TODO Goto last change
+Check with other environments to settle on "C-;" or "M-;"
+- we cleared "C-;" from Flyspell above
 #+begin_src emacs-lisp
   (use-package goto-last-change
     :ensure t
     :bind ("C-;" . goto-last-change))
-    ;; :hook (org-mode . goto-last-change))
-
 #+end_src
 
 ** Input Buffer, Directory Search
