@@ -100,13 +100,6 @@
 
 (global-display-line-numbers-mode t)
 
-(use-package gruvbox-theme
-    :init (load-theme 'gruvbox-dark-hard t)
-    :config
-    ;; (set-face-background 'linum (face-attribute 'default :background))
-    (set-face-background 'display-line-number
-                         (face-attribute 'default :background)) )
-
 (use-package all-the-icons
 :init
 (when (and (not (member "all-the-icons" (font-family-list))) ;; autoinstall fonts
@@ -116,6 +109,13 @@
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
   :custom ((doom-modeline-height 15)))
+
+(use-package doom-themes
+  :ensure t
+  :custom (doom-dark+-blue-modeline nil)
+  :config (load-theme 'doom-dark+)
+  (set-face-foreground 'doom-modeline-buffer-modified "red")
+  )
 
 (defun transparency (value)
    "Sets the transparency of the frame window. 0=transparent/100=opaque"
@@ -281,9 +281,17 @@
   ;display Magit status buffer in the same buffer rather than splitting it. 
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
-(use-package git-gutter-fringe+
-  :commands git-gutter+-mode
+(use-package git-gutter
+  :commands git-gutter-mode
   :defer t)
+
+(use-package git-gutter-fringe
+  :commands git-gutter-mode
+  :defer t)
+
+(define-fringe-bitmap 'git-gutter-fr:added [224] nil nil '(center repeated))
+(define-fringe-bitmap 'git-gutter-fr:modified [224] nil nil '(center repeated))
+(define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240] nil nil 'bottom)
 
 (use-package company
   :ensure t

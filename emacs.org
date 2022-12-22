@@ -161,36 +161,7 @@ Save backups in =.emacs.d=.
   (global-display-line-numbers-mode t)
 #+end_src
 
-*** Themes
-Only enable (tangle) one at a time.
-
-**** Gruvbox
-#+begin_src emacs-lisp
-  (use-package gruvbox-theme
-      :init (load-theme 'gruvbox-dark-hard t)
-      :config
-      ;; (set-face-background 'linum (face-attribute 'default :background))
-      (set-face-background 'display-line-number
-                           (face-attribute 'default :background)) )
-#+end_src
-
-**** Monokia
-Good bright mode for bright days.
-#+begin_src emacs-lisp :tangle no
-  (use-package monokai-theme
-        :init (load-theme 'monokai t))
-#+end_src
-
-**** Dark+
-- doom-dark+ needs the filename to turn red when it is modified
-#+begin_src emacs-lisp :tangle no
-    ;; (use-package vscode-dark-plus-theme
-    ;;   :ensure t
-    ;;   :config (load-theme 'vscode-dark-plus t))
-    (load-theme 'doom-dark+)
-#+end_src
-
-*** Modeline 
+*** Modeline
 **** Doom-modeline
 *NOTE*: The first time you load your configuration on a new machine, you’ll need to run =M-x all-the-icons-install-fonts= so that mode line icons display correctly. (Fixed?)
 #+begin_src emacs-lisp  
@@ -203,6 +174,38 @@ Good bright mode for bright days.
   (use-package doom-modeline
     :init (doom-modeline-mode 1)
     :custom ((doom-modeline-height 15)))
+#+end_src
+
+*** Themes
+Only enable (tangle) one at a time.
+**** Gruvbox
+#+begin_src emacs-lisp :tangle no
+  (use-package gruvbox-theme
+      :init (load-theme 'gruvbox-dark-hard t)
+      :config
+      ;; Depends on if using linum or display-line-number
+      ;; (set-face-background 'linum (face-attribute 'default :background))
+      (set-face-background 'line-number
+                           (face-attribute 'default :background))
+      )
+#+end_src
+
+**** Monokia
+Good bright mode for bright days.
+#+begin_src emacs-lisp :tangle no
+  (use-package monokai-theme
+        :init (load-theme 'monokai t))
+#+end_src
+
+**** Dark+
+- doom-dark+ needs the filename to turn red when it is modified
+#+begin_src emacs-lisp
+  (use-package doom-themes
+    :ensure t
+    :custom (doom-dark+-blue-modeline nil)
+    :config (load-theme 'doom-dark+)
+    (set-face-foreground 'doom-modeline-buffer-modified "red")
+    )
 #+end_src
 
 *** Transparency
@@ -475,7 +478,7 @@ Auto-creates closing parenthesis and bar and, smartly, writes it over if it is t
     (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 #+end_src
 
-** Git-Gutter
+** TODO Git-Gutter
 Have it installed to be turned on and off when wanted-- depends on:
 - linum vs display-line-numbers  (fringe or normal)
 - TTy vs not    [[https://github.com/nonsequitur/git-gutter-fringe-plus][reference]]
@@ -485,20 +488,36 @@ Have it installed to be turned on and off when wanted-- depends on:
 | Works with linum-mode    | -              | +                     |
 | Gutter on the right side | -              | +                     |
 
+*** Git Gutter
+#+begin_src emacs-lisp
+  (use-package git-gutter
+    :commands git-gutter-mode
+    :defer t)
+
+  (use-package git-gutter-fringe
+    :commands git-gutter-mode
+    :defer t)
+#+end_src
+
 *** Git Gutter+
 #+begin_src emacs-lisp :tangle no
   (use-package git-gutter+
     :commands git-gutter+-mode
     :defer t)
-#+end_src
 
-*** Git Gutter-fringe+
-#+begin_src emacs-lisp
   (use-package git-gutter-fringe+
     :commands git-gutter+-mode
     :defer t)
 #+end_src
 
+
+*** Fringe bitmap
+[[https://ianyepan.github.io/posts/emacs-git-gutter/][reference]]
+#+begin_src emacs-lisp
+(define-fringe-bitmap 'git-gutter-fr:added [224] nil nil '(center repeated))
+(define-fringe-bitmap 'git-gutter-fr:modified [224] nil nil '(center repeated))
+(define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240] nil nil 'bottom)
+#+end_src
 ** Projectile NOT USED
 Allows me to set project-wide commands and variables. [[https://docs.projectile.mx/projectile/index.html][Projectile Documentation]]
 Notably: run, debug, project-variables, grep (and rg).
