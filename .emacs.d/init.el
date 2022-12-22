@@ -94,16 +94,18 @@
                  term-mode-hook
                  treemacs-mode-hook
                  eshell-mode-hook
+                 help-mode-hook
                  vterm-mode-hook))
-   (add-hook mode (lambda () (linum-mode 0))))
+   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-(global-linum-mode 1)
+(global-display-line-numbers-mode t)
 
-;; (use-package monokai-theme
-;;      :init (load-theme 'monokai t))
-;;;;;; Saving my SECOND favorite theme which is easier on the eyes.
 (use-package gruvbox-theme
-    :init (load-theme 'gruvbox-dark-hard t))
+    :init (load-theme 'gruvbox-dark-hard t)
+    :config
+    ;; (set-face-background 'linum (face-attribute 'default :background))
+    (set-face-background 'display-line-number
+                         (face-attribute 'default :background)) )
 
 (use-package all-the-icons
 :init
@@ -241,21 +243,24 @@
   :config(which-key-mode)
   (setq which-key-idle-delay 0.8))
 
+;; general improvements
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-(global-set-key (kbd "C-o") 'other-window)
 (global-set-key (kbd "C-x C-b") 'buffer-menu) ;; open buffer menue in current buffer
 (global-set-key (kbd "C-x C-k") 'kill-current-buffer) ;; "C-x k" asks which buffer
+(global-set-key (kbd "C-o") 'other-window)
+(global-set-key (kbd "C-M-o") 'previous-multiframe-window)
 
 ;; Make font bigger/smaller.
 (global-set-key (kbd "C-=") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 (global-set-key (kbd "C-0") 'text-scale-adjust)
 
-  ;; (global-unset-key (kbd "C-<SPC>"))
-  ;; (global-unset-key (kbd "C-m"))
-  ;; (global-set-key (kbd "C-m") 'set-mark-command)
-  ;; (global-set-key (kbd "C-<SPC>") 'other-window)
-  ;; (global-set-key (kbd "M-SPC") 'other-window)
+;; Org notes flow
+(global-set-key (kbd "<f5>") 'org-store-link)
+(global-set-key (kbd "<f6>") 'org-insert-link)
+(global-set-key (kbd "<f7>") 'org-open-at-point)
+(global-set-key (kbd "<f8>") 'org-html-export-to-html)
+(global-set-key (kbd "<f9>") 'ispell-word)
 
 (set-face-attribute 'default nil :height 110) ;; needed on laptop
 

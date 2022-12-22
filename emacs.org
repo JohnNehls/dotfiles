@@ -136,36 +136,58 @@ Save backups in =.emacs.d=.
 
 *** Line numbers
 **** Linum
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
    (dolist (mode '(org-mode-hook
                    term-mode-hook
                    treemacs-mode-hook
                    eshell-mode-hook
+                   help-mode-hook
                    vterm-mode-hook))
      (add-hook mode (lambda () (linum-mode 0))))
 
   (global-linum-mode 1)
 #+end_src
 
-**** Display Line Numbers NOT USED
-#+begin_src emacs-lisp  :tangle no
-     (dolist (mode '(org-mode-hook
-                     term-mode-hook
-                     treemacs-mode-hook
-                     eshell-mode-hook
-                     vterm-mode-hook))
-       (add-hook mode (lambda () (display-line-numbers-mode 0))))
+**** Display Line Numbers
+#+begin_src emacs-lisp
+   (dolist (mode '(org-mode-hook
+                   term-mode-hook
+                   treemacs-mode-hook
+                   eshell-mode-hook
+                   help-mode-hook
+                   vterm-mode-hook))
+     (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-    (global-display-line-numbers-mode t)
+  (global-display-line-numbers-mode t)
 #+end_src
 
-*** Theme
+*** Themes
+Only enable (tangle) one at a time.
+
+**** Gruvbox
 #+begin_src emacs-lisp
+  (use-package gruvbox-theme
+      :init (load-theme 'gruvbox-dark-hard t)
+      :config
+      ;; (set-face-background 'linum (face-attribute 'default :background))
+      (set-face-background 'display-line-number
+                           (face-attribute 'default :background)) )
+#+end_src
+
+**** Monokia
+Good bright mode for bright days.
+#+begin_src emacs-lisp :tangle no
   (use-package monokai-theme
-      :init (load-theme 'monokai t))
- ;;;;;; Saving my SECOND favorite theme which is easier on the eyes.
- ;; (use-package gruvbox-theme
- ;;     :init (load-theme 'gruvbox-dark-hard t))
+        :init (load-theme 'monokai t))
+#+end_src
+
+**** Dark+
+- doom-dark+ needs the filename to turn red when it is modified
+#+begin_src emacs-lisp :tangle no
+    ;; (use-package vscode-dark-plus-theme
+    ;;   :ensure t
+    ;;   :config (load-theme 'vscode-dark-plus t))
+    (load-theme 'doom-dark+)
 #+end_src
 
 *** Modeline 
@@ -391,21 +413,24 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
 
 ** Keybindings
 #+begin_src emacs-lisp
+  ;; general improvements
   (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-  (global-set-key (kbd "C-o") 'other-window)
   (global-set-key (kbd "C-x C-b") 'buffer-menu) ;; open buffer menue in current buffer
   (global-set-key (kbd "C-x C-k") 'kill-current-buffer) ;; "C-x k" asks which buffer
+  (global-set-key (kbd "C-o") 'other-window)
+  (global-set-key (kbd "C-M-o") 'previous-multiframe-window)
 
   ;; Make font bigger/smaller.
   (global-set-key (kbd "C-=") 'text-scale-increase)
   (global-set-key (kbd "C--") 'text-scale-decrease)
   (global-set-key (kbd "C-0") 'text-scale-adjust)
 
-    ;; (global-unset-key (kbd "C-<SPC>"))
-    ;; (global-unset-key (kbd "C-m"))
-    ;; (global-set-key (kbd "C-m") 'set-mark-command)
-    ;; (global-set-key (kbd "C-<SPC>") 'other-window)
-    ;; (global-set-key (kbd "M-SPC") 'other-window)
+  ;; Org notes flow
+  (global-set-key (kbd "<f5>") 'org-store-link)
+  (global-set-key (kbd "<f6>") 'org-insert-link)
+  (global-set-key (kbd "<f7>") 'org-open-at-point)
+  (global-set-key (kbd "<f8>") 'org-html-export-to-html)
+  (global-set-key (kbd "<f9>") 'ispell-word)
 #+end_src
 
 *Future:* create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. hydra ties related commands into short bindings with a common prefix.
@@ -462,8 +487,9 @@ Have it installed to be turned on and off when wanted-- depends on:
 
 *** Git Gutter+
 #+begin_src emacs-lisp :tangle no
-    (use-package git-gutter+
-      :after git-gutter)
+  (use-package git-gutter+
+    :commands git-gutter+-mode
+    :defer t)
 #+end_src
 
 *** Git Gutter-fringe+
