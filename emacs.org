@@ -134,35 +134,7 @@ Save backups in =.emacs.d=.
         '( ("." . "~/.dotfiles/.emacs.d/filebackups")))
 #+end_src
 
-*** Line numbers
-**** Linum
-#+begin_src emacs-lisp :tangle no
-   (dolist (mode '(org-mode-hook
-                   term-mode-hook
-                   treemacs-mode-hook
-                   eshell-mode-hook
-                   help-mode-hook
-                   vterm-mode-hook))
-     (add-hook mode (lambda () (linum-mode 0))))
-
-  (global-linum-mode 1)
-#+end_src
-
-**** Display Line Numbers
-#+begin_src emacs-lisp
-   (dolist (mode '(org-mode-hook
-                   term-mode-hook
-                   treemacs-mode-hook
-                   eshell-mode-hook
-                   help-mode-hook
-                   vterm-mode-hook))
-     (add-hook mode (lambda () (display-line-numbers-mode 0))))
-
-  (global-display-line-numbers-mode t)
-#+end_src
-
 *** Modeline
-**** Doom-modeline
 *NOTE*: The first time you load your configuration on a new machine, you’ll need to run =M-x all-the-icons-install-fonts= so that mode line icons display correctly. (Fixed?)
 #+begin_src emacs-lisp  
   (use-package all-the-icons
@@ -179,7 +151,7 @@ Save backups in =.emacs.d=.
 *** Themes
 Only enable (tangle) one at a time.
 **** Gruvbox
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
   (use-package gruvbox-theme
       :init (load-theme 'gruvbox-dark-hard t)
       :config
@@ -198,12 +170,13 @@ Good bright mode for bright days.
 #+end_src
 
 **** Dark+
-- doom-dark+ needs the filename to turn red when it is modified
-#+begin_src emacs-lisp
+- The modeline, when un-selected, has the same background as files, making it hard to delineation between vertically split windows.
+#+begin_src emacs-lisp :tangle no
   (use-package doom-themes
     :ensure t
-    :custom (doom-dark+-blue-modeline nil)
+    :custom (doom-dark+-blue-modeline 1)
     :config (load-theme 'doom-dark+)
+    ;; default does not change filename settings when modified
     (set-face-foreground 'doom-modeline-buffer-modified "red")
     )
 #+end_src
@@ -434,6 +407,12 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
   (global-set-key (kbd "<f7>") 'org-open-at-point)
   (global-set-key (kbd "<f8>") 'org-html-export-to-html)
   (global-set-key (kbd "<f9>") 'ispell-word)
+
+  ;; Buffer-menu
+  (define-key Buffer-menu-mode-map (kbd "C-o") 'other-window)
+  ;; "o" opens in another buffer and moves focus
+  ;; "M-o" opens in another buffer and keeps focus in the Buffer-menu
+  (define-key Buffer-menu-mode-map (kbd "M-o") 'Buffer-menu-switch-other-window)
 #+end_src
 
 *Future:* create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. hydra ties related commands into short bindings with a common prefix.
@@ -444,6 +423,19 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
 #+end_src
 
 * General Development
+** Line numbers
+#+begin_src emacs-lisp :tangle no
+  (defun jmn-display-lines-for-long-files()
+    (if (> (car (page--count-lines-page)) 300)
+	(display-line-numbers-mode 1))
+
+    (add-hook 'prog-mode-hook #'jmn-display-lines-for-long-files)
+
+    ;; exlusion list
+    ;;(dolist (mode '())
+    ;;  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+#+end_src
+
 ** Flyspell comments
 #+begin_src emacs-lisp
 (add-hook 'prog-mode-hook #'flyspell-prog-mode)
@@ -488,36 +480,13 @@ Have it installed to be turned on and off when wanted-- depends on:
 | Works with linum-mode    | -              | +                     |
 | Gutter on the right side | -              | +                     |
 
-*** Git Gutter
-#+begin_src emacs-lisp
-  (use-package git-gutter
-    :commands git-gutter-mode
-    :defer t)
-
-  (use-package git-gutter-fringe
-    :commands git-gutter-mode
-    :defer t)
-#+end_src
-
 *** Git Gutter+
-#+begin_src emacs-lisp :tangle no
-  (use-package git-gutter+
-    :commands git-gutter+-mode
-    :defer t)
-
-  (use-package git-gutter-fringe+
-    :commands git-gutter+-mode
-    :defer t)
-#+end_src
-
-
-*** Fringe bitmap
-[[https://ianyepan.github.io/posts/emacs-git-gutter/][reference]]
 #+begin_src emacs-lisp
-(define-fringe-bitmap 'git-gutter-fr:added [224] nil nil '(center repeated))
-(define-fringe-bitmap 'git-gutter-fr:modified [224] nil nil '(center repeated))
-(define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240] nil nil 'bottom)
+  (use-package git-gutter+
+    :hook prog-mode
+    :defer t)
 #+end_src
+
 ** Projectile NOT USED
 Allows me to set project-wide commands and variables. [[https://docs.projectile.mx/projectile/index.html][Projectile Documentation]]
 Notably: run, debug, project-variables, grep (and rg).
@@ -588,7 +557,7 @@ Provides language backend to company-mode.
     ;; Annoying stuff (uncomment to turn off)
     ;; (setq lsp-enable-links nil)
     ;; (setq lsp-signature-render-documentation nil)
-    ;; (setq lsp-headerline-breadcrumb-enable nil)
+    (setq lsp-headerline-breadcrumb-enable nil)
     ;; (setq lsp-ui-doc-enable nil)
     ;; (setq lsp-completion-enable-additional-text-edit nil)
 
@@ -635,6 +604,17 @@ Like lsp-mode but for debuggers.
 #+begin_src emacs-lisp
   (use-package dap-mode
     :commands dap-mode)
+#+end_src
+
+** Highlight-indent-guide
+#+begin_src emacs-lisp
+  (use-package highlight-indent-guides
+   :defer t
+   :hook prog-mode
+   :config
+   (setq highlight-indent-guides-method 'character)
+   (set-face-foreground 'highlight-indent-guides-character-face "grey20")
+   )
 #+end_src
 
 ** Flycheck

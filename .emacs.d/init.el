@@ -90,16 +90,6 @@
 (setq backup-directory-alist
       '( ("." . "~/.dotfiles/.emacs.d/filebackups")))
 
-(dolist (mode '(org-mode-hook
-                 term-mode-hook
-                 treemacs-mode-hook
-                 eshell-mode-hook
-                 help-mode-hook
-                 vterm-mode-hook))
-   (add-hook mode (lambda () (display-line-numbers-mode 0))))
-
-(global-display-line-numbers-mode t)
-
 (use-package all-the-icons
 :init
 (when (and (not (member "all-the-icons" (font-family-list))) ;; autoinstall fonts
@@ -110,12 +100,14 @@
   :init (doom-modeline-mode 1)
   :custom ((doom-modeline-height 15)))
 
-(use-package doom-themes
-  :ensure t
-  :custom (doom-dark+-blue-modeline nil)
-  :config (load-theme 'doom-dark+)
-  (set-face-foreground 'doom-modeline-buffer-modified "red")
-  )
+(use-package gruvbox-theme
+    :init (load-theme 'gruvbox-dark-hard t)
+    :config
+    ;; Depends on if using linum or display-line-number
+    ;; (set-face-background 'linum (face-attribute 'default :background))
+    (set-face-background 'line-number
+                         (face-attribute 'default :background))
+    )
 
 (defun transparency (value)
    "Sets the transparency of the frame window. 0=transparent/100=opaque"
@@ -262,6 +254,12 @@
 (global-set-key (kbd "<f8>") 'org-html-export-to-html)
 (global-set-key (kbd "<f9>") 'ispell-word)
 
+;; Buffer-menu
+(define-key Buffer-menu-mode-map (kbd "C-o") 'other-window)
+;; "o" opens in another buffer and moves focus
+;; "M-o" opens in another buffer and keeps focus in the Buffer-menu
+(define-key Buffer-menu-mode-map (kbd "M-o") 'Buffer-menu-switch-other-window)
+
 (set-face-attribute 'default nil :height 110) ;; needed on laptop
 
 (add-hook 'prog-mode-hook #'flyspell-prog-mode)
@@ -281,17 +279,9 @@
   ;display Magit status buffer in the same buffer rather than splitting it. 
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
-(use-package git-gutter
-  :commands git-gutter-mode
+(use-package git-gutter+
+  :hook prog-mode
   :defer t)
-
-(use-package git-gutter-fringe
-  :commands git-gutter-mode
-  :defer t)
-
-(define-fringe-bitmap 'git-gutter-fr:added [224] nil nil '(center repeated))
-(define-fringe-bitmap 'git-gutter-fr:modified [224] nil nil '(center repeated))
-(define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240] nil nil 'bottom)
 
 (use-package company
   :ensure t
@@ -323,7 +313,7 @@
   ;; Annoying stuff (uncomment to turn off)
   ;; (setq lsp-enable-links nil)
   ;; (setq lsp-signature-render-documentation nil)
-  ;; (setq lsp-headerline-breadcrumb-enable nil)
+  (setq lsp-headerline-breadcrumb-enable nil)
   ;; (setq lsp-ui-doc-enable nil)
   ;; (setq lsp-completion-enable-additional-text-edit nil)
 
@@ -345,6 +335,14 @@
 
 (use-package dap-mode
   :commands dap-mode)
+
+(use-package highlight-indent-guides
+ :defer t
+ :hook prog-mode
+ :config
+ (setq highlight-indent-guides-method 'character)
+ (set-face-foreground 'highlight-indent-guides-character-face "grey20")
+ )
 
 (use-package flycheck
   :diminish flycheck-mode
