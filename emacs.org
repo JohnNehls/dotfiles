@@ -465,48 +465,28 @@ Auto-creates closing parenthesis and bar and, smartly, writes it over if it is t
 #+begin_src emacs-lisp
   (use-package magit
     :commands (magit-status)
-    :custom
-    ;display Magit status buffer in the same buffer rather than splitting it. 
-    (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+    ;; :custom
+    ;; ;display Magit status buffer in the same buffer rather than splitting it.
+    ;; (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
+    )
 #+end_src
 
-** TODO Git-Gutter
-Have it installed to be turned on and off when wanted-- depends on:
-- linum vs display-line-numbers  (fringe or normal)
-- TTy vs not    [[https://github.com/nonsequitur/git-gutter-fringe-plus][reference]]
-|                          | git-gutter+.el | git-gutter-fringe+.el |
-|--------------------------+----------------+-----------------------|
-| Works in tty frame       | +              | -                     |
-| Works with linum-mode    | -              | +                     |
-| Gutter on the right side | -              | +                     |
-
-*** Git Gutter+
+** Git-Gutter
+Git-gutter+ allows for git commands
 #+begin_src emacs-lisp
   (use-package git-gutter+
     :hook prog-mode
     :defer t)
 #+end_src
 
-** Projectile NOT USED
-Allows me to set project-wide commands and variables. [[https://docs.projectile.mx/projectile/index.html][Projectile Documentation]]
-Notably: run, debug, project-variables, grep (and rg).
-#+begin_src emacs-lisp :tangle no
-  (use-package projectile
-    :after lsp
-    ;; :delight projectile-mode
-    :config (projectile-mode)
-    :custom ((projectile-completion-system 'ivy))
-    :bind-keymap
-    ("C-c p" . projectile-command-map)
-    :init
-    ;; NOTE: Set this to the folder where you keep your Git repos!
-    (when (file-directory-p "~/Projects/Code")
-      (setq projectile-project-search-path '("~/Projects/Code")))
-    (setq projectile-switch-project-action #'projectile-dired))
-
-  (use-package counsel-projectile
-    :after projectile-mode
-    :config (counsel-projectile-mode))
+** Highlight-indent-guide
+Could not get the configs to work with lazy loading.
+#+begin_src emacs-lisp
+  (use-package highlight-indent-guides
+    :hook prog-mode
+    :config
+    (setq highlight-indent-guides-method 'character)
+    (setq highlight-indent-guides-auto-character-face-perc 50))
 #+end_src
 
 ** Company-Mode
@@ -604,17 +584,6 @@ Like lsp-mode but for debuggers.
 #+begin_src emacs-lisp
   (use-package dap-mode
     :commands dap-mode)
-#+end_src
-
-** Highlight-indent-guide
-#+begin_src emacs-lisp
-  (use-package highlight-indent-guides
-   :defer t
-   :hook prog-mode
-   :config
-   (setq highlight-indent-guides-method 'character)
-   (set-face-foreground 'highlight-indent-guides-character-face "grey20")
-   )
 #+end_src
 
 ** Flycheck
@@ -1028,7 +997,7 @@ C-c C-j  -> line-mode
 Between term-mode and eshell.
 
 ** eshell
-More customization in Elisp. Supports Tramp. 
+More customization in Elisp. Supports Tramp.
 
 * Localwords
 #  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell  Dired dracula clangd ui

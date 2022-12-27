@@ -275,13 +275,20 @@
 
 (use-package magit
   :commands (magit-status)
-  :custom
-  ;display Magit status buffer in the same buffer rather than splitting it. 
-  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+  ;; :custom
+  ;; ;display Magit status buffer in the same buffer rather than splitting it.
+  ;; (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
+  )
 
 (use-package git-gutter+
   :hook prog-mode
   :defer t)
+
+(use-package highlight-indent-guides
+  :hook prog-mode
+  :config
+  (setq highlight-indent-guides-method 'character)
+  (setq highlight-indent-guides-auto-character-face-perc 50))
 
 (use-package company
   :ensure t
@@ -335,14 +342,6 @@
 
 (use-package dap-mode
   :commands dap-mode)
-
-(use-package highlight-indent-guides
- :defer t
- :hook prog-mode
- :config
- (setq highlight-indent-guides-method 'character)
- (set-face-foreground 'highlight-indent-guides-character-face "grey20")
- )
 
 (use-package flycheck
   :diminish flycheck-mode
