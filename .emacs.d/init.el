@@ -110,11 +110,13 @@
     )
 
 (defun transparency (value)
-   "Sets the transparency of the frame window. 0=transparent/100=opaque"
+   "Sets the transparency of the frame window-- font included. 0=transparent/100=opaque"
    (interactive "nTransparency Value 0 - 100 opaque:")
    (set-frame-parameter (selected-frame) 'alpha value))
 
-(transparency 96)  ;; Default value generally e [94,96]
+(if (version<= "29" emacs-version)
+    (set-frame-parameter nil 'alpha-background 0.96)
+    (transparency 96))
 
 (use-package ws-butler
   :hook ((text-mode . ws-butler-mode)
@@ -130,7 +132,7 @@
   (dashboard-setup-startup-hook)
   (setq dashboard-center-content 1)
   (setq dashboard-show-shortcuts nil)
-  (setq dashboard-items '((recents  . 7)
+  (setq dashboard-items '((recents  . 9)
                           ;; (bookmarks . 5)
                           (projects . 5)
                           (agenda . 5)

@@ -184,11 +184,13 @@ Good bright mode for bright days.
 *** Transparency
 #+begin_src emacs-lisp
    (defun transparency (value)
-     "Sets the transparency of the frame window. 0=transparent/100=opaque"
+     "Sets the transparency of the frame window-- font included. 0=transparent/100=opaque"
      (interactive "nTransparency Value 0 - 100 opaque:")
      (set-frame-parameter (selected-frame) 'alpha value))
 
-  (transparency 96)  ;; Default value generally e [94,96]
+  (if (version<= "29" emacs-version)
+      (set-frame-parameter nil 'alpha-background 0.96)
+      (transparency 96))
 #+end_src
 
 *** Auto-clean white space
@@ -216,7 +218,7 @@ Dash board for initial startup of emacs. [[https://github.com/emacs-dashboard/em
     (dashboard-setup-startup-hook)
     (setq dashboard-center-content 1)
     (setq dashboard-show-shortcuts nil)
-    (setq dashboard-items '((recents  . 7)
+    (setq dashboard-items '((recents  . 9)
                             ;; (bookmarks . 5)
                             (projects . 5)
                             (agenda . 5)
@@ -286,7 +288,7 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
 #+end_src
 
 ** TODO Goto last change
-Check with other environments to settle on "C-;" or "M-;"
+Check with other environments to settle on "C-;" or "M-;" -- the other us used for =evil-nerd comment=
 - we cleared "C-;" from Flyspell above
 #+begin_src emacs-lisp
   (use-package goto-last-change
@@ -367,7 +369,7 @@ Better version of help. We remap normal help keys to Helpful's versions.
     (setq which-key-idle-delay 0.8))
 #+end_src
 
-** TODO Grammarly
+** Grammarly (not set up)
 There looks to be several packages at the moment. Top two (as of 1/10/22) are installed here without proper hooks. 
 *** lsp-grammarly
 Gives warning on startup for login.   [[https://github.com/emacs-grammarly/lsp-grammarly][lsp-grammarly doc]]
@@ -639,13 +641,13 @@ After this, the =compile= automatically holds the correct command.
     :bind (:map flyspell-mode-map ("C-;" . nil)))
 #+end_src
 
-** TODO Evil nerd commenter
+** Evil nerd commenter
 #+begin_src emacs-lisp
   (use-package evil-nerd-commenter
   :bind ("M-;". evilnc-comment-or-uncomment-lines))
 #+end_src
 
-* Emacs-lisp
+** Emacs-lisp
 #+begin_src emacs-lisp
   (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
 #+end_src
