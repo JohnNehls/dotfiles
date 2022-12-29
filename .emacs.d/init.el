@@ -100,23 +100,19 @@
   :init (doom-modeline-mode 1)
   :custom ((doom-modeline-height 15)))
 
-(use-package gruvbox-theme
-    :init (load-theme 'gruvbox-dark-hard t)
-    :config
-    ;; Depends on if using linum or display-line-number
-    ;; (set-face-background 'linum (face-attribute 'default :background))
-    (set-face-background 'line-number
-                         (face-attribute 'default :background))
-    )
+(use-package doom-themes
+  :ensure t
+  :custom (doom-dark+-blue-modeline nil)
+  :config (load-theme 'doom-dark+)
+  (set-face-background 'line-number
+                       (face-attribute 'default :background))
+  ;; default does not change filename settings when modified
+  (set-face-foreground 'doom-modeline-buffer-modified "red"))
 
 (defun transparency (value)
-   "Sets the transparency of the frame window-- font included. 0=transparent/100=opaque"
-   (interactive "nTransparency Value 0 - 100 opaque:")
-   (set-frame-parameter (selected-frame) 'alpha value))
-
-(if (version<= "29" emacs-version)
-    (set-frame-parameter nil 'alpha-background 0.96)
-    (transparency 96))
+  "Sets the transparency of the frame window-- font included. 0=transparent/100=opaque"
+  (interactive "nTransparency Value 0 - 100 opaque:")
+  (set-frame-parameter (selected-frame) 'alpha value))
 
 (use-package ws-butler
   :hook ((text-mode . ws-butler-mode)
@@ -186,6 +182,11 @@
   ;; it's not loaded yet, so add our bindings to the load-hook
   (add-hook 'dired-load-hook 'my-dired-init))
 
+(defun proced-settings ()
+    (proced-toggle-auto-update)) ;; auto update every 5 seconds
+
+(add-hook 'proced-mode-hook 'proced-settings)
+
 (setq native-comp-async-report-warnings-errors nil)
 
 (use-package goto-last-change
@@ -242,7 +243,7 @@
 (global-set-key (kbd "C-x C-b") 'buffer-menu) ;; open buffer menue in current buffer
 (global-set-key (kbd "C-x C-k") 'kill-current-buffer) ;; "C-x k" asks which buffer
 (global-set-key (kbd "C-o") 'other-window)
-(global-set-key (kbd "C-M-o") 'previous-multiframe-window)
+(global-set-key (kbd "M-o") 'previous-multiframe-window)
 
 ;; Make font bigger/smaller.
 (global-set-key (kbd "C-=") 'text-scale-increase)
@@ -600,3 +601,17 @@ return f"))
 
 (use-package eterm-256color
   :hook (term-mode . eterm-256color-mode))
+
+(defun jmn/vscode-current-buffer-file-at-point ()
+  (interactive)
+  (start-process-shell-command "code"
+                               nil
+                               (concat "code --goto "
+                                       (buffer-file-name)
+                                       ":"
+                                       (number-to-string (line-number-at-pos))
+                                       ":"
+                                       ;; +1 who knows why
+                                       (number-to-string (+ 1 (current-column))))))
+
+  (define-key global-map (kbd "C-<escape>") 'jmn/vscode-current-buffer-file-at-point)

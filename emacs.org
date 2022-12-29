@@ -151,7 +151,7 @@ Save backups in =.emacs.d=.
 *** Themes
 Only enable (tangle) one at a time.
 **** Gruvbox
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package gruvbox-theme
       :init (load-theme 'gruvbox-dark-hard t)
       :config
@@ -171,23 +171,28 @@ Good bright mode for bright days.
 
 **** Dark+
 - The modeline, when un-selected, has the same background as files, making it hard to delineation between vertically split windows.
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
   (use-package doom-themes
     :ensure t
-    :custom (doom-dark+-blue-modeline 1)
+    :custom (doom-dark+-blue-modeline nil)
     :config (load-theme 'doom-dark+)
+    (set-face-background 'line-number
+                         (face-attribute 'default :background))
     ;; default does not change filename settings when modified
-    (set-face-foreground 'doom-modeline-buffer-modified "red")
-    )
+    (set-face-foreground 'doom-modeline-buffer-modified "red"))
 #+end_src
 
 *** Transparency
+Set general function which works all the time-- even in full screen
 #+begin_src emacs-lisp
    (defun transparency (value)
      "Sets the transparency of the frame window-- font included. 0=transparent/100=opaque"
      (interactive "nTransparency Value 0 - 100 opaque:")
      (set-frame-parameter (selected-frame) 'alpha value))
+#+end_src
 
+Set default: alpha-background is great in version 29 but I could not get it to work in Emacs 29
+#+begin_src emacs-lisp :tangle no
   (if (version<= "29" emacs-version)
       (set-frame-parameter nil 'alpha-background 0.96)
       (transparency 96))
@@ -281,13 +286,21 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
 
 #+end_src
 
+** Proced
+#+begin_src emacs-lisp
+  (defun proced-settings ()
+      (proced-toggle-auto-update)) ;; auto update every 5 seconds
+
+  (add-hook 'proced-mode-hook 'proced-settings)
+#+end_src
+
 ** Native Compilation
 *** Suppress compilation warnings
 #+begin_src emacs-lisp
   (setq native-comp-async-report-warnings-errors nil)
 #+end_src
 
-** TODO Goto last change
+** Goto last change
 Check with other environments to settle on "C-;" or "M-;" -- the other us used for =evil-nerd comment=
 - we cleared "C-;" from Flyspell above
 #+begin_src emacs-lisp
@@ -396,7 +409,7 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
   (global-set-key (kbd "C-x C-b") 'buffer-menu) ;; open buffer menue in current buffer
   (global-set-key (kbd "C-x C-k") 'kill-current-buffer) ;; "C-x k" asks which buffer
   (global-set-key (kbd "C-o") 'other-window)
-  (global-set-key (kbd "C-M-o") 'previous-multiframe-window)
+  (global-set-key (kbd "M-o") 'previous-multiframe-window)
 
   ;; Make font bigger/smaller.
   (global-set-key (kbd "C-=") 'text-scale-increase)
@@ -1000,6 +1013,23 @@ Between term-mode and eshell.
 
 ** eshell
 More customization in Elisp. Supports Tramp.
+
+* VSCode
+#+begin_src emacs-lisp
+  (defun jmn/vscode-current-buffer-file-at-point ()
+    (interactive)
+    (start-process-shell-command "code"
+                                 nil
+                                 (concat "code --goto "
+                                         (buffer-file-name)
+                                         ":"
+                                         (number-to-string (line-number-at-pos))
+                                         ":"
+                                         ;; +1 who knows why
+                                         (number-to-string (+ 1 (current-column))))))
+
+    (define-key global-map (kbd "C-<escape>") 'jmn/vscode-current-buffer-file-at-point)
+#+end_src
 
 * Localwords
 #  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell  Dired dracula clangd ui
