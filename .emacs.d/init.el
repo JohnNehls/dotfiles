@@ -100,14 +100,14 @@
   :init (doom-modeline-mode 1)
   :custom ((doom-modeline-height 15)))
 
-(use-package doom-themes
-  :ensure t
-  :custom (doom-dark+-blue-modeline nil)
-  :config (load-theme 'doom-dark+)
-  (set-face-background 'line-number
-                       (face-attribute 'default :background))
-  ;; default does not change filename settings when modified
-  (set-face-foreground 'doom-modeline-buffer-modified "red"))
+(use-package gruvbox-theme
+    :init (load-theme 'gruvbox-dark-hard t)
+    :config
+    ;; Depends on if using linum or display-line-number
+    ;; (set-face-background 'linum (face-attribute 'default :background))
+    (set-face-background 'line-number
+                         (face-attribute 'default :background))
+    )
 
 (defun transparency (value)
   "Sets the transparency of the frame window-- font included. 0=transparent/100=opaque"
@@ -240,9 +240,9 @@
 
 ;; general improvements
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-(global-set-key (kbd "C-x C-b") 'buffer-menu) ;; open buffer menue in current buffer
-(global-set-key (kbd "C-x C-k") 'kill-current-buffer) ;; "C-x k" asks which buffer
-(global-set-key (kbd "C-o") 'other-window)
+(global-set-key (kbd "C-x C-b") 'buffer-menu)   ;; open buffer menue in current buffer
+(global-set-key (kbd "C-x C-k") 'kill-current-buffer)   ;; "C-x k" asks which buffer
+(global-set-key (kbd "C-o") 'other-window)  ;; default is "C-x o"
 (global-set-key (kbd "M-o") 'previous-multiframe-window)
 
 ;; Make font bigger/smaller.
@@ -259,9 +259,10 @@
 
 ;; Buffer-menu
 (define-key Buffer-menu-mode-map (kbd "C-o") 'other-window)
+(define-key Buffer-menu-mode-map (kbd "M-o") 'previous-multiframe-window)
 ;; "o" opens in another buffer and moves focus
-;; "M-o" opens in another buffer and keeps focus in the Buffer-menu
-(define-key Buffer-menu-mode-map (kbd "M-o") 'Buffer-menu-switch-other-window)
+;; "C-M-o" opens in another buffer and keeps focus in the Buffer-menu
+(define-key Buffer-menu-mode-map (kbd "C-M-o") 'Buffer-menu-switch-other-window)
 
 (set-face-attribute 'default nil :height 110) ;; needed on laptop
 

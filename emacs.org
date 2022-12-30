@@ -151,7 +151,7 @@ Save backups in =.emacs.d=.
 *** Themes
 Only enable (tangle) one at a time.
 **** Gruvbox
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
   (use-package gruvbox-theme
       :init (load-theme 'gruvbox-dark-hard t)
       :config
@@ -171,7 +171,7 @@ Good bright mode for bright days.
 
 **** Dark+
 - The modeline, when un-selected, has the same background as files, making it hard to delineation between vertically split windows.
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package doom-themes
     :ensure t
     :custom (doom-dark+-blue-modeline nil)
@@ -406,9 +406,9 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
 #+begin_src emacs-lisp
   ;; general improvements
   (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-  (global-set-key (kbd "C-x C-b") 'buffer-menu) ;; open buffer menue in current buffer
-  (global-set-key (kbd "C-x C-k") 'kill-current-buffer) ;; "C-x k" asks which buffer
-  (global-set-key (kbd "C-o") 'other-window)
+  (global-set-key (kbd "C-x C-b") 'buffer-menu)   ;; open buffer menue in current buffer
+  (global-set-key (kbd "C-x C-k") 'kill-current-buffer)   ;; "C-x k" asks which buffer
+  (global-set-key (kbd "C-o") 'other-window)  ;; default is "C-x o"
   (global-set-key (kbd "M-o") 'previous-multiframe-window)
 
   ;; Make font bigger/smaller.
@@ -425,12 +425,13 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
 
   ;; Buffer-menu
   (define-key Buffer-menu-mode-map (kbd "C-o") 'other-window)
+  (define-key Buffer-menu-mode-map (kbd "M-o") 'previous-multiframe-window)
   ;; "o" opens in another buffer and moves focus
-  ;; "M-o" opens in another buffer and keeps focus in the Buffer-menu
-  (define-key Buffer-menu-mode-map (kbd "M-o") 'Buffer-menu-switch-other-window)
+  ;; "C-M-o" opens in another buffer and keeps focus in the Buffer-menu
+  (define-key Buffer-menu-mode-map (kbd "C-M-o") 'Buffer-menu-switch-other-window)
 #+end_src
 
-*Future:* create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. hydra ties related commands into short bindings with a common prefix.
+*Possible TODO:* create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. hydra ties related commands into short bindings with a common prefix.
 
 ** Font size
 #+begin_src emacs-lisp
