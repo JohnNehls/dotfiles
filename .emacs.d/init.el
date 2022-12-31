@@ -183,7 +183,7 @@
   (add-hook 'dired-load-hook 'my-dired-init))
 
 (defun proced-settings ()
-    (proced-toggle-auto-update)) ;; auto update every 5 seconds
+    (proced-toggle-auto-update 4)) ;; auto update every 4 seconds
 
 (add-hook 'proced-mode-hook 'proced-settings)
 
