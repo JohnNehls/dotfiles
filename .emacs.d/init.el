@@ -255,7 +255,10 @@
 (global-set-key (kbd "<f6>") 'org-insert-link)
 (global-set-key (kbd "<f7>") 'org-open-at-point)
 (global-set-key (kbd "<f8>") 'org-html-export-to-html)
+
+;; writing/editing
 (global-set-key (kbd "<f9>") 'ispell-word)
+(global-set-key (kbd "<f10>") 'dictionary-lookup-definition)
 
 ;; Buffer-menu
 (define-key Buffer-menu-mode-map (kbd "C-o") 'other-window)
@@ -263,6 +266,9 @@
 ;; "o" opens in another buffer and moves focus
 ;; "C-M-o" opens in another buffer and keeps focus in the Buffer-menu
 (define-key Buffer-menu-mode-map (kbd "C-M-o") 'Buffer-menu-switch-other-window)
+
+;; compilation
+(define-key compilation-mode-map (kbd "C-o") 'other-window)
 
 (set-face-attribute 'default nil :height 110) ;; needed on laptop
 
@@ -304,7 +310,6 @@
 (global-company-mode 1)
 
 (use-package company-box
-  :delight company-box-mode
   :hook (company-mode . company-box-mode))
 
 (use-package company-prescient
