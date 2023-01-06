@@ -148,6 +148,7 @@
   :commands dired
   :config
   (setq dired-listing-switches "-agho --group-directories-first" )
+  (setq find-ls-option '("-print0 | xargs -0 ls -agho" . ""))
   (setq dired-dwim-target t);; guess other directory for copy and rename
   (define-key dired-mode-map (kbd "C-o") 'other-window))
 
@@ -260,15 +261,22 @@
 (global-set-key (kbd "<f9>") 'ispell-word)
 (global-set-key (kbd "<f10>") 'dictionary-lookup-definition)
 
-;; Buffer-menu
+;; Buffer-menu-mode
 (define-key Buffer-menu-mode-map (kbd "C-o") 'other-window)
 (define-key Buffer-menu-mode-map (kbd "M-o") 'previous-multiframe-window)
 ;; "o" opens in another buffer and moves focus
 ;; "C-M-o" opens in another buffer and keeps focus in the Buffer-menu
 (define-key Buffer-menu-mode-map (kbd "C-M-o") 'Buffer-menu-switch-other-window)
 
-;; compilation
+;; compilation-mode
 (define-key compilation-mode-map (kbd "C-o") 'other-window)
+
+;; grep-mode
+(defun jmn-grep-keybindings()
+  (define-key grep-mode-map (kbd "o") 'compilation-display-error)
+  (define-key grep-mode-map (kbd "C-o") 'other-window))
+
+(add-hook 'grep-mode-hook #'jmn-grep-keybindings)
 
 (set-face-attribute 'default nil :height 110) ;; needed on laptop
 

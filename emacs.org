@@ -247,44 +247,45 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
 - "(" toggle file info
 - M-x du  shows the size of the files in the buffer (toggle for human readable)
 #+begin_src emacs-lisp
-    (use-package dired
-      :ensure nil
-      :commands dired
-      :config
-      (setq dired-listing-switches "-agho --group-directories-first" )
-      (setq dired-dwim-target t);; guess other directory for copy and rename
-      (define-key dired-mode-map (kbd "C-o") 'other-window))
+  (use-package dired
+    :ensure nil
+    :commands dired
+    :config
+    (setq dired-listing-switches "-agho --group-directories-first" )
+    (setq find-ls-option '("-print0 | xargs -0 ls -agho" . ""))
+    (setq dired-dwim-target t);; guess other directory for copy and rename
+    (define-key dired-mode-map (kbd "C-o") 'other-window))
 
-    ;; nice icons in dired
-    (use-package treemacs-icons-dired
-      :after dired
-      :defer t
-      :config (treemacs-icons-dired-mode) )
+  ;; nice icons in dired
+  (use-package treemacs-icons-dired
+    :after dired
+    :defer t
+    :config (treemacs-icons-dired-mode) )
 
-    ;; janky mode which lists the recursive size of each foler/item in dired.
-    (use-package dired-du
-      :commands dired-du-mode
-      :defer t)
+  ;; janky mode which lists the recursive size of each foler/item in dired.
+  (use-package dired-du
+    :commands dired-du-mode
+    :defer t)
 
-    ;; use a single dired session
-    (use-package dired-single)
+  ;; use a single dired session
+  (use-package dired-single)
 
-    (defun my-dired-init ()
-      "Bunch of stuff to run for dired, either immediately or when it's
-             loaded."
-      (define-key dired-mode-map [remap dired-find-file]
-                  'dired-single-buffer)
-      (define-key dired-mode-map [remap dired-mouse-find-file-other-window]
-                  'dired-single-buffer-mouse)
-      (define-key dired-mode-map [remap dired-up-directory]
-                  'dired-single-up-directory))
+  (defun my-dired-init ()
+    "Bunch of stuff to run for dired, either immediately or when it's
+           loaded."
+    (define-key dired-mode-map [remap dired-find-file]
+                'dired-single-buffer)
+    (define-key dired-mode-map [remap dired-mouse-find-file-other-window]
+                'dired-single-buffer-mouse)
+    (define-key dired-mode-map [remap dired-up-directory]
+                'dired-single-up-directory))
 
-    ;; if dired's already loaded, then the keymap will be bound
-    (if (boundp 'dired-mode-map)
-        ;; we're good to go; just add our bindings
-        (my-dired-init)
-      ;; it's not loaded yet, so add our bindings to the load-hook
-      (add-hook 'dired-load-hook 'my-dired-init))
+  ;; if dired's already loaded, then the keymap will be bound
+  (if (boundp 'dired-mode-map)
+      ;; we're good to go; just add our bindings
+      (my-dired-init)
+    ;; it's not loaded yet, so add our bindings to the load-hook
+    (add-hook 'dired-load-hook 'my-dired-init))
 
 #+end_src
 
@@ -428,15 +429,23 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
   (global-set-key (kbd "<f9>") 'ispell-word)
   (global-set-key (kbd "<f10>") 'dictionary-lookup-definition)
 
-  ;; Buffer-menu
+  ;; Buffer-menu-mode
   (define-key Buffer-menu-mode-map (kbd "C-o") 'other-window)
   (define-key Buffer-menu-mode-map (kbd "M-o") 'previous-multiframe-window)
   ;; "o" opens in another buffer and moves focus
   ;; "C-M-o" opens in another buffer and keeps focus in the Buffer-menu
   (define-key Buffer-menu-mode-map (kbd "C-M-o") 'Buffer-menu-switch-other-window)
 
-  ;; compilation
+  ;; compilation-mode
   (define-key compilation-mode-map (kbd "C-o") 'other-window)
+
+  ;; grep-mode
+  (defun jmn-grep-keybindings()
+    (define-key grep-mode-map (kbd "o") 'compilation-display-error)
+    (define-key grep-mode-map (kbd "C-o") 'other-window))
+
+  (add-hook 'grep-mode-hook #'jmn-grep-keybindings)
+
 #+end_src
 
 *Possible TODO:* create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. hydra ties related commands into short bindings with a common prefix.
