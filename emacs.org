@@ -253,39 +253,46 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
     :config
     (setq dired-listing-switches "-agho --group-directories-first" )
     (setq find-ls-option '("-print0 | xargs -0 ls -agho" . ""))
-    (setq dired-dwim-target t);; guess other directory for copy and rename
-    (define-key dired-mode-map (kbd "C-o") 'other-window))
+    (setq dired-dwim-target t) ;; guess other dired directory for copy and rename
+    (setq wdired-allow-to-change-permissions t)
+    (define-key dired-mode-map (kbd "C-o") 'other-window)
+    (setq dired-guess-shell-alist-user '(("\\.png\\'" "shotwewll")
+                                         ("\\.jpe?g\\'" "shotwell")
+                                         ("\\.mp4\\'" "vlc")
+                                         ("\\.epub\\'" "ebook-viewer")
+                                         ("\\.pdf\\'" "evince")
+                                         ("\\.ipynb\\'" "code"))))
 
-  ;; nice icons in dired
-  (use-package treemacs-icons-dired
-    :after dired
-    :defer t
-    :config (treemacs-icons-dired-mode) )
+    ;; nice icons in dired
+    (use-package treemacs-icons-dired
+      :after dired
+      :defer t
+      :config (treemacs-icons-dired-mode) )
 
-  ;; janky mode which lists the recursive size of each foler/item in dired.
-  (use-package dired-du
-    :commands dired-du-mode
-    :defer t)
+    ;; janky mode which lists the recursive size of each foler/item in dired.
+    (use-package dired-du
+      :commands dired-du-mode
+      :defer t)
 
-  ;; use a single dired session
-  (use-package dired-single)
+    ;; use a single dired session
+    (use-package dired-single)
 
-  (defun my-dired-init ()
-    "Bunch of stuff to run for dired, either immediately or when it's
-           loaded."
-    (define-key dired-mode-map [remap dired-find-file]
-                'dired-single-buffer)
-    (define-key dired-mode-map [remap dired-mouse-find-file-other-window]
-                'dired-single-buffer-mouse)
-    (define-key dired-mode-map [remap dired-up-directory]
-                'dired-single-up-directory))
+    (defun my-dired-init ()
+      "Bunch of stuff to run for dired, either immediately or when it's
+            loaded."
+      (define-key dired-mode-map [remap dired-find-file]
+                  'dired-single-buffer)
+      (define-key dired-mode-map [remap dired-mouse-find-file-other-window]
+                  'dired-single-buffer-mouse)
+      (define-key dired-mode-map [remap dired-up-directory]
+                  'dired-single-up-directory))
 
-  ;; if dired's already loaded, then the keymap will be bound
-  (if (boundp 'dired-mode-map)
-      ;; we're good to go; just add our bindings
-      (my-dired-init)
-    ;; it's not loaded yet, so add our bindings to the load-hook
-    (add-hook 'dired-load-hook 'my-dired-init))
+    ;; if dired's already loaded, then the keymap will be bound
+    (if (boundp 'dired-mode-map)
+        ;; we're good to go; just add our bindings
+        (my-dired-init)
+      ;; it's not loaded yet, so add our bindings to the load-hook
+      (add-hook 'dired-load-hook 'my-dired-init))
 
 #+end_src
 
