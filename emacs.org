@@ -466,14 +466,14 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
 ** Line numbers
 #+begin_src emacs-lisp :tangle no
   (defun jmn-display-lines-for-long-files()
-    (if (> (car (page--count-lines-page)) 300)
-	(display-line-numbers-mode 1))
+    (if (> (car (page--count-lines-page) ) 300)
+        (display-line-numbers-mode 1)))
 
-    (add-hook 'prog-mode-hook #'jmn-display-lines-for-long-files)
+  (add-hook 'prog-mode-hook #'jmn-display-lines-for-long-files)
 
-    ;; exlusion list
-    ;;(dolist (mode '())
-    ;;  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+  ;; exlusion list
+  ;;(dolist (mode '())
+  ;;  (add-hook mode (lambda () (display-line-numbers-mode 0))))
 #+end_src
 
 ** Flyspell comments
@@ -492,12 +492,11 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
     :hook (prog-mode . rainbow-delimiters-mode))
 #+end_src
 
-*** Smartparens
+*** Smartparens NOT USED
 Auto-creates closing parenthesis and bar and, smartly, writes it over if it is typed.
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package smartparens
-    :delight smartparens-mode
-    :hook (prog-mode . rainbow-delimiters-mode))
+    :hook (prog-mode . smartparens-mode))
 #+end_src
 
 ** Magit
@@ -849,6 +848,9 @@ The following keeps the compilation buffer if there are warnings or errors, and 
     (variable-pitch-mode 1)
     (visual-line-mode 1)
     (rainbow-delimiters-mode 0)
+    ;; fix issue where it matches > with partentheses -- may break blocks with <>
+    (modify-syntax-entry ?< ".")
+    (modify-syntax-entry ?> ".")
     )
 #+end_src
 
@@ -1052,7 +1054,8 @@ More customization in Elisp. Supports Tramp.
                                          ;; +1 who knows why
                                          (number-to-string (+ 1 (current-column))))))
 
-    (define-key global-map (kbd "C-<escape>") 'jmn/vscode-current-buffer-file-at-point)
+  (define-key global-map (kbd "<f12>")
+              'jmn/vscode-current-buffer-file-at-point)
 #+end_src
 
 * Localwords

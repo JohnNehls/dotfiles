@@ -294,10 +294,6 @@
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
 
-(use-package smartparens
-  :delight smartparens-mode
-  :hook (prog-mode . rainbow-delimiters-mode))
-
 (use-package magit
   :commands (magit-status)
   ;; :custom
@@ -491,6 +487,9 @@
   (variable-pitch-mode 1)
   (visual-line-mode 1)
   (rainbow-delimiters-mode 0)
+  ;; fix issue where it matches > with partentheses -- may break blocks with <>
+  (modify-syntax-entry ?< ".")
+  (modify-syntax-entry ?> ".")
   )
 
 (defun jmn/org-font-setup ()
@@ -635,4 +634,5 @@ return f"))
                                        ;; +1 who knows why
                                        (number-to-string (+ 1 (current-column))))))
 
-  (define-key global-map (kbd "C-<escape>") 'jmn/vscode-current-buffer-file-at-point)
+(define-key global-map (kbd "<f12>")
+            'jmn/vscode-current-buffer-file-at-point)
