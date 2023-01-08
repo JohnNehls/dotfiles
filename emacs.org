@@ -185,19 +185,13 @@ Good bright mode for bright days.
 #+end_src
 
 *** Transparency
-Set general function which works all the time-- even in full screen
 #+begin_src emacs-lisp
-   (defun transparency (value)
-     "Sets the transparency of the frame window-- font included. 0=transparent/100=opaque"
-     (interactive "nTransparency Value 0 - 100 opaque:")
-     (set-frame-parameter (selected-frame) 'alpha value))
-#+end_src
-
-Set default: alpha-background is great in version 29 but I could not get it to work in Emacs 29
-#+begin_src emacs-lisp :tangle no
-  (if (version<= "29" emacs-version)
-      (set-frame-parameter nil 'alpha-background 0.96)
-      (transparency 96))
+  (defun transparency (value)
+    "Sets the transparency of the frame window. 0=transparent/100=opaque"
+    (interactive "nTransparency Value 0 - 100 opaque:")
+    (if (version<= "29" emacs-version)
+        (set-frame-parameter nil 'alpha-background value)
+      (set-frame-parameter (selected-frame) 'alpha value)))
 #+end_src
 
 *** Auto-clean white space

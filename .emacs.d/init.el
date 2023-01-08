@@ -67,7 +67,7 @@
   (scroll-step                     1) ;; Keyboard scroll one line at a time
   (mouse-wheel-progressive-speed nil) ;; Don't accelerate scrolling
   (mouse-wheel-follow-mouse        t) ;; Scroll window under mouse
-  (fast-but-imprecise-scrolling    t) ;; No (less) lag while scrolling lots.
+  (fast-but-imprecise-scrolling  nil) ;; No (less) lag while scrolling lots.
   (auto-window-vscroll           nil) ;; Cursor move faster
   (pixel-scroll-precision-mode     1) ;; pixel based scrolling
   )
@@ -110,9 +110,11 @@
     )
 
 (defun transparency (value)
-  "Sets the transparency of the frame window-- font included. 0=transparent/100=opaque"
+  "Sets the transparency of the frame window. 0=transparent/100=opaque"
   (interactive "nTransparency Value 0 - 100 opaque:")
-  (set-frame-parameter (selected-frame) 'alpha value))
+  (if (version<= "29" emacs-version)
+      (set-frame-parameter nil 'alpha-background value)
+    (set-frame-parameter (selected-frame) 'alpha value)))
 
 (use-package ws-butler
   :hook ((text-mode . ws-butler-mode)
