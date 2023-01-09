@@ -244,6 +244,7 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
   (use-package dired
     :ensure nil
     :commands dired
+    :hook (dired-mode . dired-hide-details-mode) ;; "use '(' to see details
     :config
     (setq dired-listing-switches "-agho --group-directories-first" )
     (setq find-ls-option '("-print0 | xargs -0 ls -agho" . ""))
@@ -253,6 +254,7 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
     (setq dired-guess-shell-alist-user '(("\\.png\\'" "shotwewll")
                                          ("\\.jpe?g\\'" "shotwell")
                                          ("\\.mp4\\'" "vlc")
+                                         ("\\.html\\'" "firefox")
                                          ("\\.epub\\'" "ebook-viewer")
                                          ("\\.pdf\\'" "evince")
                                          ("\\.ipynb\\'" "code"))))
@@ -414,6 +416,8 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
   (global-set-key (kbd "C-x C-k") 'kill-current-buffer)   ;; "C-x k" asks which buffer
   (global-set-key (kbd "C-o") 'other-window)  ;; default is "C-x o"
   (global-set-key (kbd "M-o") 'previous-multiframe-window)
+  (global-set-key (kbd "C-c C-c") 'eval-buffer)
+  (global-set-key (kbd "C-c C-r") 'eval-region)
 
   ;; Make font bigger/smaller.
   (global-set-key (kbd "C-=") 'text-scale-increase)
@@ -956,7 +960,7 @@ Note: I had to install texlive dependencies for latex framents to work. I found 
 
 *Font size*:
 #+begin_src emacs-lisp
-  (defconst jmn-latex-scale 1.0 "scaling factor for latex fragments")
+  (defconst jmn-latex-scale 1.2 "scaling factor for latex fragments")
   (setq org-format-latex-options (plist-put org-format-latex-options :scale jmn-latex-scale))
 #+end_src
 
@@ -975,6 +979,15 @@ Create a function to align the size of displayed latex framents with overall org
 (global-set-key (kbd "C-c l") #'org-store-link)
 (global-set-key (kbd "C-c a") #'org-agenda)
 (global-set-key (kbd "C-c c") #'org-capture)
+#+end_src
+
+** TODO Save to HTML on save
+make a list of files for which this is on, then just add 'buffer-name to that list in local variables
+#+begin_src emacs-lisp
+  (defun jmn-org-export-html-on-save()
+    (interactive)
+    (when (eq major-mode 'org-mode)
+      (org-html-export-to-html)))
 #+end_src
 
 * Terminals
