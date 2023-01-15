@@ -67,7 +67,7 @@
   (scroll-step                     1) ;; Keyboard scroll one line at a time
   (mouse-wheel-progressive-speed nil) ;; Don't accelerate scrolling
   (mouse-wheel-follow-mouse        t) ;; Scroll window under mouse
-  (fast-but-imprecise-scrolling  nil) ;; No (less) lag while scrolling lots.
+  (fast-but-imprecise-scrolling    t) ;; No (less) lag while scrolling lots.
   (auto-window-vscroll           nil) ;; Cursor move faster
   (pixel-scroll-precision-mode     1) ;; pixel based scrolling
   )
@@ -106,8 +106,7 @@
     ;; Depends on if using linum or display-line-number
     ;; (set-face-background 'linum (face-attribute 'default :background))
     (set-face-background 'line-number
-                         (face-attribute 'default :background))
-    )
+                         (face-attribute 'default :background)))
 
 (defun transparency (value)
   "Sets the transparency of the frame window. 0=transparent/100=opaque"
@@ -128,12 +127,13 @@
   :ensure t
   :config
   (dashboard-setup-startup-hook)
+  (setq dashboard-startup-banner 1)
   (setq dashboard-center-content 1)
   (setq dashboard-show-shortcuts nil)
   (setq dashboard-items '((recents  . 9)
                           ;; (bookmarks . 5)
                           (projects . 5)
-                          (agenda . 5)
+                          ;; (agenda . 5)
                           ;; (registers . 5)
                           ))
   (setq dashboard-set-heading-icons t)
@@ -148,6 +148,7 @@
 (use-package dired
   :ensure nil
   :commands dired
+  :hook (dired-mode . dired-hide-details-mode) ;; "use '(' to see details
   :config
   (setq dired-listing-switches "-agho --group-directories-first" )
   (setq find-ls-option '("-print0 | xargs -0 ls -agho" . ""))
@@ -157,6 +158,7 @@
   (setq dired-guess-shell-alist-user '(("\\.png\\'" "shotwewll")
                                        ("\\.jpe?g\\'" "shotwell")
                                        ("\\.mp4\\'" "vlc")
+                                       ("\\.html\\'" "firefox")
                                        ("\\.epub\\'" "ebook-viewer")
                                        ("\\.pdf\\'" "evince")
                                        ("\\.ipynb\\'" "code"))))
@@ -193,7 +195,7 @@
     (add-hook 'dired-load-hook 'my-dired-init))
 
 (defun proced-settings ()
-    (proced-toggle-auto-update 4)) ;; auto update every 4 seconds
+    (proced-toggle-auto-update 5)) ;; auto update every 4 seconds
 
 (add-hook 'proced-mode-hook 'proced-settings)
 
@@ -254,6 +256,8 @@
 (global-set-key (kbd "C-x C-k") 'kill-current-buffer)   ;; "C-x k" asks which buffer
 (global-set-key (kbd "C-o") 'other-window)  ;; default is "C-x o"
 (global-set-key (kbd "M-o") 'previous-multiframe-window)
+(global-set-key (kbd "C-c C-c") 'eval-buffer)
+(global-set-key (kbd "C-c C-r") 'eval-region)
 
 ;; Make font bigger/smaller.
 (global-set-key (kbd "C-=") 'text-scale-increase)
@@ -287,7 +291,7 @@
 
 (add-hook 'grep-mode-hook #'jmn-grep-keybindings)
 
-(set-face-attribute 'default nil :height 110) ;; needed on laptop
+(set-face-attribute 'default nil :height 115) ;; needed on laptop
 
 (add-hook 'prog-mode-hook #'flyspell-prog-mode)
 
@@ -401,9 +405,13 @@
 
 (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
 
+(use-package tree-sitter-langs)
+;; add hooks in languages below (1/23 not available for elisp)
+
 (defun my-sh-mode-hook-fn()
   (setq sh-basic-offset 2
         sh-indentation 2) ;; defaults are 4
+  (tree-sitter-hl-mode)
   (lsp))
 
 
@@ -449,6 +457,7 @@
 (defun my-python-mode-hook-fn ()
   (lsp)
   (require 'dap-python)
+  (tree-sitter-hl-mode)
   ;; (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
   )
 
@@ -479,10 +488,10 @@
   (lsp)                ; turn on
   (local-set-key (kbd "C-<tab>") #'lsp-format-buffer) ;tab comp
   (smartparens-mode 1)
-  )
+  (tree-sitter-hl-mode))
 
-(add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
-(add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
+(add-hook #'c-mode-hook #'my-c-c++-mode-hook-fn)
+(add-hook #'c++-mode-hook #'my-c-c++-mode-hook-fn)
 
 (defun jmn/org-mode-setup ()
   (org-indent-mode)
@@ -559,29 +568,29 @@
   :hook (org-mode . efs/org-mode-visual-fill))
 
 (org-babel-do-load-languages 'org-babel-load-languages
-                                             (append org-babel-load-languages
-                                              '((shell  . t)
-                                                (python . t)
-                                                (latex  . t)
-                                                (C      . t))))
+                             (append org-babel-load-languages
+                                     '((shell  . t)
+                                       (python . t)
+                                       (latex  . t)
+                                       (C      . t))))
 
-              (setq org-confirm-babel-evaluate nil)
+(setq org-confirm-babel-evaluate nil)
 
-              (with-eval-after-load 'org
-                ;; This is needed as of Org 9.2
-                (require 'org-tempo)
-                (add-to-list 'org-structure-template-alist '("la" . "src latex"))
-                (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
-                (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-                (add-to-list 'org-structure-template-alist '("py" . "src python  :results output"))
-                (add-to-list 'org-structure-template-alist '("pyim" . "src python :results file :var f=REPLACE
+(with-eval-after-load 'org
+  ;; This is needed as of Org 9.2
+  (require 'org-tempo)
+  (add-to-list 'org-structure-template-alist '("la" . "src latex"))
+  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  (add-to-list 'org-structure-template-alist '("py" . "src python  :results output"))
+  (add-to-list 'org-structure-template-alist '("pyim" . "src python :results file :var f=strNameWithDoubleQuotes
 import matplotlib.pyplot as plt
 plt.savefig(f)
-return f"))
-                (add-to-list 'org-structure-template-alist '("cpp" . "src C++  :includes <iostream>"))
-                (add-to-list 'org-structure-template-alist '("cppnm" . "src C++  :main no")))
+f"))
+  (add-to-list 'org-structure-template-alist '("cpp" . "src C++  :includes <iostream>"))
+  (add-to-list 'org-structure-template-alist '("cppnm" . "src C++  :main no")))
 
-(defconst jmn-latex-scale 1.0 "scaling factor for latex fragments")
+(defconst jmn-latex-scale 1.2 "scaling factor for latex fragments")
 (setq org-format-latex-options (plist-put org-format-latex-options :scale jmn-latex-scale))
 
 (defun update-org-latex-fragments ()
@@ -593,6 +602,11 @@ return f"))
 (global-set-key (kbd "C-c l") #'org-store-link)
 (global-set-key (kbd "C-c a") #'org-agenda)
 (global-set-key (kbd "C-c c") #'org-capture)
+
+(defun jmn-org-export-html-on-save()
+  (interactive)
+  (when (eq major-mode 'org-mode)
+    (org-html-export-to-html)))
 
 (use-package vterm
   :commands vterm

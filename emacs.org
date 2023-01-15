@@ -160,8 +160,7 @@ Only enable (tangle) one at a time.
       ;; Depends on if using linum or display-line-number
       ;; (set-face-background 'linum (face-attribute 'default :background))
       (set-face-background 'line-number
-                           (face-attribute 'default :background))
-      )
+                           (face-attribute 'default :background)))
 #+end_src
 
 **** Monokia
@@ -217,12 +216,13 @@ Dash board for initial startup of emacs. [[https://github.com/emacs-dashboard/em
     :ensure t
     :config
     (dashboard-setup-startup-hook)
+    (setq dashboard-startup-banner 1)
     (setq dashboard-center-content 1)
     (setq dashboard-show-shortcuts nil)
     (setq dashboard-items '((recents  . 9)
                             ;; (bookmarks . 5)
                             (projects . 5)
-                            (agenda . 5)
+                            ;; (agenda . 5)
                             ;; (registers . 5)
                             ))
     (setq dashboard-set-heading-icons t)
@@ -295,7 +295,7 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
 ** Proced
 #+begin_src emacs-lisp
   (defun proced-settings ()
-      (proced-toggle-auto-update 4)) ;; auto update every 4 seconds
+      (proced-toggle-auto-update 5)) ;; auto update every 4 seconds
 
   (add-hook 'proced-mode-hook 'proced-settings)
 #+end_src
@@ -457,7 +457,7 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
 
 ** Font size
 #+begin_src emacs-lisp
-(set-face-attribute 'default nil :height 110) ;; needed on laptop
+(set-face-attribute 'default nil :height 115) ;; needed on laptop
 #+end_src
 
 * General Development
@@ -686,6 +686,12 @@ After this, the =compile= automatically holds the correct command.
   (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
 #+end_src
 
+** Tree Sitter Highlighting
+#+begin_src emacs-lisp
+  (use-package tree-sitter-langs)
+  ;; add hooks in languages below (1/23 not available for elisp)
+#+end_src
+
 * Bash
 - Flycheck uses shellcheck, which requires ~sudo dnf install -y shellcheck~
 - debuggers are available
@@ -696,6 +702,7 @@ After this, the =compile= automatically holds the correct command.
   (defun my-sh-mode-hook-fn()
     (setq sh-basic-offset 2
           sh-indentation 2) ;; defaults are 4
+    (tree-sitter-hl-mode)
     (lsp))
 
 
@@ -754,7 +761,7 @@ The only lack of this is that you need to restart LSP workspace at least once wh
 
 So the flow should be like this:
 
-=M-x pyvenv-workon <your-venv>=
+=M-x pyvenv-workon <your-venv>=  # or conda environment?
 =M-x lsp-restart-workspace=
 
 After changing venv all installed packages from venv should be visible for LSP server.
@@ -789,6 +796,7 @@ After changing venv all installed packages from venv should be visible for LSP s
   (defun my-python-mode-hook-fn ()
     (lsp)
     (require 'dap-python)
+    (tree-sitter-hl-mode)
     ;; (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
     )
 
@@ -832,10 +840,10 @@ The following keeps the compilation buffer if there are warnings or errors, and 
       (lsp)                ; turn on
       (local-set-key (kbd "C-<tab>") #'lsp-format-buffer) ;tab comp
       (smartparens-mode 1)
-      )
+      (tree-sitter-hl-mode))
 
-    (add-hook 'c-mode-hook #'my-c-c++-mode-hook-fn)
-    (add-hook 'c++-mode-hook #'my-c-c++-mode-hook-fn)
+    (add-hook #'c-mode-hook #'my-c-c++-mode-hook-fn)
+    (add-hook #'c++-mode-hook #'my-c-c++-mode-hook-fn)
 #+end_src
 
 * Org-Mode
@@ -930,29 +938,30 @@ The following keeps the compilation buffer if there are warnings or errors, and 
 #+end_src
 
 ** Org-babel
+Use # -*- org-src-preserve-indentation: t; -*- when doing tangle/detangle with python
 #+begin_src emacs-lisp
-                    (org-babel-do-load-languages 'org-babel-load-languages
-                                                   (append org-babel-load-languages
-                                                    '((shell  . t)
-                                                      (python . t)
-                                                      (latex  . t)
-                                                      (C      . t))))
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               (append org-babel-load-languages
+                                       '((shell  . t)
+                                         (python . t)
+                                         (latex  . t)
+                                         (C      . t))))
 
-                    (setq org-confirm-babel-evaluate nil)
+  (setq org-confirm-babel-evaluate nil)
 
-                    (with-eval-after-load 'org
-                      ;; This is needed as of Org 9.2
-                      (require 'org-tempo)
-                      (add-to-list 'org-structure-template-alist '("la" . "src latex"))
-                      (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
-                      (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-                      (add-to-list 'org-structure-template-alist '("py" . "src python  :results output"))
-                      (add-to-list 'org-structure-template-alist '("pyim" . "src python :results file :var f=REPLACE
-      import matplotlib.pyplot as plt
-      plt.savefig(f)
-      return f"))
-                      (add-to-list 'org-structure-template-alist '("cpp" . "src C++  :includes <iostream>"))
-                      (add-to-list 'org-structure-template-alist '("cppnm" . "src C++  :main no")))
+  (with-eval-after-load 'org
+    ;; This is needed as of Org 9.2
+    (require 'org-tempo)
+    (add-to-list 'org-structure-template-alist '("la" . "src latex"))
+    (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+    (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+    (add-to-list 'org-structure-template-alist '("py" . "src python  :results output"))
+    (add-to-list 'org-structure-template-alist '("pyim" . "src python :results file :var f=strNameWithDoubleQuotes
+  import matplotlib.pyplot as plt
+  plt.savefig(f)
+  f"))
+    (add-to-list 'org-structure-template-alist '("cpp" . "src C++  :includes <iostream>"))
+    (add-to-list 'org-structure-template-alist '("cppnm" . "src C++  :main no")))
 #+end_src
 
 ** Inline latex
@@ -1065,7 +1074,7 @@ More customization in Elisp. Supports Tramp.
               'jmn/vscode-current-buffer-file-at-point)
 #+end_src
 
-* Localwords
+* Localwords   :noexport:
 #  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell  Dired dracula clangd ui
 #  LocalWords:  Grammarly workspaces commenter Pyright CMake Flyspell
-#  LocalWords:  Pyvenv treemacs shellcheck Linum
+#  LocalWords:  Pyvenv treemacs shellcheck Linum Proced

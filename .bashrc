@@ -1,4 +1,4 @@
-# .bashrc
+#!/usr/bin/bash
 
 # Source global definitions
 if [ -f /etc/bashrc ]; then
@@ -30,9 +30,8 @@ export TERM=xterm-256color
 ############# aliases ##########################
 # recursivly replace all spaces in filenames with _
 
-
 # User specific aliases and functions
-alias ema='setsid emacs'
+alias ema='emacs -fs'
 alias emac='emacs -nw'
 alias open='gnome-open'
 alias okular='setsid okular'
@@ -45,10 +44,11 @@ alias l='ls -CF'
 #sizing
 alias sizeDirs='du -hsx ./* | sort -rh | head -n 40'
 
-#activate openMPI (only aware of modules in Fedora)
-# module load  mpi/mpich-x86_64 
 
 ################ things to remember (never uncomment!) ###############
+#activate openMPI (only aware of modules in Fedora)
+# module load  mpi/mpich-x86_64
+
 ##running mx3d template
 #/usr/bin/mpiexec -np 8 ./mx3d ./parameters.input -pg 8 1 1
 
@@ -68,18 +68,17 @@ fi
 
 unset rc
 
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/usr/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/usr/etc/profile.d/conda.sh" ]; then
-        . "/usr/etc/profile.d/conda.sh"
-    else
-        export PATH="/usr/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
-
+# # >>> conda initialize >>>
+# # !! Contents within this block are managed by 'conda init' !!
+# __conda_setup="$('/usr/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+# if [ $? -eq 0 ]; then
+#     eval "$__conda_setup"
+# else
+#     if [ -f "/usr/etc/profile.d/conda.sh" ]; then
+#         . "/usr/etc/profile.d/conda.sh"
+#     else
+#         export PATH="/usr/bin:$PATH"
+#     fi
+# fi
+# unset __conda_setup
+# # <<< conda initialize <<<
