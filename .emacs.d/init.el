@@ -260,6 +260,7 @@
 (global-set-key (kbd "C-c C-r") 'eval-region)
 
 ;; Make font bigger/smaller.
+(setq text-scale-mode-step 1.1)
 (global-set-key (kbd "C-=") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 (global-set-key (kbd "C-0") 'text-scale-adjust)
