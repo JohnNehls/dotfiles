@@ -991,15 +991,74 @@ Create a function to align the size of displayed latex framents with overall org
 (global-set-key (kbd "C-c c") #'org-capture)
 #+end_src
 
-** TODO Save to HTML on save
-make a list of files for which this is on, then just add 'buffer-name to that list in local variables
+** Save to HTML on save
+Figure out how to set this in the header properties rather than hardcoding here.
 #+begin_src emacs-lisp
   (defun jmn-org-export-html-on-save()
     (interactive)
-    (when (eq major-mode 'org-mode)
+    (when (member (buffer-file-name)
+                  '("/home/ape/.dotfiles/emacs.org"
+                    "/home/ape/Code_Project/PyTorchExamples/README.org"))
       (org-html-export-to-html)))
+
+  (add-hook 'after-save-hook 'jmn-org-export-html-on-save)
 #+end_src
 
+** Agenda/GTD
+Following the tutorial [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode-gtd.html][here]].
+
+- =C-c C-s=  :   org-schedule
+- =C-c C-d=  :   org-deadline
+- =C-c C-w=  :   refile actionable/project items from inbox to appropriate area.
+- =C-x C-s=  :   org-save-all-org-buffers
+- =C-c .=       :   time stamp for whip.org
+- =TAB=            :   open  agenda item in other window
+- =+=, =-= ,  =,=      :   increase, decrease, and set priority
+
+#+begin_src emacs-lisp
+  (setq org-agenda-window-setup 'reorganize-frame)
+  ;; Exited with ‘q’ or ‘x’ and the old state is restored.
+  (setq org-agenda-restore-windows-after-quit 1)
+  (setq org-agenda-span 'day)
+
+  ;; SOMEDAY itmes are ommitted from GTD interface on purpose
+  (setq org-todo-keywords '((sequence "TODO(t)" "WAITING(w)"
+                                      "|" "DONE(d)" "CANCELLED(c)")))
+
+  (setq org-agenda-files '("~/Dropbox/gtd/inbox.org"
+                           "~/Dropbox/gtd/gtd.org"
+                           "~/Dropbox/gtd/whip.org"))
+
+  (setq org-refile-targets '(("~/Dropbox/gtd/gtd.org" :maxlevel . 3)
+                             ("~/Dropbox/gtd/someday.org" :level . 1)
+                             ("~/Dropbox/gtd/whip.org" :maxlevel . 2)))
+#+end_src
+
+*** Capture Templates
+[[https://orgmode.org/manual/Capture-templates.html][Capture templates (The Org Manual)]]
+- =C-c c i=  :   add an entry to the inbox
+- =C-c c w=  :   add an entry to the whip
+  - Creates a time stamp for now, need to add time for when I'd like to be reminded, =C-c .=
+  - =C-c C-c= : adds tags to a heading
+
+#+begin_src emacs-lisp
+  (setq org-capture-templates
+        '(("i" "Todo [inbox]" entry
+           (file+headline "~/Dropbox/gtd/inbox.org" "Tasks")
+           "* TODO %i%?")
+
+          ("w" "Whip" entry
+           (file+headline "~/Dropbox/gtd/whip.org"  "Whip")
+           "* %i%? \n created: %U  scheduled: %^t")))
+#+end_src
+
+*** tags
+can sort todos in agenda by using selecting =m= in org-agenda
+=@dev, @home, @office, @travelling, @phone, @email, @errands=
+Contexts?
+
+*** archive
+- =C-c C-x C-a=   : org-archive-subtree-default places heading in <bufName>_archive
 * Terminals
 ** vterm
 Faster terminal due to being compiled. Default is a better mode than term-mode; it's like a Char-mode but with ability to access function list with M-x.  [[https://github.com/akermu/emacs-libvterm][vterm Documentation]]
@@ -1075,7 +1134,7 @@ More customization in Elisp. Supports Tramp.
               'jmn/vscode-current-buffer-file-at-point)
 #+end_src
 
-* Localwords   :noexport:
+* Localwords                                                       :noexport:
 #  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell  Dired dracula clangd ui
 #  LocalWords:  Grammarly workspaces commenter Pyright CMake Flyspell
 #  LocalWords:  Pyvenv treemacs shellcheck Linum Proced

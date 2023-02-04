@@ -606,8 +606,38 @@ f"))
 
 (defun jmn-org-export-html-on-save()
   (interactive)
-  (when (eq major-mode 'org-mode)
+  (when (member (buffer-file-name)
+                '("/home/ape/.dotfiles/emacs.org"
+                  "/home/ape/Code_Project/PyTorchExamples/README.org"))
     (org-html-export-to-html)))
+
+(add-hook 'after-save-hook 'jmn-org-export-html-on-save)
+
+(setq org-agenda-window-setup 'reorganize-frame)
+;; Exited with ‘q’ or ‘x’ and the old state is restored.
+(setq org-agenda-restore-windows-after-quit 1)
+(setq org-agenda-span 'day)
+
+;; SOMEDAY itmes are ommitted from GTD interface on purpose
+(setq org-todo-keywords '((sequence "TODO(t)" "WAITING(w)"
+                                    "|" "DONE(d)" "CANCELLED(c)")))
+
+(setq org-agenda-files '("~/Dropbox/gtd/inbox.org"
+                         "~/Dropbox/gtd/gtd.org"
+                         "~/Dropbox/gtd/whip.org"))
+
+(setq org-refile-targets '(("~/Dropbox/gtd/gtd.org" :maxlevel . 3)
+                           ("~/Dropbox/gtd/someday.org" :level . 1)
+                           ("~/Dropbox/gtd/whip.org" :maxlevel . 2)))
+
+(setq org-capture-templates
+      '(("i" "Todo [inbox]" entry
+         (file+headline "~/Dropbox/gtd/inbox.org" "Tasks")
+         "* TODO %i%?")
+
+        ("w" "Whip" entry
+         (file+headline "~/Dropbox/gtd/whip.org"  "Whip")
+         "* %i%? \n created: %U  scheduled: %^t")))
 
 (use-package vterm
   :commands vterm
