@@ -613,31 +613,73 @@ f"))
 
 (add-hook 'after-save-hook 'jmn-org-export-html-on-save)
 
+;; org habit;;
+(require 'org-habit)
+(add-to-list 'org-modules 'org-habit)
+(setq org-habit-graph-column 40) ;; default is 40
+
+;; Org Agenda ;;
 (setq org-agenda-window-setup 'reorganize-frame)
 ;; Exited with ‘q’ or ‘x’ and the old state is restored.
 (setq org-agenda-restore-windows-after-quit 1)
 (setq org-agenda-span 'day)
 
 ;; SOMEDAY itmes are ommitted from GTD interface on purpose
-(setq org-todo-keywords '((sequence "TODO(t)" "WAITING(w)"
-                                    "|" "DONE(d)" "CANCELLED(c)")))
+(setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)"
+                                    "|" "DONE(d)")))
+(setq org-todo-keyword-faces
+    '(("NEXT" . "yellow")
+      ("HOLD" . "orange")))
 
 (setq org-agenda-files '("~/Dropbox/gtd/inbox.org"
                          "~/Dropbox/gtd/gtd.org"
+                         "~/Dropbox/gtd/habits.org"
                          "~/Dropbox/gtd/whip.org"))
 
+;; level/maxlevel =  order in heirarchy
 (setq org-refile-targets '(("~/Dropbox/gtd/gtd.org" :maxlevel . 3)
                            ("~/Dropbox/gtd/someday.org" :level . 1)
                            ("~/Dropbox/gtd/whip.org" :maxlevel . 2)))
 
+;; Save Org buffers after refiling
+(advice-add 'org-refile :after 'org-save-all-org-buffers)
+(advice-add 'org-refile :after 'org-agenda-redo-all)
+
+(setq org-agenda-prefix-format '((agenda . " %i %-8:c%t [%e]  ")
+                                 (todo . " %i %-8:c [%-4e]  ")
+                                 (tags . " %i %-12:c")))
+
+(setq org-deadline-warning-days 30)
+
+(setq org-agenda-start-with-log-mode t) ;; allows us to see closed in calendar
+(setq org-log-done 'time)                 ;; creates CLOSED time tag
+(setq org-log-into-drawer t)            ;; what does this do?
+
+(setq org-agenda-custom-commands
+      '(("d" "Dashboard"
+         ((agenda "" ((org-deadline-warning-days 7)))
+          (todo "NEXT"
+                ((org-agenda-overriding-header "Next Tasks")))
+          (todo "TODO"
+                     ((org-agenda-overriding-header "Active Tasks")))))))
+
+(setq org-agenda-todo-ignore-scheduled 'all)
+
 (setq org-capture-templates
-      '(("i" "Todo [inbox]" entry
+      '(("t" "Todo [inbox]" entry
          (file+headline "~/Dropbox/gtd/inbox.org" "Tasks")
-         "* TODO %i%?")
+         "* TODO %i%?" :empty-lines 1)
+
+        ("l" "Linked Todo [inbox]" entry
+         (file+headline "~/Dropbox/gtd/inbox.org" "Tasks")
+         "* TODO %i%? \n %a" :empty-lines 1)
 
         ("w" "Whip" entry
          (file+headline "~/Dropbox/gtd/whip.org"  "Whip")
-         "* %i%? \n created: %U  scheduled: %^t")))
+         "* %i%? \n %U %^t" :empty-lines 1)))
+
+;; if agenda is already open, update it with new capture
+(advice-add 'org-capture-finalize :after 'org-agenda-redo-all)
 
 (use-package vterm
   :commands vterm
