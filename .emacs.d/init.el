@@ -613,11 +613,6 @@ f"))
 
 (add-hook 'after-save-hook 'jmn-org-export-html-on-save)
 
-;; org habit;;
-(require 'org-habit)
-(add-to-list 'org-modules 'org-habit)
-(setq org-habit-graph-column 40) ;; default is 40
-
 ;; Org Agenda ;;
 (setq org-agenda-window-setup 'reorganize-frame)
 ;; Exited with ‘q’ or ‘x’ and the old state is restored.
@@ -664,6 +659,11 @@ f"))
                      ((org-agenda-overriding-header "Active Tasks")))))))
 
 (setq org-agenda-todo-ignore-scheduled 'all)
+
+;; org habit;;
+(require 'org-habit)
+(add-to-list 'org-modules 'org-habit)
+(setq org-habit-graph-column 40) ;; default is 40
 
 (setq org-capture-templates
       '(("t" "Todo [inbox]" entry

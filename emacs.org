@@ -1017,11 +1017,6 @@ Following the tutorial [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode
 =Shft-right=  :  advance the todo state
 
 #+begin_src emacs-lisp
-  ;; org habit;;
-  (require 'org-habit)
-  (add-to-list 'org-modules 'org-habit)
-  (setq org-habit-graph-column 40) ;; default is 40
-
   ;; Org Agenda ;;
   (setq org-agenda-window-setup 'reorganize-frame)
   ;; Exited with ‘q’ or ‘x’ and the old state is restored.
@@ -1070,6 +1065,16 @@ Following the tutorial [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode
   (setq org-agenda-todo-ignore-scheduled 'all)
 #+end_src
 
+*** Habits
+File holding habits must be added to =org-agenda-files= above
+- habits must have the =:STYLE: habit= property
+#+begin_src emacs-lisp
+  ;; org habit;;
+  (require 'org-habit)
+  (add-to-list 'org-modules 'org-habit)
+  (setq org-habit-graph-column 40) ;; default is 40
+#+end_src
+
 *** Capture Templates
 [[https://orgmode.org/manual/Capture-templates.html][Capture templates (The Org Manual)]]
 - =C-c c i=  :   add an entry to the inbox
@@ -1094,8 +1099,6 @@ Following the tutorial [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode
   ;; if agenda is already open, update it with new capture
   (advice-add 'org-capture-finalize :after 'org-agenda-redo-all)
 #+end_src
-
-*** time and repeated tasks
 
 * Terminals
 ** vterm
