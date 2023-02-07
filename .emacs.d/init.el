@@ -546,12 +546,13 @@
         org-src-fontify-natively t
         org-fontify-quote-and-verse-blocks t
         org-src-tab-acts-natively t
-        org-edit-src-content-indentation 2
+        org-edit-src-content-indentation 2 ;; I think I undo this somewhere for de/tangling
         org-hide-block-startup nil
         org-src-preserve-indentation nil
         org-startup-folded 'content
         org-cycle-separator-lines 2
         org-capture-bookmark nil
+        org-list-indent-offset 1
         org-image-actual-width nil) ; fix to allow picture resizing
   )
 
