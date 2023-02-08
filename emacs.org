@@ -56,6 +56,8 @@ You can also use =M-x auto-package-update-now= to update right now!
     (auto-package-update-prompt-before-update t)
     (auto-package-update-hide-results t)
     :config
+    (setq auto-package-update-delete-old-versions t)
+    (setq auto-package-update-hide-results t)
     (auto-package-update-maybe)
     (auto-package-update-at-time "09:00"))
 
@@ -195,9 +197,10 @@ Good bright mode for bright days.
 
 *** Auto-clean white space
 #+begin_src emacs-lisp
-(use-package ws-butler
-  :hook ((text-mode . ws-butler-mode)
-         (prog-mode . ws-butler-mode)))
+  (use-package ws-butler
+    :defer t
+    :hook ((text-mode . ws-butler-mode)
+           (prog-mode . ws-butler-mode)))
 #+end_src
 
 *** Make  =yes or no= prompts shorter
@@ -251,9 +254,10 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
     (setq dired-dwim-target t) ;; guess other dired directory for copy and rename
     (setq wdired-allow-to-change-permissions t)
     (define-key dired-mode-map (kbd "C-o") 'other-window)
-    (setq dired-guess-shell-alist-user '(("\\.png\\'" "shotwewll")
-                                         ("\\.jpe?g\\'" "shotwell")
+    (setq dired-guess-shell-alist-user '(("\\.png\\'" "shotwell")
+                                         ("\\.jpeg\\'" "shotwell")
                                          ("\\.mp4\\'" "vlc")
+                                         ("\\.mp3\\'" "rhythmbox")
                                          ("\\.html\\'" "firefox")
                                          ("\\.epub\\'" "ebook-viewer")
                                          ("\\.pdf\\'" "evince")
@@ -268,7 +272,8 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
     ;; janky mode which lists the recursive size of each foler/item in dired.
     (use-package dired-du
       :commands dired-du-mode
-      :defer t)
+      :defer t
+      :config (setq dired-du-size-format t))
 
     ;; use a single dired session
     (use-package dired-single)
@@ -511,7 +516,7 @@ Auto-creates closing parenthesis and bar and, smartly, writes it over if it is t
 
 ** Git-Gutter
 Git-gutter+ allows for git commands
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package git-gutter+
     :hook prog-mode
     :defer t)
@@ -798,10 +803,12 @@ After changing venv all installed packages from venv should be visible for LSP s
     (lsp)
     (require 'dap-python)
     (tree-sitter-hl-mode)
+    (jmn-jmn-display-lines-for-long-files)
     ;; (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
     )
 
   (add-hook 'python-mode-hook #'my-python-mode-hook-fn)
+
 #+end_src
 
 * C/C++
@@ -987,12 +994,25 @@ Create a function to align the size of displayed latex framents with overall org
 
 ** Keybindings
 #+begin_src emacs-lisp
-(global-set-key (kbd "C-c l") #'org-store-link)
-(global-set-key (kbd "C-c a") #'org-agenda)
-(global-set-key (kbd "C-c c") #'org-capture)
+  (global-set-key (kbd "C-c l") #'org-store-link)
+  (global-set-key (kbd "C-c a") #'org-agenda)
+  (global-set-key (kbd "C-c c") #'org-capture)
+
+  (defun org-agenda-show-my-dashboard (&optional arg)
+    (interactive "P")
+    (org-agenda arg "d"))
+
+  (global-set-key (kbd "C-c d") #'org-agenda-show-my-dashboard)
 #+end_src
 
-** Save to HTML on save
+** HTML
+*** htmlize
+For syntax highlighting in export html, we want htmlize version > =1.34=
+#+begin_src emacs-lisp
+(use-package htmlize)
+#+end_src
+
+*** Save to HTML on save
 Figure out how to set this in the header properties rather than hardcoding here.
 #+begin_src emacs-lisp
   (defun jmn-org-export-html-on-save()

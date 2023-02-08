@@ -34,6 +34,8 @@
   (auto-package-update-prompt-before-update t)
   (auto-package-update-hide-results t)
   :config
+  (setq auto-package-update-delete-old-versions t)
+  (setq auto-package-update-hide-results t)
   (auto-package-update-maybe)
   (auto-package-update-at-time "09:00"))
 
@@ -116,6 +118,7 @@
     (set-frame-parameter (selected-frame) 'alpha value)))
 
 (use-package ws-butler
+  :defer t
   :hook ((text-mode . ws-butler-mode)
          (prog-mode . ws-butler-mode)))
 
@@ -155,9 +158,10 @@
   (setq dired-dwim-target t) ;; guess other dired directory for copy and rename
   (setq wdired-allow-to-change-permissions t)
   (define-key dired-mode-map (kbd "C-o") 'other-window)
-  (setq dired-guess-shell-alist-user '(("\\.png\\'" "shotwewll")
-                                       ("\\.jpe?g\\'" "shotwell")
+  (setq dired-guess-shell-alist-user '(("\\.png\\'" "shotwell")
+                                       ("\\.jpeg\\'" "shotwell")
                                        ("\\.mp4\\'" "vlc")
+                                       ("\\.mp3\\'" "rhythmbox")
                                        ("\\.html\\'" "firefox")
                                        ("\\.epub\\'" "ebook-viewer")
                                        ("\\.pdf\\'" "evince")
@@ -172,7 +176,8 @@
   ;; janky mode which lists the recursive size of each foler/item in dired.
   (use-package dired-du
     :commands dired-du-mode
-    :defer t)
+    :defer t
+    :config (setq dired-du-size-format t))
 
   ;; use a single dired session
   (use-package dired-single)
@@ -307,10 +312,6 @@
   ;; ;display Magit status buffer in the same buffer rather than splitting it.
   ;; (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
   )
-
-(use-package git-gutter+
-  :hook prog-mode
-  :defer t)
 
 (use-package highlight-indent-guides
   :hook prog-mode
@@ -459,6 +460,7 @@
   (lsp)
   (require 'dap-python)
   (tree-sitter-hl-mode)
+  (jmn-jmn-display-lines-for-long-files)
   ;; (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
   )
 
@@ -604,6 +606,14 @@ f"))
 (global-set-key (kbd "C-c l") #'org-store-link)
 (global-set-key (kbd "C-c a") #'org-agenda)
 (global-set-key (kbd "C-c c") #'org-capture)
+
+(defun org-agenda-show-my-dashboard (&optional arg)
+  (interactive "P")
+  (org-agenda arg "d"))
+
+(global-set-key (kbd "C-c d") #'org-agenda-show-my-dashboard)
+
+(use-package htmlize)
 
 (defun jmn-org-export-html-on-save()
   (interactive)
