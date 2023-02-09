@@ -463,7 +463,7 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
 
 ** Font size
 #+begin_src emacs-lisp
-(set-face-attribute 'default nil :height 115) ;; needed on laptop
+(set-face-attribute 'default nil :height 120) ;; needed on laptop
 #+end_src
 
 * General Development
@@ -698,7 +698,26 @@ After this, the =compile= automatically holds the correct command.
   ;; add hooks in languages below (1/23 not available for elisp)
 #+end_src
 
-* Bash
+** VSCode
+#+begin_src emacs-lisp
+  (defun jmn/vscode-current-buffer-file-at-point ()
+    (interactive)
+    (start-process-shell-command "code"
+                                 nil
+                                 (concat "code --goto "
+                                         (buffer-file-name)
+                                         ":"
+                                         (number-to-string (line-number-at-pos))
+                                         ":"
+                                         ;; +1 who knows why
+                                         (number-to-string (+ 1 (current-column))))))
+
+  (define-key global-map (kbd "<f12>")
+              'jmn/vscode-current-buffer-file-at-point)
+#+end_src
+
+* Languages
+** Bash
 - Flycheck uses shellcheck, which requires ~sudo dnf install -y shellcheck~
 - debuggers are available
 - If language server doesn't install automatically either:
@@ -715,9 +734,9 @@ After this, the =compile= automatically holds the correct command.
   (add-hook 'sh-mode-hook #'my-sh-mode-hook-fn)
 #+end_src
 
-* Python
-** TODO Jupyter Notebooks
-*** TODO run Jupyter in babel
+** Python
+*** TODO Jupyter Notebooks
+**** TODO run Jupyter in babel
 [[https://sqrtminusone.xyz/posts/2021-05-01-org-python/][Reference]] and https://github.com/jkitchin/scimax
 Cannot get zmq (Jupyter dependency)  to work currently
 #+begin_src emacs-lisp :tangle no
@@ -731,7 +750,7 @@ Cannot get zmq (Jupyter dependency)  to work currently
                                          '((jupyter . t))))
 #+end_src
 
-*** TODO open notebook in Emacs
+**** TODO open notebook in Emacs
 If I use EIN, add the setting for displaying the figures inline.
 #+begin_src emacs-lisp
   (use-package ein
@@ -743,11 +762,11 @@ If I use EIN, add the setting for displaying the figures inline.
     )
 #+end_src
 
-*** TODO completion
+**** TODO completion
 In [[https://www.youtube.com/watch?v=OB9vFu9Za8w][EIN video]], Miller says that the completion is based on =auto-complete= rather than =company=. So here we are going to try to get completion setup for =EIN=.
 Also, in [[https://github.com/millejoh/emacs-ipython-notebook#ob-ein][EIN github]], Miller says that =EIN= is an =elpy= module, so maybe we need =elpy= for completion?
 
-** Pyvenv
+*** Pyvenv
 #+begin_src emacs-lisp
   (use-package pyvenv
   :ensure t
@@ -772,8 +791,8 @@ So the flow should be like this:
 
 After changing venv all installed packages from venv should be visible for LSP server.
 
-** Python-mode
-*** Pyright
+*** Python-mode
+**** Pyright
 #+begin_src emacs-lisp
   ; npm must be installed on the system.
     (use-package lsp-pyright
@@ -783,7 +802,7 @@ After changing venv all installed packages from venv should be visible for LSP s
                               (lsp))))
 #+end_src
 
-*** python-mode
+**** python-mode
 #+begin_src emacs-lisp 
   (use-package python-mode
     :ensure nil ; don't install, use the pre-installed version
@@ -797,7 +816,7 @@ After changing venv all installed packages from venv should be visible for LSP s
     )
 #+end_src
 
-** Hook
+*** Hook
 #+begin_src emacs-lisp  
   (defun my-python-mode-hook-fn ()
     (lsp)
@@ -811,8 +830,8 @@ After changing venv all installed packages from venv should be visible for LSP s
 
 #+end_src
 
-* C/C++
-** Compilation Buffer
+** C/C++
+*** Compilation Buffer
 Have the =*Compilation*= buffer scroll with the output.
 #+begin_src emacs-lisp
   (setq compilation-scroll-output t)
@@ -838,7 +857,7 @@ The following keeps the compilation buffer if there are warnings or errors, and 
 (add-hook 'compilation-finish-functions 'bury-compile-buffer-if-successful)
 #+end_src
 
-** Hook
+*** Hook
   Currently lsp-mode works with clangd backend without any initial setup.
   company-clang needs =clang= installed on the system.
   #+begin_src emacs-lisp
@@ -1177,24 +1196,6 @@ Between term-mode and eshell.
 
 ** eshell
 More customization in Elisp. Supports Tramp.
-
-* VSCode
-#+begin_src emacs-lisp
-  (defun jmn/vscode-current-buffer-file-at-point ()
-    (interactive)
-    (start-process-shell-command "code"
-                                 nil
-                                 (concat "code --goto "
-                                         (buffer-file-name)
-                                         ":"
-                                         (number-to-string (line-number-at-pos))
-                                         ":"
-                                         ;; +1 who knows why
-                                         (number-to-string (+ 1 (current-column))))))
-
-  (define-key global-map (kbd "<f12>")
-              'jmn/vscode-current-buffer-file-at-point)
-#+end_src
 
 * Localwords                                                       :noexport:
 #  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell  Dired dracula clangd ui

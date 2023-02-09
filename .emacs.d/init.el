@@ -297,7 +297,7 @@
 
 (add-hook 'grep-mode-hook #'jmn-grep-keybindings)
 
-(set-face-attribute 'default nil :height 115) ;; needed on laptop
+(set-face-attribute 'default nil :height 120) ;; needed on laptop
 
 (add-hook 'prog-mode-hook #'flyspell-prog-mode)
 
@@ -409,6 +409,21 @@
 
 (use-package tree-sitter-langs)
 ;; add hooks in languages below (1/23 not available for elisp)
+
+(defun jmn/vscode-current-buffer-file-at-point ()
+  (interactive)
+  (start-process-shell-command "code"
+                               nil
+                               (concat "code --goto "
+                                       (buffer-file-name)
+                                       ":"
+                                       (number-to-string (line-number-at-pos))
+                                       ":"
+                                       ;; +1 who knows why
+                                       (number-to-string (+ 1 (current-column))))))
+
+(define-key global-map (kbd "<f12>")
+            'jmn/vscode-current-buffer-file-at-point)
 
 (defun my-sh-mode-hook-fn()
   (setq sh-basic-offset 2
@@ -721,18 +736,3 @@ f"))
 
 (use-package eterm-256color
   :hook (term-mode . eterm-256color-mode))
-
-(defun jmn/vscode-current-buffer-file-at-point ()
-  (interactive)
-  (start-process-shell-command "code"
-                               nil
-                               (concat "code --goto "
-                                       (buffer-file-name)
-                                       ":"
-                                       (number-to-string (line-number-at-pos))
-                                       ":"
-                                       ;; +1 who knows why
-                                       (number-to-string (+ 1 (current-column))))))
-
-(define-key global-map (kbd "<f12>")
-            'jmn/vscode-current-buffer-file-at-point)
