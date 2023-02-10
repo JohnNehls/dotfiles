@@ -28,11 +28,13 @@
 (setq use-package-always-ensure t) ; no need for :ensure t for each package.
 (setq use-package-verbose t) ; log configure/loading messages in *Messages*
 
+(use-package use-package-ensure-system-package
+:ensure t)
+
 (use-package auto-package-update
   :custom
   (auto-package-update-interval 30)
   (auto-package-update-prompt-before-update t)
-  (auto-package-update-hide-results t)
   :config
   (setq auto-package-update-delete-old-versions t)
   (setq auto-package-update-hide-results t)
@@ -439,8 +441,13 @@
   (tree-sitter-hl-mode)
   (lsp))
 
-
-(add-hook 'sh-mode-hook #'my-sh-mode-hook-fn)
+(use-package sh-script
+    :ensure-system-package
+    ((bash-language-server . "sudo dnf install -y nodejs-bash-language-server"))
+    :config
+    (setq sh-basic-offset 2
+          sh-indentation 2) ;; defaults are 4
+    (add-hook 'sh-mode-hook #'my-sh-mode-hook-fn))
 
 (use-package ein
   :commands (ein:notebooklist-open)

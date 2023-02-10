@@ -42,6 +42,9 @@ Package archives: Elpa is default, Melpa is community.
   (require 'use-package)
   (setq use-package-always-ensure t) ; no need for :ensure t for each package.
   (setq use-package-verbose t) ; log configure/loading messages in *Messages*
+
+  (use-package use-package-ensure-system-package
+  :ensure t)
 #+end_src
 
 ** Automatic Package Updates
@@ -54,7 +57,6 @@ You can also use =M-x auto-package-update-now= to update right now!
     :custom
     (auto-package-update-interval 30)
     (auto-package-update-prompt-before-update t)
-    (auto-package-update-hide-results t)
     :config
     (setq auto-package-update-delete-old-versions t)
     (setq auto-package-update-hide-results t)
@@ -733,8 +735,9 @@ After this, the =compile= automatically holds the correct command.
 - Flycheck uses shellcheck, which requires ~sudo dnf install -y shellcheck~
 - debuggers are available
 - If language server doesn't install automatically either:
-  1. ~sudo dnf -y nodejs-bash-language-server.noarch~
+  1. Fedora:  ~sudo dnf -y nodejs-bash-language-server.noarch~
   2. =M-x lsp-install-server=
+
 #+begin_src emacs-lisp
   (defun my-sh-mode-hook-fn()
     (setq sh-basic-offset 2
@@ -742,8 +745,13 @@ After this, the =compile= automatically holds the correct command.
     (tree-sitter-hl-mode)
     (lsp))
 
-
-  (add-hook 'sh-mode-hook #'my-sh-mode-hook-fn)
+  (use-package sh-script
+      :ensure-system-package
+      ((bash-language-server . "sudo dnf install -y nodejs-bash-language-server"))
+      :config
+      (setq sh-basic-offset 2
+            sh-indentation 2) ;; defaults are 4
+      (add-hook 'sh-mode-hook #'my-sh-mode-hook-fn))
 #+end_src
 
 ** Python
