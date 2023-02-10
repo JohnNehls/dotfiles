@@ -719,6 +719,22 @@ f"))
 ;; if agenda is already open, update it with new capture
 (advice-add 'org-capture-finalize :after 'org-agenda-redo-all)
 
+(defun org-archive-done-tasks-tree ()
+  (interactive)
+  (org-map-entries
+   (lambda ()
+     (org-archive-subtree)
+     (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+   "/DONE" 'tree))
+
+(defun org-archive-done-tasks-file ()
+  (interactive)
+  (org-map-entries
+   (lambda ()
+     (org-archive-subtree)
+     (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+   "/DONE" 'file))
+
 (use-package vterm
   :commands vterm
   :defer t

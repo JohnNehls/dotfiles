@@ -31,8 +31,8 @@ export TERM=xterm-256color
 # recursivly replace all spaces in filenames with _
 
 # User specific aliases and functions
-alias ema='emacs -fs'
-alias emac='emacs -nw'
+alias ema='setsid emacs -fs' # -fs = fullscreen
+alias em='emacs -nw'
 alias open='gnome-open'
 alias okular='setsid okular'
 
