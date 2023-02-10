@@ -1156,6 +1156,25 @@ File holding habits must be added to =org-agenda-files= above
   (advice-add 'org-capture-finalize :after 'org-agenda-redo-all)
 #+end_src
 
+*** Archive
+#+begin_src emacs-lisp
+  (defun org-archive-done-tasks-tree ()
+    (interactive)
+    (org-map-entries
+     (lambda ()
+       (org-archive-subtree)
+       (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+     "/DONE" 'tree))
+
+  (defun org-archive-done-tasks-file ()
+    (interactive)
+    (org-map-entries
+     (lambda ()
+       (org-archive-subtree)
+       (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+     "/DONE" 'file))
+#+end_src
+
 * Terminals
 ** vterm
 Faster terminal due to being compiled. Default is a better mode than term-mode; it's like a Char-mode but with ability to access function list with M-x.  [[https://github.com/akermu/emacs-libvterm][vterm Documentation]]
