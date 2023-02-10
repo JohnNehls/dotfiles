@@ -393,7 +393,7 @@ Better version of help. We remap normal help keys to Helpful's versions.
     (setq which-key-idle-delay 0.8))
 #+end_src
 
-** Grammarly (not set up)
+** Grammarly (not set up)                                         :noexport:
 There looks to be several packages at the moment. Top two (as of 1/10/22) are installed here without proper hooks. 
 *** lsp-grammarly
 Gives warning on startup for login.   [[https://github.com/emacs-grammarly/lsp-grammarly][lsp-grammarly doc]]
@@ -425,7 +425,6 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
   (global-set-key (kbd "C-c C-r") 'eval-region)
 
   ;; Make font bigger/smaller.
-  (setq text-scale-mode-step 1.1)
   (global-set-key (kbd "C-=") 'text-scale-increase)
   (global-set-key (kbd "C--") 'text-scale-decrease)
   (global-set-key (kbd "C-0") 'text-scale-adjust)
@@ -463,7 +462,38 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
 
 ** Font size
 #+begin_src emacs-lisp
-(set-face-attribute 'default nil :height 120) ;; needed on laptop
+  (set-face-attribute
+   'default nil
+   :height (assoc-default (system-name) '(("xps" . 115)
+                                          ("dsk" . 120))))
+
+  (setq text-scale-mode-step 1.05)
+#+end_src
+
+** General Helper Function
+*** jmn-load-init
+#+begin_src emacs-lisp
+  (defun jmn-load-init ()
+    (interactive)
+    (load "~/.dotfiles/.emacs.d/init.el"))
+#+end_src
+
+*** jmn/vscode-current-buffer-file-at-point
+#+begin_src emacs-lisp
+  (defun jmn/vscode-current-buffer-file-at-point ()
+    (interactive)
+    (start-process-shell-command "code"
+                                 nil
+                                 (concat "code --goto "
+                                         (buffer-file-name)
+                                         ":"
+                                         (number-to-string (line-number-at-pos))
+                                         ":"
+                                         ;; +1 who knows why
+                                         (number-to-string (+ 1 (current-column))))))
+
+  (define-key global-map (kbd "<f12>")
+              'jmn/vscode-current-buffer-file-at-point)
 #+end_src
 
 * General Development
@@ -696,24 +726,6 @@ After this, the =compile= automatically holds the correct command.
 #+begin_src emacs-lisp
   (use-package tree-sitter-langs)
   ;; add hooks in languages below (1/23 not available for elisp)
-#+end_src
-
-** VSCode
-#+begin_src emacs-lisp
-  (defun jmn/vscode-current-buffer-file-at-point ()
-    (interactive)
-    (start-process-shell-command "code"
-                                 nil
-                                 (concat "code --goto "
-                                         (buffer-file-name)
-                                         ":"
-                                         (number-to-string (line-number-at-pos))
-                                         ":"
-                                         ;; +1 who knows why
-                                         (number-to-string (+ 1 (current-column))))))
-
-  (define-key global-map (kbd "<f12>")
-              'jmn/vscode-current-buffer-file-at-point)
 #+end_src
 
 * Languages
@@ -1091,8 +1103,8 @@ Following the tutorial [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode
   (setq org-deadline-warning-days 30)
 
   (setq org-agenda-start-with-log-mode t) ;; allows us to see closed in calendar
-  (setq org-log-done 'time)                 ;; creates CLOSED time tag
-  (setq org-log-into-drawer t)            ;; what does this do?
+  (setq org-log-done 'time)               ;; creates CLOSED time tag
+  (setq org-log-into-drawer t)            ;; creates a LOGBOOK drawer for notes
 
   (setq org-agenda-custom-commands
         '(("d" "Dashboard"
@@ -1101,6 +1113,10 @@ Following the tutorial [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode
                   ((org-agenda-overriding-header "Next Tasks")))
             (todo "TODO"
                        ((org-agenda-overriding-header "Active Tasks")))))))
+
+  (global-set-key (kbd "C-c d") (lambda (&optional args)
+                                  (interactive "P")
+                                  (org-agenda args "d")))
 
   (setq org-agenda-todo-ignore-scheduled 'all)
 #+end_src
@@ -1112,7 +1128,7 @@ File holding habits must be added to =org-agenda-files= above
   ;; org habit;;
   (require 'org-habit)
   (add-to-list 'org-modules 'org-habit)
-  (setq org-habit-graph-column 40) ;; default is 40
+  (setq org-habit-graph-column 60) ;; default is 40
 #+end_src
 
 *** Capture Templates
@@ -1132,7 +1148,7 @@ File holding habits must be added to =org-agenda-files= above
            (file+headline "~/Dropbox/gtd/inbox.org" "Tasks")
            "* TODO %i%? \n %a" :empty-lines 1)
 
-          ("w" "Whip" entry
+          ("s" "Schdule" entry
            (file+headline "~/Dropbox/gtd/whip.org"  "Whip")
            "* %i%? \n %U %^t" :empty-lines 1)))
 

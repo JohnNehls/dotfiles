@@ -265,7 +265,6 @@
 (global-set-key (kbd "C-c C-r") 'eval-region)
 
 ;; Make font bigger/smaller.
-(setq text-scale-mode-step 1.1)
 (global-set-key (kbd "C-=") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 (global-set-key (kbd "C-0") 'text-scale-adjust)
@@ -297,7 +296,31 @@
 
 (add-hook 'grep-mode-hook #'jmn-grep-keybindings)
 
-(set-face-attribute 'default nil :height 120) ;; needed on laptop
+(set-face-attribute
+ 'default nil
+ :height (assoc-default (system-name) '(("xps" . 115)
+                                        ("dsk" . 120))))
+
+(setq text-scale-mode-step 1.05)
+
+(defun jmn-load-init ()
+  (interactive)
+  (load "~/.dotfiles/.emacs.d/init.el"))
+
+(defun jmn/vscode-current-buffer-file-at-point ()
+  (interactive)
+  (start-process-shell-command "code"
+                               nil
+                               (concat "code --goto "
+                                       (buffer-file-name)
+                                       ":"
+                                       (number-to-string (line-number-at-pos))
+                                       ":"
+                                       ;; +1 who knows why
+                                       (number-to-string (+ 1 (current-column))))))
+
+(define-key global-map (kbd "<f12>")
+            'jmn/vscode-current-buffer-file-at-point)
 
 (add-hook 'prog-mode-hook #'flyspell-prog-mode)
 
@@ -409,21 +432,6 @@
 
 (use-package tree-sitter-langs)
 ;; add hooks in languages below (1/23 not available for elisp)
-
-(defun jmn/vscode-current-buffer-file-at-point ()
-  (interactive)
-  (start-process-shell-command "code"
-                               nil
-                               (concat "code --goto "
-                                       (buffer-file-name)
-                                       ":"
-                                       (number-to-string (line-number-at-pos))
-                                       ":"
-                                       ;; +1 who knows why
-                                       (number-to-string (+ 1 (current-column))))))
-
-(define-key global-map (kbd "<f12>")
-            'jmn/vscode-current-buffer-file-at-point)
 
 (defun my-sh-mode-hook-fn()
   (setq sh-basic-offset 2
@@ -673,8 +681,8 @@ f"))
 (setq org-deadline-warning-days 30)
 
 (setq org-agenda-start-with-log-mode t) ;; allows us to see closed in calendar
-(setq org-log-done 'time)                 ;; creates CLOSED time tag
-(setq org-log-into-drawer t)            ;; what does this do?
+(setq org-log-done 'time)               ;; creates CLOSED time tag
+(setq org-log-into-drawer t)            ;; creates a LOGBOOK drawer for notes
 
 (setq org-agenda-custom-commands
       '(("d" "Dashboard"
@@ -684,12 +692,16 @@ f"))
           (todo "TODO"
                      ((org-agenda-overriding-header "Active Tasks")))))))
 
+(global-set-key (kbd "C-c d") (lambda (&optional args)
+                                (interactive "P")
+                                (org-agenda args "d")))
+
 (setq org-agenda-todo-ignore-scheduled 'all)
 
 ;; org habit;;
 (require 'org-habit)
 (add-to-list 'org-modules 'org-habit)
-(setq org-habit-graph-column 40) ;; default is 40
+(setq org-habit-graph-column 60) ;; default is 40
 
 (setq org-capture-templates
       '(("t" "Todo [inbox]" entry
@@ -700,7 +712,7 @@ f"))
          (file+headline "~/Dropbox/gtd/inbox.org" "Tasks")
          "* TODO %i%? \n %a" :empty-lines 1)
 
-        ("w" "Whip" entry
+        ("s" "Schdule" entry
          (file+headline "~/Dropbox/gtd/whip.org"  "Whip")
          "* %i%? \n %U %^t" :empty-lines 1)))
 
