@@ -320,7 +320,7 @@
                                        (number-to-string (+ 1 (current-column))))))
 
 (define-key global-map (kbd "<f12>")
-            'jmn/vscode-current-buffer-file-at-point)
+            'jmn-vscode-current-buffer-file-at-point)
 
 (add-hook 'prog-mode-hook #'flyspell-prog-mode)
 
