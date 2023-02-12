@@ -161,13 +161,24 @@ Save backups in =.emacs.d=.
 Only enable (tangle) one at a time.
 **** Gruvbox
 #+begin_src emacs-lisp
-  (use-package gruvbox-theme
-      :init (load-theme 'gruvbox-dark-hard t)
-      :config
-      ;; Depends on if using linum or display-line-number
-      ;; (set-face-background 'linum (face-attribute 'default :background))
-      (set-face-background 'line-number
-                           (face-attribute 'default :background)))
+  (use-package gruvbox-theme)
+
+  ; make load functions for run-at-time functions
+  (defun jmn-load-gruvbox-dark-hard ()
+    (interactive)
+    (load-theme 'gruvbox-dark-hard t)
+    (set-face-background 'line-number
+                         (face-attribute 'default :background))
+    (with-eval-after-load 'org
+      (set-face-foreground 'org-priority (face-foreground font-lock-constant-face))))
+
+  (defun jmn-load-gruvbox-light-medium()
+    (interactive)
+    (load-theme 'gruvbox-light-medium t)
+    (set-face-background 'line-number
+                         (face-attribute 'default :background))
+    (with-eval-after-load 'org
+      (set-face-foreground 'org-priority (face-foreground font-lock-constant-face))))
 #+end_src
 
 **** Monokia
@@ -188,6 +199,12 @@ Good bright mode for bright days.
                          (face-attribute 'default :background))
     ;; default does not change filename settings when modified
     (set-face-foreground 'doom-modeline-buffer-modified "red"))
+#+end_src
+
+**** Theme Default and time switches
+#+begin_src emacs-lisp
+  (run-at-time "6:00 am" nil #'jmn-load-gruvbox-light-medium)
+  (run-at-time "4:30 pm" nil #'jmn-load-gruvbox-dark-hard)
 #+end_src
 
 *** Transparency
@@ -372,8 +389,8 @@ Counsel displays ivy-rich info along with suggestions in input buffer.
            ("C-r" . 'counsel-minibuffer-history)
            ))
 #+end_src
-
-** Helpful and Which-key
+*
+* Helpful and Which-key
 *** Helpful
 Better version of help. We remap normal help keys to Helpful's versions.
 #+begin_src emacs-lisp
@@ -911,7 +928,7 @@ The following keeps the compilation buffer if there are warnings or errors, and 
     )
 #+end_src
 
-** Fonts 
+** Fonts
 #+begin_src emacs-lisp
            (defun jmn/org-font-setup ()
 
@@ -1089,87 +1106,72 @@ Following the tutorial [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode
 =Shft-right=  :  advance the todo state
 
 #+begin_src emacs-lisp
-  ;; Org Agenda ;;
-  (setq org-agenda-window-setup 'reorganize-frame)
+  ;; Org Agenda ;; (setq org-agenda-window-setup 'reorganize-frame)
   ;; Exited with ‘q’ or ‘x’ and the old state is restored.
   (setq org-agenda-restore-windows-after-quit 1)
   (setq org-agenda-span 'day)
 
   ;; SOMEDAY itmes are ommitted from GTD interface on purpose
-  (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)"
-                                      "|" "DONE(d)")))
+  (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|"
+                                      "DONE(d)")))
+
   (setq org-todo-keyword-faces
-        '(("NEXT" . "yellow")
-          ("HOLD" . "orange")))
+        `(("NEXT" .  ,(face-foreground font-lock-function-name-face))
+          ("HOLD" . ,(face-foreground font-lock-builtin-face))))
 
-  (require 'find-lisp)
-  (setq org-directory "~/Dropbox/gtd/")
+  (require 'find-lisp) (setq org-directory "~/Dropbox/gtd/")
 
-  (setq org-agenda-files
-        (find-lisp-find-files org-directory "\.org$"))
+  (setq org-agenda-files (find-lisp-find-files org-directory "\.org$"))
 
-  ;; level/maxlevel =  order in hierarchy
-  (setq org-refile-targets '(("projects.org" :maxlevel . 3)
-                             ("someday.org" :level . 1)
-                             ("whip.org" :maxlevel . 2)))
+  ;; level/maxlevel = order in hierarchy
+  (setq org-refile-targets
+        '(("projects.org" :maxlevel . 2) ("someday.org" :maxlevel . 1)
+          ("whip.org" :level . 0) ("next.org" :level . 0)))
 
 
   ;; https://github.com/syl20bnr/spacemacs/issues/3094
-  (setq org-refile-use-outline-path 'file
-        org-outline-path-complete-in-steps nil)
+  (setq org-refile-use-outline-path 'file org-outline-path-complete-in-steps nil)
   (setq org-refile-allow-creating-parent-nodes 'confirm)
 
-
-  (setq org-refile-targets '(("next.org" :level . 0)
-                             ("someday.org" :level . 0)
-                             ("projects.org" :maxlevel . 1)))
-
   (setq org-agenda-prefix-format '((agenda . " %i %-8:c%t [%e] %s")
-                                   (todo . " %i %-8:c [%-4e]  ")
+                                   (todo . " %i %-8:c [%-4e] ")
                                    (tags . " %i %-12:c")))
 
   (setq org-deadline-warning-days 30)
 
   (setq org-agenda-start-with-log-mode t) ;; allows us to see closed in calendar
-  (setq org-log-done 'time)               ;; creates CLOSED time tag
-  (setq org-log-into-drawer t)            ;; creates a LOGBOOK drawer for notes
+  (setq org-log-done 'time) ;; creates CLOSED time tag
+  (setq org-log-into-drawer t) ;; creates a LOGBOOK drawer for notes
 
-  (setq org-agenda-custom-commands
-        '(("d" "Dashboard"
-           ((agenda "" ((org-deadline-warning-days 30)))
-            (todo "NEXT"
-                  ((org-agenda-overriding-header "Next Un-Scheduled Tasks")))
-            (todo "TODO"
-                  ((org-agenda-overriding-header "Active Un-Scheduled Tasks")))
-            ))
-          (" " "Agenda"
-           ((agenda ""
-                    ((org-agenda-span 'day)
-                     (org-deadline-warning-days 365)))
-            (todo "TODO"
-                  ((org-agenda-overriding-header "To Refile")
-                   (org-agenda-files
-                    (list (concat org-directory "inbox.org")))))
-            (todo "NEXT"
-                  ((org-agenda-overriding-header "In Progress")
-                   (org-agenda-files
-                    (list (concat org-directory "projects.org")))))
-            (todo "TODO"
-                  ((org-agenda-overriding-header "Projects")
-                   (org-agenda-files
-                    (list (concat org-directory "projects.org")))))
-            (todo "TODO"
-                  ((org-agenda-overriding-header "One-off Tasks")
-                   (org-agenda-files
-                    (list (concat org-directory "next.org")))
-                   (org-agenda-files '("~/Dropbox/gtd/next.org")))
-                   (org-agenda-skip-function '(org-agenda-skip-entry-if
-                                               'deadline 'scheduled)))))))
+  (setq org-agenda-custom-commands '(("d" "Dashboard"
+                                      ((agenda ""
+                                               ((org-deadline-warning-days 30)))
+                                       (todo "NEXT"
+                                             ((org-agenda-overriding-header "Next Un-Scheduled Tasks")))
+                                       (todo "TODO"
+                                             ((org-agenda-overriding-header "Active Un-Scheduled Tasks")))))
+                                     (" " "Agenda"
+                                      ((agenda ""
+                                               ((org-agenda-span 'day) (org-deadline-warning-days 365)))
+                                       (todo "TODO"
+                                             ((org-agenda-overriding-header "To Refile")
+                                              (org-agenda-files (list (concat org-directory "inbox.org")))))
+                                       (todo "NEXT"
+                                             ((org-agenda-overriding-header "In Progress")
+                                              (org-agenda-files (list (concat org-directory "projects.org")))))
+                                       (todo "TODO"
+                                             ((org-agenda-overriding-header "Projects")
+                                              (org-agenda-files (list (concat org-directory  "projects.org")))))
+                                       (todo "TODO"
+                                             ((org-agenda-overriding-header "One-off Tasks")
+                                              (org-agenda-files (list (concat org-directory  "next.org")))
+                                              (org-agenda-files '("~/Dropbox/gtd/next.org")))
+                                             (org-agenda-skip-function '(org-agenda-skip-entry-if
+                                                                         'deadline 'scheduled)))))))
 
-  (defun jmn-someday()
-    "Quick access to someday.org (no links in agenda)"
-    (interactive)
-    (find-file (concat org-directory "someday.org")))
+  (defun jmn-someday() "Quick access to someday.org (no links in agenda)"
+         (interactive)
+         (find-file (concat org-directory "someday.org")))
 
   (global-set-key (kbd "C-c a") (lambda (&optional args)
                                   (interactive "P")
@@ -1201,11 +1203,11 @@ File holding habits must be added to =org-agenda-files= above
 #+begin_src emacs-lisp
   (setq org-capture-templates
         '(("t" "Todo [inbox]" entry
-           (file+headline "~/Dropbox/gtd/inbox.org" "Tasks")
+           (file "~/Dropbox/gtd/inbox.org")
            "* TODO %i%?" :empty-lines 1)
 
           ("l" "Linked Todo [inbox]" entry
-           (file+headline "~/Dropbox/gtd/inbox.org" "Tasks")
+           (file "~/Dropbox/gtd/inbox.org")
            "* TODO %i%? \n %a" :empty-lines 1)
 
           ("s" "Schdule" entry
@@ -1234,17 +1236,17 @@ File holding habits must be added to =org-agenda-files= above
 
 #+end_src
 
-*** Process Inbox
+*** Process Inbox Item
 https://github.com/jethrokuan/.emacs.d/blob/master/init.el
 #+begin_src emacs-lisp
-  ;; could set int inbox header instead (where tags are set)
+  ;; could set in the inbox header instead (where tags are set)
   (customize-set-variable 'org-global-properties
                           '(("Effort_ALL" . "0:05 0:15 0:30 1:00 2:00 3:00")))
 
   (defun jmn/org-agenda-process-inbox-item ()
     "Process a single item in the org-agenda."
     (interactive)
-    (org-with-wide-buffer
+    (org-with-wide-buffer  ; what does this do?
      (org-agenda-set-tags)
      (org-agenda-priority)
      (org-agenda-set-effort)
