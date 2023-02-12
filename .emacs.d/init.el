@@ -49,10 +49,13 @@
 (set-fringe-mode 10)                       ; Give some breathing room
 (setq visible-bell t)                      ; Set up the visible bell
 (save-place-mode 1)                        ; Open file where last visited
-(global-auto-revert-mode 1)                ; refresh buffer if changed on disk
-
 (add-hook 'text-mode-hook 'flyspell-mode)  ; enable spellcheck on text mode
 ;; (add-hook 'prog-mode-hook 'hl-line-mode)   ; highlight lines when programming
+
+;; The following helps syncing
+(global-auto-revert-mode 1)                ; refresh buffer if changed on disk
+(setq auto-revert-use-notify nil)          ; don't notify?
+(setq auto-revert-verbose nil)             ;
 
 ;; Open text files in Org-Mode
 ;; (add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode))
@@ -153,7 +156,7 @@
 (use-package dired
   :ensure nil
   :commands dired
-  :hook (dired-mode . dired-hide-details-mode) ;; "use '(' to see details
+  ;; :hook (dired-mode . dired-hide-details-mode) ;; '(' to toggle details
   :config
   (setq dired-listing-switches "-agho --group-directories-first" )
   (setq find-ls-option '("-print0 | xargs -0 ls -agho" . ""))
@@ -430,10 +433,10 @@
 (use-package evil-nerd-commenter
 :bind ("M-;". evilnc-comment-or-uncomment-lines))
 
-(add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
-
 (use-package tree-sitter-langs)
 ;; add hooks in languages below (1/23 not available for elisp)
+
+; (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
 
 (defun my-sh-mode-hook-fn()
   (setq sh-basic-offset 2
@@ -585,7 +588,13 @@
         org-cycle-separator-lines 2
         org-capture-bookmark nil
         org-list-indent-offset 1
-        org-image-actual-width nil) ; fix to allow picture resizing
+        org-image-actual-width nil ; fix to allow picture resizing
+        org-return-follows-link t  ; keep for sure ;@work
+        org-use-speed-commands t ; try out
+        )
+  (setq org-agenda-tags-column
+      (assoc-default (system-name) '(("xps" . 75)
+                                     ("dsk" . 75)))) ;; default is auto
   )
 
 (use-package org-bullets
@@ -645,15 +654,6 @@ f"))
 
 (use-package htmlize)
 
-(defun jmn-org-export-html-on-save()
-  (interactive)
-  (when (member (buffer-file-name)
-                '("/home/ape/.dotfiles/emacs.org"
-                  "/home/ape/Code_Project/PyTorchExamples/README.org"))
-    (org-html-export-to-html)))
-
-(add-hook 'after-save-hook 'jmn-org-export-html-on-save)
-
 ;; Org Agenda ;;
 (setq org-agenda-window-setup 'reorganize-frame)
 ;; Exited with ‘q’ or ‘x’ and the old state is restored.
@@ -664,24 +664,31 @@ f"))
 (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)"
                                     "|" "DONE(d)")))
 (setq org-todo-keyword-faces
-    '(("NEXT" . "yellow")
-      ("HOLD" . "orange")))
+      '(("NEXT" . "yellow")
+        ("HOLD" . "orange")))
 
-(setq org-agenda-files '("~/Dropbox/gtd/inbox.org"
-                         "~/Dropbox/gtd/gtd.org"
-                         "~/Dropbox/gtd/habits.org"
-                         "~/Dropbox/gtd/whip.org"))
+(require 'find-lisp)
+(setq org-directory "~/Dropbox/gtd/")
 
-;; level/maxlevel =  order in heirarchy
-(setq org-refile-targets '(("~/Dropbox/gtd/gtd.org" :maxlevel . 3)
-                           ("~/Dropbox/gtd/someday.org" :level . 1)
-                           ("~/Dropbox/gtd/whip.org" :maxlevel . 2)))
+(setq org-agenda-files
+      (find-lisp-find-files org-directory "\.org$"))
 
-;; Save Org buffers after refiling
-(advice-add 'org-refile :after 'org-save-all-org-buffers)
-(advice-add 'org-refile :after 'org-agenda-redo-all)
+;; level/maxlevel =  order in hierarchy
+(setq org-refile-targets '(("projects.org" :maxlevel . 3)
+                           ("someday.org" :level . 1)
+                           ("whip.org" :maxlevel . 2)))
 
-(setq org-agenda-prefix-format '((agenda . " %i %-8:c%t [%e]  ")
+;; https://github.com/syl20bnr/spacemacs/issues/3094
+(setq org-refile-use-outline-path 'file
+      org-outline-path-complete-in-steps nil)
+(setq org-refile-allow-creating-parent-nodes 'confirm)
+
+
+(setq org-refile-targets '(("next.org" :level . 0)
+                           ("someday.org" :level . 0)
+                           ("projects.org" :maxlevel . 1)))
+
+(setq org-agenda-prefix-format '((agenda . " %i %-8:c%t [%e] %s")
                                  (todo . " %i %-8:c [%-4e]  ")
                                  (tags . " %i %-12:c")))
 
@@ -693,22 +700,49 @@ f"))
 
 (setq org-agenda-custom-commands
       '(("d" "Dashboard"
-         ((agenda "" ((org-deadline-warning-days 7)))
+         ((agenda "" ((org-deadline-warning-days 30)))
           (todo "NEXT"
-                ((org-agenda-overriding-header "Next Tasks")))
+                ((org-agenda-overriding-header "Next Un-Scheduled Tasks")))
           (todo "TODO"
-                     ((org-agenda-overriding-header "Active Tasks")))))))
+                ((org-agenda-overriding-header "Active Un-Scheduled Tasks")))
+          ))
+        (" " "Agenda"
+         ((agenda ""
+                  ((org-agenda-span 'day)
+                   (org-deadline-warning-days 365)))
+          (todo "TODO"
+                ((org-agenda-overriding-header "To Refile")
+                 (org-agenda-files
+                  (list (concat org-directory "inbox.org")))))
+          (todo "NEXT"
+                ((org-agenda-overriding-header "In Progress")
+                 (org-agenda-files
+                  (list (concat org-directory "projects.org")))))
+          (todo "TODO"
+                ((org-agenda-overriding-header "Projects")
+                 (org-agenda-files
+                  (list (concat org-directory "projects.org")))))
+          (todo "TODO"
+                ((org-agenda-overriding-header "One-off Tasks")
+                 (org-agenda-files
+                  (list (concat org-directory "next.org")))
+                 (org-agenda-files '("~/Dropbox/gtd/next.org")))
+                 (org-agenda-skip-function '(org-agenda-skip-entry-if
+                                             'deadline 'scheduled)))))))
 
-(global-set-key (kbd "C-c d") (lambda (&optional args)
-                                (interactive "P")
-                                (org-agenda args "d")))
 
-(setq org-agenda-todo-ignore-scheduled 'all)
+        (global-set-key (kbd "C-c a") (lambda (&optional args)
+                                       (interactive "P")
+                                       (org-agenda args " ")))
+
+        (setq org-agenda-todo-ignore-scheduled 'all)
 
 ;; org habit;;
 (require 'org-habit)
 (add-to-list 'org-modules 'org-habit)
-(setq org-habit-graph-column 60) ;; default is 40
+(setq org-habit-graph-column
+      (assoc-default (system-name) '(("xps" . 55)
+                                     ("dsk" . 65)))) ;; default is 40
 
 (setq org-capture-templates
       '(("t" "Todo [inbox]" entry
@@ -722,9 +756,6 @@ f"))
         ("s" "Schdule" entry
          (file+headline "~/Dropbox/gtd/whip.org"  "Whip")
          "* %i%? \n %U %^t" :empty-lines 1)))
-
-;; if agenda is already open, update it with new capture
-(advice-add 'org-capture-finalize :after 'org-agenda-redo-all)
 
 (defun org-archive-done-tasks-tree ()
   (interactive)
@@ -741,6 +772,66 @@ f"))
      (org-archive-subtree)
      (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
    "/DONE" 'file))
+
+(defvar jethro/org-current-effort "1:00"
+  "Current effort for agenda items.")
+
+  (defun jethro/my-org-agenda-set-effort (effort)
+      "Set the effort property for the current headline."
+      (interactive
+       (list (read-string (format "Effort [%s]: " jethro/org-current-effort) nil nil jethro/org-current-effort)))
+      (setq jethro/org-current-effort effort)
+      (org-agenda-check-no-diary)
+      (let* ((hdmarker (or (org-get-at-bol 'org-hd-marker)
+                           (org-agenda-error)))
+             (buffer (marker-buffer hdmarker))
+             (pos (marker-position hdmarker))
+             (inhibit-read-only t)
+             newhead)
+        (org-with-remote-undo buffer
+          (with-current-buffer buffer
+            (widen)
+            (goto-char pos)
+            (org-show-context 'agenda)
+            (funcall-interactively 'org-set-effort nil jethro/org-current-effort)
+            (end-of-line 1)
+            (setq newhead (org-get-heading)))
+          (org-agenda-change-all-lines newhead hdmarker))))
+
+    (defun jethro/org-agenda-process-inbox-item ()
+      "Process a single item in the org-agenda."
+      (interactive)
+      (org-with-wide-buffer
+       (org-agenda-set-tags)
+       (org-agenda-priority)
+       (call-interactively 'jethro/my-org-agenda-set-effort)
+       (org-agenda-refile nil nil t)))
+
+(global-set-key (kbd "C-c p") #'jethro/org-agenda-process-inbox-item)
+
+(defmacro func-ignore (fnc)
+  "Return function that ignores its arguments and invokes FNC."
+  `(lambda (&rest _rest)
+     (funcall ,fnc)))
+
+(advice-add 'org-archive-done-tasks-tree
+            :after (func-ignore #'org-save-all-org-buffers))
+(advice-add 'org-archive-done-tasks-file
+            :after (func-ignore #'org-save-all-org-buffers))
+(advice-add 'org-refile
+            :after (func-ignore #'org-save-all-org-buffers))
+(advice-add 'org-deadline
+            :after (func-ignore #'org-save-all-org-buffers))
+(advice-add 'org-schedule
+            :after (func-ignore #'org-save-all-org-buffers))
+(advice-add 'org-store-log-note
+            :after (func-ignore #'org-save-all-org-buffers))
+(advice-add 'org-todo
+            :after (func-ignore #'org-save-all-org-buffers))
+
+;; if agenda is already open, update it with new capture;; work?
+(advice-add 'org-capture-finalize
+            :after (func-ignore #'org-agenda-redo-all))
 
 (use-package vterm
   :commands vterm
