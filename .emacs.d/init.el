@@ -678,6 +678,7 @@ f"))
                            ("someday.org" :level . 1)
                            ("whip.org" :maxlevel . 2)))
 
+
 ;; https://github.com/syl20bnr/spacemacs/issues/3094
 (setq org-refile-use-outline-path 'file
       org-outline-path-complete-in-steps nil)
@@ -730,12 +731,17 @@ f"))
                  (org-agenda-skip-function '(org-agenda-skip-entry-if
                                              'deadline 'scheduled)))))))
 
+(defun jmn-someday()
+  "Quick access to someday.org (no links in agenda)"
+  (interactive)
+  (find-file (concat org-directory "someday.org")))
 
-        (global-set-key (kbd "C-c a") (lambda (&optional args)
-                                       (interactive "P")
-                                       (org-agenda args " ")))
+(global-set-key (kbd "C-c a") (lambda (&optional args)
+                                (interactive "P")
+                                (org-agenda args " ")))
 
-        (setq org-agenda-todo-ignore-scheduled 'all)
+
+(setq org-agenda-todo-ignore-scheduled 'all)
 
 ;; org habit;;
 (require 'org-habit)
@@ -773,41 +779,20 @@ f"))
      (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
    "/DONE" 'file))
 
-(defvar jethro/org-current-effort "1:00"
-  "Current effort for agenda items.")
+;; could set int inbox header instead (where tags are set)
+(customize-set-variable 'org-global-properties
+                        '(("Effort_ALL" . "0:05 0:15 0:30 1:00 2:00 3:00")))
 
-  (defun jethro/my-org-agenda-set-effort (effort)
-      "Set the effort property for the current headline."
-      (interactive
-       (list (read-string (format "Effort [%s]: " jethro/org-current-effort) nil nil jethro/org-current-effort)))
-      (setq jethro/org-current-effort effort)
-      (org-agenda-check-no-diary)
-      (let* ((hdmarker (or (org-get-at-bol 'org-hd-marker)
-                           (org-agenda-error)))
-             (buffer (marker-buffer hdmarker))
-             (pos (marker-position hdmarker))
-             (inhibit-read-only t)
-             newhead)
-        (org-with-remote-undo buffer
-          (with-current-buffer buffer
-            (widen)
-            (goto-char pos)
-            (org-show-context 'agenda)
-            (funcall-interactively 'org-set-effort nil jethro/org-current-effort)
-            (end-of-line 1)
-            (setq newhead (org-get-heading)))
-          (org-agenda-change-all-lines newhead hdmarker))))
+(defun jmn/org-agenda-process-inbox-item ()
+  "Process a single item in the org-agenda."
+  (interactive)
+  (org-with-wide-buffer
+   (org-agenda-set-tags)
+   (org-agenda-priority)
+   (org-agenda-set-effort)
+   (org-agenda-refile nil nil t)))
 
-    (defun jethro/org-agenda-process-inbox-item ()
-      "Process a single item in the org-agenda."
-      (interactive)
-      (org-with-wide-buffer
-       (org-agenda-set-tags)
-       (org-agenda-priority)
-       (call-interactively 'jethro/my-org-agenda-set-effort)
-       (org-agenda-refile nil nil t)))
-
-(global-set-key (kbd "C-c p") #'jethro/org-agenda-process-inbox-item)
+(global-set-key (kbd "C-c p") 'jmn/org-agenda-process-inbox-item)
 
 (defmacro func-ignore (fnc)
   "Return function that ignores its arguments and invokes FNC."
@@ -831,7 +816,9 @@ f"))
 
 ;; if agenda is already open, update it with new capture;; work?
 (advice-add 'org-capture-finalize
-            :after (func-ignore #'org-agenda-redo-all))
+             :after (func-ignore #'org-agenda-redo-all))
+;; ;; (advice-add 'org-capture-finalize
+;; ;;             :after (func-ignore #'org-agenda-redo-all))
 
 (use-package vterm
   :commands vterm
