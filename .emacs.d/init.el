@@ -41,6 +41,31 @@
   (auto-package-update-maybe)
   (auto-package-update-at-time "09:00"))
 
+(use-package gruvbox-theme)
+
+; make load functions for run-at-time functions
+(defun jmn-load-gruvbox-dark-hard ()
+  "Theme for dark time"
+  (interactive)
+  (load-theme 'gruvbox-dark-hard t)
+  (set-face-background 'line-number
+                       (face-attribute 'default :background))
+  (with-eval-after-load 'org
+    (set-face-foreground 'org-priority (face-foreground font-lock-constant-face))))
+
+(defun jmn-load-gruvbox-light-medium()
+  "Theme for light time"
+  (interactive)
+  (load-theme 'gruvbox-light-medium t)
+  (set-face-background 'line-number
+                       (face-attribute 'default :background))
+  (with-eval-after-load 'org
+    (set-face-foreground 'org-priority (face-foreground font-lock-constant-face))))
+
+(jmn-load-gruvbox-dark-hard)
+(run-at-time "6:00 am" nil #'jmn-load-gruvbox-light-medium)
+(run-at-time "4:30 pm" nil #'jmn-load-gruvbox-dark-hard)
+
 (setq inhibit-startup-message t)           ; inhibit startup message
 (tool-bar-mode -1)                         ; remove toolbar
 (menu-bar-mode -1)                         ; Disable the menu bar
@@ -106,28 +131,6 @@
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
   :custom ((doom-modeline-height 15)))
-
-(use-package gruvbox-theme)
-
-; make load functions for run-at-time functions
-(defun jmn-load-gruvbox-dark-hard ()
-  (interactive)
-  (load-theme 'gruvbox-dark-hard t)
-  (set-face-background 'line-number
-                       (face-attribute 'default :background))
-  (with-eval-after-load 'org
-    (set-face-foreground 'org-priority (face-foreground font-lock-constant-face))))
-
-(defun jmn-load-gruvbox-light-medium()
-  (interactive)
-  (load-theme 'gruvbox-light-medium t)
-  (set-face-background 'line-number
-                       (face-attribute 'default :background))
-  (with-eval-after-load 'org
-    (set-face-foreground 'org-priority (face-foreground font-lock-constant-face))))
-
-(run-at-time "6:00 am" nil #'jmn-load-gruvbox-light-medium)
-(run-at-time "4:30 pm" nil #'jmn-load-gruvbox-dark-hard)
 
 (defun transparency (value)
   "Sets the transparency of the frame window. 0=transparent/100=opaque"
@@ -681,22 +684,24 @@ f"))
       `(("NEXT" .  ,(face-foreground font-lock-function-name-face))
         ("HOLD" . ,(face-foreground font-lock-builtin-face))))
 
-(require 'find-lisp) (setq org-directory "~/Dropbox/gtd/")
+(require 'find-lisp)
+(setq org-directory "~/Dropbox/Documents/gtd/")
 
 (setq org-agenda-files (find-lisp-find-files org-directory "\.org$"))
 
 ;; level/maxlevel = order in hierarchy
 (setq org-refile-targets
-      '(("projects.org" :maxlevel . 2) ("someday.org" :maxlevel . 1)
-        ("whip.org" :level . 0) ("next.org" :level . 0)))
-
+      '(("projects.org" :maxlevel . 2)
+        ("someday.org" :maxlevel . 1)
+        ("whip.org" :level . 0)
+        ("next.org" :level . 0)))
 
 ;; https://github.com/syl20bnr/spacemacs/issues/3094
 (setq org-refile-use-outline-path 'file org-outline-path-complete-in-steps nil)
 (setq org-refile-allow-creating-parent-nodes 'confirm)
 
-(setq org-agenda-prefix-format '((agenda . " %i %-8:c%t [%e] %s")
-                                 (todo . " %i %-8:c [%-4e] ")
+(setq org-agenda-prefix-format '((agenda . " %i %-10:c%t [%e]% s")
+                                 (todo . " %i %-10:c [%-4e] ")
                                  (tags . " %i %-12:c")))
 
 (setq org-deadline-warning-days 30)
@@ -726,8 +731,7 @@ f"))
                                             (org-agenda-files (list (concat org-directory  "projects.org")))))
                                      (todo "TODO"
                                            ((org-agenda-overriding-header "One-off Tasks")
-                                            (org-agenda-files (list (concat org-directory  "next.org")))
-                                            (org-agenda-files '("~/Dropbox/gtd/next.org")))
+                                            (org-agenda-files (list (concat org-directory  "next.org"))))
                                            (org-agenda-skip-function '(org-agenda-skip-entry-if
                                                                        'deadline 'scheduled)))))))
 
@@ -744,10 +748,12 @@ f"))
 
 ;; org habit;;
 (require 'org-habit)
+
 (add-to-list 'org-modules 'org-habit)
+;; default is 40
 (setq org-habit-graph-column
       (assoc-default (system-name) '(("xps" . 55)
-                                     ("dsk" . 65)))) ;; default is 40
+                                     ("dsk" . 65))))
 
 (setq org-capture-templates
       '(("t" "Todo [inbox]" entry
@@ -780,7 +786,7 @@ f"))
 
 ;; could set in the inbox header instead (where tags are set)
 (customize-set-variable 'org-global-properties
-                        '(("Effort_ALL" . "0:05 0:15 0:30 1:00 2:00 3:00")))
+                        '(("Effort_ALL" . "0:05 0:15 0:30 1:00 2:00 4:00")))
 
 (defun jmn/org-agenda-process-inbox-item ()
   "Process a single item in the org-agenda."
