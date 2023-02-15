@@ -41,12 +41,15 @@
   (auto-package-update-maybe)
   (auto-package-update-at-time "09:00"))
 
+(setq custom-safe-themes t)
+
 (use-package gruvbox-theme)
 
 ; make load functions for run-at-time functions
 (defun jmn-load-gruvbox-dark-hard ()
   "Theme for dark time"
   (interactive)
+  (disable-theme 'gruvbox-light-medium)
   (load-theme 'gruvbox-dark-hard t)
   (set-face-background 'line-number
                        (face-attribute 'default :background))
@@ -56,15 +59,58 @@
 (defun jmn-load-gruvbox-light-medium()
   "Theme for light time"
   (interactive)
-  (load-theme 'gruvbox-light-medium t)
-  (set-face-background 'line-number
-                       (face-attribute 'default :background))
-  (with-eval-after-load 'org
-    (set-face-foreground 'org-priority (face-foreground font-lock-constant-face))))
+  (disable-theme 'gruvbox-light-medium)
+  (load-theme 'gruvbox-light-medium t))
 
-(jmn-load-gruvbox-dark-hard)
-(run-at-time "6:00 am" nil #'jmn-load-gruvbox-light-medium)
-(run-at-time "4:30 pm" nil #'jmn-load-gruvbox-dark-hard)
+(use-package doom-themes)
+(defun jmn-load-doom-one()
+    "Theme for dark time"
+    (interactive)
+    (disable-theme 'doom-one-light)
+    (load-theme 'doom-one)
+    (with-eval-after-load 'org
+      (set-face-foreground 'org-priority (face-foreground font-lock-builtin-face))
+      (setq org-todo-keyword-faces
+            `(("NEXT" .  ,(face-foreground font-lock-type-face))
+              ("HOLD" . ,(face-foreground font-lock-variable-name-face))))))
+
+
+  (defun jmn-load-doom-one-light()
+    "Theme for light time"
+    (interactive)
+    (disable-theme 'doom-one-light)
+    (load-theme 'doom-one-light)
+    (with-eval-after-load 'org
+      (setq org-todo-keyword-faces
+            `(("NEXT" .  ,(face-foreground font-lock-type-face))
+              ("HOLD" . ,(face-foreground font-lock-variable-name-face))))))
+
+(use-package modus-themes)
+
+  ; make load functions for run-at-time functions
+  (defun jmn-load-modus-dark()
+    "Theme for dark time"
+    (interactive)
+    (disable-theme 'modus-operandi-tinted)
+    (load-theme 'modus-vivendi-deuteranopia))
+
+  (defun jmn-load-modus-light()
+    "Theme for dark time"
+    (interactive)
+    (disable-theme 'modus-vivendi-deuteranopia)
+    (load-theme 'modus-operandi-tinted))
+
+; (jmn-load-gruvbox-dark-hard)
+;; (run-at-time "7:00 am" nil #'jmn-load-gruvbox-light-medium)
+;; (run-at-time "4:30 pm" nil #'jmn-load-gruvbox-dark-hard)
+
+(jmn-load-doom-one)
+ ;; (run-at-time "7:00 am" nil #'jmn-load-doom-one-light)
+ ;; (run-at-time "4:30 pm" nil #'jmn-load-doom-one)
+
+;;(load-theme 'spacemacs-dark)
+
+;(load-theme 'modus-vivendi-deuteranopia)
 
 (setq inhibit-startup-message t)           ; inhibit startup message
 (tool-bar-mode -1)                         ; remove toolbar
@@ -155,9 +201,9 @@
   (setq dashboard-startup-banner 1)
   (setq dashboard-center-content 1)
   (setq dashboard-show-shortcuts nil)
-  (setq dashboard-items '((recents  . 9)
+  (setq dashboard-items '((recents  . 12)
                           ;; (bookmarks . 5)
-                          (projects . 5)
+                          (projects . 4)
                           ;; (agenda . 5)
                           ;; (registers . 5)
                           ))
@@ -278,45 +324,45 @@
   (setq which-key-idle-delay 0.8))
 
 ;; general improvements
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-(global-set-key (kbd "C-x C-b") 'buffer-menu)   ;; open buffer menue in current buffer
-(global-set-key (kbd "C-x C-k") 'kill-current-buffer)   ;; "C-x k" asks which buffer
-(global-set-key (kbd "C-o") 'other-window)  ;; default is "C-x o"
-(global-set-key (kbd "M-o") 'previous-multiframe-window)
-(global-set-key (kbd "C-c C-c") 'eval-buffer)
-(global-set-key (kbd "C-c C-r") 'eval-region)
+ (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+ (global-set-key (kbd "C-x C-b") 'buffer-menu)   ;; open buffer menue in current buffer
+ (global-set-key (kbd "C-x C-k") 'kill-current-buffer)   ;; "C-x k" asks which buffer
+ (global-set-key (kbd "C-o") 'other-window)  ;; default is "C-x o"
+ (global-set-key (kbd "M-o") 'previous-multiframe-window)
+ (global-set-key (kbd "C-c C-c") 'eval-buffer)
+ (global-set-key (kbd "C-c C-r") 'eval-region)
 
-;; Make font bigger/smaller.
-(global-set-key (kbd "C-=") 'text-scale-increase)
-(global-set-key (kbd "C--") 'text-scale-decrease)
-(global-set-key (kbd "C-0") 'text-scale-adjust)
+ ;; Make font bigger/smaller.
+ (global-set-key (kbd "C-=") 'text-scale-increase)
+ (global-set-key (kbd "C--") 'text-scale-decrease)
+ (global-set-key (kbd "C-0") 'text-scale-adjust)
 
-;; Org notes flow
-(global-set-key (kbd "<f5>") 'org-store-link)
-(global-set-key (kbd "<f6>") 'org-insert-link)
-(global-set-key (kbd "<f7>") 'org-open-at-point)
-(global-set-key (kbd "<f8>") 'org-html-export-to-html)
+ ;; Org notes flow
+ (global-set-key (kbd "<f5>") 'org-store-link)
+ (global-set-key (kbd "<f6>") 'org-insert-link)
+;; (global-set-key (kbd "<f7>") 'org-agenda ;; set later!
+ (global-set-key (kbd "<f8>") 'org-html-export-to-html)
 
-;; writing/editing
-(global-set-key (kbd "<f9>") 'ispell-word)
-(global-set-key (kbd "<f10>") 'dictionary-lookup-definition)
+ ;; writing/editing
+ (global-set-key (kbd "<f9>") 'ispell-word)
+ (global-set-key (kbd "<f10>") 'dictionary-lookup-definition)
 
-;; Buffer-menu-mode
-(define-key Buffer-menu-mode-map (kbd "C-o") 'other-window)
-(define-key Buffer-menu-mode-map (kbd "M-o") 'previous-multiframe-window)
-;; "o" opens in another buffer and moves focus
-;; "C-M-o" opens in another buffer and keeps focus in the Buffer-menu
-(define-key Buffer-menu-mode-map (kbd "C-M-o") 'Buffer-menu-switch-other-window)
+ ;; Buffer-menu-mode
+ (define-key Buffer-menu-mode-map (kbd "C-o") 'other-window)
+ (define-key Buffer-menu-mode-map (kbd "M-o") 'previous-multiframe-window)
+ ;; "o" opens in another buffer and moves focus
+ ;; "C-M-o" opens in another buffer and keeps focus in the Buffer-menu
+ (define-key Buffer-menu-mode-map (kbd "C-M-o") 'Buffer-menu-switch-other-window)
 
-;; compilation-mode
-(define-key compilation-mode-map (kbd "C-o") 'other-window)
+ ;; compilation-mode
+ (define-key compilation-mode-map (kbd "C-o") 'other-window)
 
-;; grep-mode
-(defun jmn-grep-keybindings()
-  (define-key grep-mode-map (kbd "o") 'compilation-display-error)
-  (define-key grep-mode-map (kbd "C-o") 'other-window))
+ ;; grep-mode
+ (defun jmn-grep-keybindings()
+   (define-key grep-mode-map (kbd "o") 'compilation-display-error)
+   (define-key grep-mode-map (kbd "C-o") 'other-window))
 
-(add-hook 'grep-mode-hook #'jmn-grep-keybindings)
+ (add-hook 'grep-mode-hook #'jmn-grep-keybindings)
 
 (set-face-attribute
  'default nil
@@ -540,8 +586,8 @@
 (defun my-c-c++-mode-hook-fn ()
   (lsp)                ; turn on
   (local-set-key (kbd "C-<tab>") #'lsp-format-buffer) ;tab comp
-  (smartparens-mode 1)
-  (tree-sitter-hl-mode))
+  ;(smartparens-mode 1) no longer have it?
+  (tree-sitter-hl-mode 1))
 
 (add-hook #'c-mode-hook #'my-c-c++-mode-hook-fn)
 (add-hook #'c++-mode-hook #'my-c-c++-mode-hook-fn)
@@ -680,12 +726,8 @@ f"))
 (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|"
                                     "DONE(d)")))
 
-(setq org-todo-keyword-faces
-      `(("NEXT" .  ,(face-foreground font-lock-function-name-face))
-        ("HOLD" . ,(face-foreground font-lock-builtin-face))))
-
 (require 'find-lisp)
-(setq org-directory "~/Dropbox/Documents/gtd/")
+(setq org-directory "~/Documents/gtd/")
 
 (setq org-agenda-files (find-lisp-find-files org-directory "\.org$"))
 
@@ -700,7 +742,7 @@ f"))
 (setq org-refile-use-outline-path 'file org-outline-path-complete-in-steps nil)
 (setq org-refile-allow-creating-parent-nodes 'confirm)
 
-(setq org-agenda-prefix-format '((agenda . " %i %-10:c%t [%e]% s")
+(setq org-agenda-prefix-format '((agenda . " %i %-10:c%t [%e]% s ")
                                  (todo . " %i %-10:c [%-4e] ")
                                  (tags . " %i %-12:c")))
 
@@ -739,7 +781,12 @@ f"))
        (interactive)
        (find-file (concat org-directory "someday.org")))
 
+;; remove "C-c a" for something else later?
 (global-set-key (kbd "C-c a") (lambda (&optional args)
+                                (interactive "P")
+                                (org-agenda args " ")))
+
+(global-set-key (kbd "<f7>") (lambda (&optional args)
                                 (interactive "P")
                                 (org-agenda args " ")))
 
@@ -748,25 +795,27 @@ f"))
 
 ;; org habit;;
 (require 'org-habit)
-
 (add-to-list 'org-modules 'org-habit)
-;; default is 40
 (setq org-habit-graph-column
       (assoc-default (system-name) '(("xps" . 55)
-                                     ("dsk" . 65))))
+                                     ("dsk" . 65)))) ;; default is 40
 
 (setq org-capture-templates
-      '(("t" "Todo [inbox]" entry
-         (file "~/Dropbox/gtd/inbox.org")
+      `(("t" "Todo [inbox]" entry
+         (file ,(concat org-directory "inbox.org"))
          "* TODO %i%?" :empty-lines 1)
 
         ("l" "Linked Todo [inbox]" entry
-         (file "~/Dropbox/gtd/inbox.org")
+         (file ,(concat org-directory "inbox.org"))
          "* TODO %i%? \n %a" :empty-lines 1)
 
-        ("s" "Schdule" entry
-         (file+headline "~/Dropbox/gtd/whip.org"  "Whip")
-         "* %i%? \n %U %^t" :empty-lines 1)))
+        ("s" "Schedule" entry
+         (file+headline ,(concat org-directory "whip.org")  "Whip")
+         "* %i%? \n %U %^t" :empty-lines 1)
+
+        ("j" "Journal" entry
+         (file+datetree ,(concat org-directory "journal.org"))
+         "* %?\nEntered on %U\n  %i\n  %a"  :empty-lines 1)))
 
 (defun org-archive-done-tasks-tree ()
   (interactive)

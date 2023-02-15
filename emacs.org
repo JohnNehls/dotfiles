@@ -67,7 +67,11 @@ You can also use =M-x auto-package-update-now= to update right now!
 
 * Theme
 Only enable (tangle) one at a time.
-**** Gruvbox
+#+begin_src emacs-lisp
+(setq custom-safe-themes t)
+#+end_src
+
+** Gruvbox
 #+begin_src emacs-lisp
   (use-package gruvbox-theme)
 
@@ -75,6 +79,7 @@ Only enable (tangle) one at a time.
   (defun jmn-load-gruvbox-dark-hard ()
     "Theme for dark time"
     (interactive)
+    (disable-theme 'gruvbox-light-medium)
     (load-theme 'gruvbox-dark-hard t)
     (set-face-background 'line-number
                          (face-attribute 'default :background))
@@ -84,21 +89,19 @@ Only enable (tangle) one at a time.
   (defun jmn-load-gruvbox-light-medium()
     "Theme for light time"
     (interactive)
-    (load-theme 'gruvbox-light-medium t)
-    (set-face-background 'line-number
-                         (face-attribute 'default :background))
-    (with-eval-after-load 'org
-      (set-face-foreground 'org-priority (face-foreground font-lock-constant-face))))
+    (disable-theme 'gruvbox-light-medium)
+    (load-theme 'gruvbox-light-medium t))
+
 #+end_src
 
-**** Monokia
+** Monokia
 Good bright mode for bright days.
 #+begin_src emacs-lisp :tangle no
   (use-package monokai-theme
         :init (load-theme 'monokai t))
 #+end_src
 
-**** Dark+
+** Dark+
 - The modeline, when un-selected, has the same background as files, making it hard to delineation between vertically split windows.
 #+begin_src emacs-lisp :tangle no
   (use-package doom-themes
@@ -111,12 +114,71 @@ Good bright mode for bright days.
     (set-face-foreground 'doom-modeline-buffer-modified "red"))
 #+end_src
 
-**** Theme Default and time switches
+** Doom-one
 #+begin_src emacs-lisp
-  (jmn-load-gruvbox-dark-hard)
-  (run-at-time "6:00 am" nil #'jmn-load-gruvbox-light-medium)
-  (run-at-time "4:30 pm" nil #'jmn-load-gruvbox-dark-hard)
+    (use-package doom-themes)
+  (defun jmn-load-doom-one()
+      "Theme for dark time"
+      (interactive)
+      (disable-theme 'doom-one-light)
+      (load-theme 'doom-one)
+      (with-eval-after-load 'org
+        (set-face-foreground 'org-priority (face-foreground font-lock-builtin-face))
+        (setq org-todo-keyword-faces
+              `(("NEXT" .  ,(face-foreground font-lock-type-face))
+                ("HOLD" . ,(face-foreground font-lock-variable-name-face))))))
+
+
+    (defun jmn-load-doom-one-light()
+      "Theme for light time"
+      (interactive)
+      (disable-theme 'doom-one-light)
+      (load-theme 'doom-one-light)
+      (with-eval-after-load 'org
+        (setq org-todo-keyword-faces
+              `(("NEXT" .  ,(face-foreground font-lock-type-face))
+                ("HOLD" . ,(face-foreground font-lock-variable-name-face))))))
 #+end_src
+
+** modus
+#+begin_src emacs-lisp
+(use-package modus-themes)
+
+  ; make load functions for run-at-time functions
+  (defun jmn-load-modus-dark()
+    "Theme for dark time"
+    (interactive)
+    (disable-theme 'modus-operandi-tinted)
+    (load-theme 'modus-vivendi-deuteranopia))
+
+  (defun jmn-load-modus-light()
+    "Theme for dark time"
+    (interactive)
+    (disable-theme 'modus-vivendi-deuteranopia)
+    (load-theme 'modus-operandi-tinted))
+#+end_src
+
+** Theme Default and time switches
+#+begin_src emacs-lisp
+  ; (jmn-load-gruvbox-dark-hard)
+  ;; (run-at-time "7:00 am" nil #'jmn-load-gruvbox-light-medium)
+  ;; (run-at-time "4:30 pm" nil #'jmn-load-gruvbox-dark-hard)
+#+end_src
+
+#+begin_src emacs-lisp
+ (jmn-load-doom-one)
+  ;; (run-at-time "7:00 am" nil #'jmn-load-doom-one-light)
+  ;; (run-at-time "4:30 pm" nil #'jmn-load-doom-one)
+#+end_src
+
+#+begin_src emacs-lisp
+;;(load-theme 'spacemacs-dark)
+#+end_src
+
+#+begin_src emacs-lisp
+;(load-theme 'modus-vivendi-deuteranopia)
+#+end_src
+
 * General Emacs
 ** UI Configurations
 *** Basic
@@ -246,9 +308,9 @@ Dash board for initial startup of emacs. [[https://github.com/emacs-dashboard/em
     (setq dashboard-startup-banner 1)
     (setq dashboard-center-content 1)
     (setq dashboard-show-shortcuts nil)
-    (setq dashboard-items '((recents  . 9)
+    (setq dashboard-items '((recents  . 12)
                             ;; (bookmarks . 5)
-                            (projects . 5)
+                            (projects . 4)
                             ;; (agenda . 5)
                             ;; (registers . 5)
                             ))
@@ -392,8 +454,8 @@ Counsel displays ivy-rich info along with suggestions in input buffer.
            ))
 #+end_src
 *
-* Helpful and Which-key
-*** Helpful
+** Helpful and Which-key
+**** Helpful
 Better version of help. We remap normal help keys to Helpful's versions.
 #+begin_src emacs-lisp
   (use-package helpful
@@ -408,7 +470,7 @@ Better version of help. We remap normal help keys to Helpful's versions.
     ([remap describe-key] . helpful-key))
 #+end_src
 
-*** Which-key
+**** Which-key
 #+begin_src emacs-lisp
   (use-package which-key
     :defer 0
@@ -417,9 +479,9 @@ Better version of help. We remap normal help keys to Helpful's versions.
     (setq which-key-idle-delay 0.8))
 #+end_src
 
-** Grammarly (not set up)                                         :noexport:
+*** Grammarly (not set up)                                       :noexport:
 There looks to be several packages at the moment. Top two (as of 1/10/22) are installed here without proper hooks. 
-*** lsp-grammarly
+**** lsp-grammarly
 Gives warning on startup for login.   [[https://github.com/emacs-grammarly/lsp-grammarly][lsp-grammarly doc]]
 #+begin_src emacs-lisp  :tangle no
   (use-package lsp-grammarly
@@ -429,7 +491,7 @@ Gives warning on startup for login.   [[https://github.com/emacs-grammarly/lsp-g
                        (lsp))))
 #+end_src
 
-*** flycheck-grammarly
+**** flycheck-grammarly
 Works w/o being logged in.                         [[https://github.com/emacs-grammarly/flycheck-grammarly][flycheck-grammarly doc]]
 #+begin_src emacs-lisp  :tangle no
   (use-package flycheck-grammarly
@@ -437,7 +499,7 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
   (setq flycheck-grammarly-check-time 0.8))
 #+end_src
 
-** Keybindings
+*** Keybindings
 #+begin_src emacs-lisp
   ;; general improvements
   (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
@@ -456,7 +518,7 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
   ;; Org notes flow
   (global-set-key (kbd "<f5>") 'org-store-link)
   (global-set-key (kbd "<f6>") 'org-insert-link)
-  (global-set-key (kbd "<f7>") 'org-open-at-point)
+ ;; (global-set-key (kbd "<f7>") 'org-agenda ;; set later!
   (global-set-key (kbd "<f8>") 'org-html-export-to-html)
 
   ;; writing/editing
@@ -484,7 +546,7 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
 
 *Possible TODO:* create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. hydra ties related commands into short bindings with a common prefix.
 
-** Font size
+*** Font size
 #+begin_src emacs-lisp
   (set-face-attribute
    'default nil
@@ -494,15 +556,15 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
   (setq text-scale-mode-step 1.05)
 #+end_src
 
-** General Helper Function
-*** jmn-load-init
+*** General Helper Function
+**** jmn-load-init
 #+begin_src emacs-lisp
   (defun jmn-load-init ()
     (interactive)
     (load "~/.dotfiles/.emacs.d/init.el"))
 #+end_src
 
-*** jmn-vscode-current-buffer-file-at-point
+**** jmn-vscode-current-buffer-file-at-point
 #+begin_src emacs-lisp
   (defun jmn/vscode-current-buffer-file-at-point ()
     (interactive)
@@ -909,8 +971,8 @@ The following keeps the compilation buffer if there are warnings or errors, and 
     (defun my-c-c++-mode-hook-fn ()
       (lsp)                ; turn on
       (local-set-key (kbd "C-<tab>") #'lsp-format-buffer) ;tab comp
-      (smartparens-mode 1)
-      (tree-sitter-hl-mode))
+      ;(smartparens-mode 1) no longer have it?
+      (tree-sitter-hl-mode 1))
 
     (add-hook #'c-mode-hook #'my-c-c++-mode-hook-fn)
     (add-hook #'c++-mode-hook #'my-c-c++-mode-hook-fn)
@@ -1095,7 +1157,8 @@ Figure out how to set this in the header properties rather than hardcoding here.
   (add-hook 'after-save-hook 'jmn-org-export-html-on-save)
 #+end_src
 
-** Agenda/GTD
+* Agenda/GTD
+** General
 Following the tutorial [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode-gtd.html][here]].
 
 - =C-c C-s=      :   scheduled timestamp
@@ -1108,83 +1171,84 @@ Following the tutorial [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode
 =Shft-right=  :  advance the todo state
 
 #+begin_src emacs-lisp
-  ;; Org Agenda ;; (setq org-agenda-window-setup 'reorganize-frame)
-  ;; Exited with ‘q’ or ‘x’ and the old state is restored.
-  (setq org-agenda-restore-windows-after-quit 1)
-  (setq org-agenda-span 'day)
+    ;; Org Agenda ;; (setq org-agenda-window-setup 'reorganize-frame)
+    ;; Exited with ‘q’ or ‘x’ and the old state is restored.
+    (setq org-agenda-restore-windows-after-quit 1)
+    (setq org-agenda-span 'day)
 
-  ;; SOMEDAY itmes are ommitted from GTD interface on purpose
-  (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|"
-                                      "DONE(d)")))
+    ;; SOMEDAY itmes are ommitted from GTD interface on purpose
+    (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|"
+                                        "DONE(d)")))
 
-  (setq org-todo-keyword-faces
-        `(("NEXT" .  ,(face-foreground font-lock-function-name-face))
-          ("HOLD" . ,(face-foreground font-lock-builtin-face))))
+    (require 'find-lisp)
+    (setq org-directory "~/Documents/gtd/")
 
-  (require 'find-lisp)
-  (setq org-directory "~/Dropbox/Documents/gtd/")
+    (setq org-agenda-files (find-lisp-find-files org-directory "\.org$"))
 
-  (setq org-agenda-files (find-lisp-find-files org-directory "\.org$"))
+    ;; level/maxlevel = order in hierarchy
+    (setq org-refile-targets
+          '(("projects.org" :maxlevel . 2)
+            ("someday.org" :maxlevel . 1)
+            ("whip.org" :level . 0)
+            ("next.org" :level . 0)))
 
-  ;; level/maxlevel = order in hierarchy
-  (setq org-refile-targets
-        '(("projects.org" :maxlevel . 2)
-          ("someday.org" :maxlevel . 1)
-          ("whip.org" :level . 0)
-          ("next.org" :level . 0)))
+    ;; https://github.com/syl20bnr/spacemacs/issues/3094
+    (setq org-refile-use-outline-path 'file org-outline-path-complete-in-steps nil)
+    (setq org-refile-allow-creating-parent-nodes 'confirm)
 
-  ;; https://github.com/syl20bnr/spacemacs/issues/3094
-  (setq org-refile-use-outline-path 'file org-outline-path-complete-in-steps nil)
-  (setq org-refile-allow-creating-parent-nodes 'confirm)
+    (setq org-agenda-prefix-format '((agenda . " %i %-10:c%t [%e]% s ")
+                                     (todo . " %i %-10:c [%-4e] ")
+                                     (tags . " %i %-12:c")))
 
-  (setq org-agenda-prefix-format '((agenda . " %i %-10:c%t [%e]% s")
-                                   (todo . " %i %-10:c [%-4e] ")
-                                   (tags . " %i %-12:c")))
+    (setq org-deadline-warning-days 30)
 
-  (setq org-deadline-warning-days 30)
+    (setq org-agenda-start-with-log-mode t) ;; allows us to see closed in calendar
+    (setq org-log-done 'time) ;; creates CLOSED time tag
+    (setq org-log-into-drawer t) ;; creates a LOGBOOK drawer for notes
 
-  (setq org-agenda-start-with-log-mode t) ;; allows us to see closed in calendar
-  (setq org-log-done 'time) ;; creates CLOSED time tag
-  (setq org-log-into-drawer t) ;; creates a LOGBOOK drawer for notes
+    (setq org-agenda-custom-commands '(("d" "Dashboard"
+                                        ((agenda ""
+                                                 ((org-deadline-warning-days 30)))
+                                         (todo "NEXT"
+                                               ((org-agenda-overriding-header "Next Un-Scheduled Tasks")))
+                                         (todo "TODO"
+                                               ((org-agenda-overriding-header "Active Un-Scheduled Tasks")))))
+                                       (" " "Agenda"
+                                        ((agenda ""
+                                                 ((org-agenda-span 'day) (org-deadline-warning-days 365)))
+                                         (todo "TODO"
+                                               ((org-agenda-overriding-header "To Refile")
+                                                (org-agenda-files (list (concat org-directory "inbox.org")))))
+                                         (todo "NEXT"
+                                               ((org-agenda-overriding-header "In Progress")
+                                                (org-agenda-files (list (concat org-directory "projects.org")))))
+                                         (todo "TODO"
+                                               ((org-agenda-overriding-header "Projects")
+                                                (org-agenda-files (list (concat org-directory  "projects.org")))))
+                                         (todo "TODO"
+                                               ((org-agenda-overriding-header "One-off Tasks")
+                                                (org-agenda-files (list (concat org-directory  "next.org"))))
+                                               (org-agenda-skip-function '(org-agenda-skip-entry-if
+                                                                           'deadline 'scheduled)))))))
 
-  (setq org-agenda-custom-commands '(("d" "Dashboard"
-                                      ((agenda ""
-                                               ((org-deadline-warning-days 30)))
-                                       (todo "NEXT"
-                                             ((org-agenda-overriding-header "Next Un-Scheduled Tasks")))
-                                       (todo "TODO"
-                                             ((org-agenda-overriding-header "Active Un-Scheduled Tasks")))))
-                                     (" " "Agenda"
-                                      ((agenda ""
-                                               ((org-agenda-span 'day) (org-deadline-warning-days 365)))
-                                       (todo "TODO"
-                                             ((org-agenda-overriding-header "To Refile")
-                                              (org-agenda-files (list (concat org-directory "inbox.org")))))
-                                       (todo "NEXT"
-                                             ((org-agenda-overriding-header "In Progress")
-                                              (org-agenda-files (list (concat org-directory "projects.org")))))
-                                       (todo "TODO"
-                                             ((org-agenda-overriding-header "Projects")
-                                              (org-agenda-files (list (concat org-directory  "projects.org")))))
-                                       (todo "TODO"
-                                             ((org-agenda-overriding-header "One-off Tasks")
-                                              (org-agenda-files (list (concat org-directory  "next.org"))))
-                                             (org-agenda-skip-function '(org-agenda-skip-entry-if
-                                                                         'deadline 'scheduled)))))))
+    (defun jmn-someday() "Quick access to someday.org (no links in agenda)"
+           (interactive)
+           (find-file (concat org-directory "someday.org")))
 
-  (defun jmn-someday() "Quick access to someday.org (no links in agenda)"
-         (interactive)
-         (find-file (concat org-directory "someday.org")))
+    ;; remove "C-c a" for something else later?
+    (global-set-key (kbd "C-c a") (lambda (&optional args)
+                                    (interactive "P")
+                                    (org-agenda args " ")))
 
-  (global-set-key (kbd "C-c a") (lambda (&optional args)
-                                  (interactive "P")
-                                  (org-agenda args " ")))
+    (global-set-key (kbd "<f7>") (lambda (&optional args)
+                                    (interactive "P")
+                                    (org-agenda args " ")))
 
 
-  (setq org-agenda-todo-ignore-scheduled 'all)
+    (setq org-agenda-todo-ignore-scheduled 'all)
 #+end_src
 
-*** Habits
+** Habits
 File holding habits must be added to =org-agenda-files= above
 - habits must have the =:STYLE: habit= property
 #+begin_src emacs-lisp
@@ -1196,7 +1260,7 @@ File holding habits must be added to =org-agenda-files= above
                                        ("dsk" . 65)))) ;; default is 40
 #+end_src
 
-*** Capture Templates
+** Capture Templates
 [[https://orgmode.org/manual/Capture-templates.html][Capture templates (The Org Manual)]]
 - =C-c c i=  :   add an entry to the inbox
 - =C-c c w=  :   add an entry to the whip
@@ -1204,22 +1268,28 @@ File holding habits must be added to =org-agenda-files= above
   - =C-c C-c= : adds tags to a heading
 
 #+begin_src emacs-lisp
-  (setq org-capture-templates
-        '(("t" "Todo [inbox]" entry
-           (file "~/Dropbox/gtd/inbox.org")
-           "* TODO %i%?" :empty-lines 1)
+    (setq org-capture-templates
+          `(("t" "Todo [inbox]" entry
+             (file ,(concat org-directory "inbox.org"))
+             "* TODO %i%?" :empty-lines 1)
 
-          ("l" "Linked Todo [inbox]" entry
-           (file "~/Dropbox/gtd/inbox.org")
-           "* TODO %i%? \n %a" :empty-lines 1)
+            ("l" "Linked Todo [inbox]" entry
+             (file ,(concat org-directory "inbox.org"))
+             "* TODO %i%? \n %a" :empty-lines 1)
 
-          ("s" "Schdule" entry
-           (file+headline "~/Dropbox/gtd/whip.org"  "Whip")
-           "* %i%? \n %U %^t" :empty-lines 1)))
+            ("s" "Schedule" entry
+             (file+headline ,(concat org-directory "whip.org")  "Whip")
+             "* %i%? \n %U %^t" :empty-lines 1)
+
+            ("j" "Journal" entry
+             (file+datetree ,(concat org-directory "journal.org"))
+             "* %?\nEntered on %U\n  %i\n  %a"  :empty-lines 1)))
+
+
 
 #+end_src
 
-*** Archive
+** Archive
 #+begin_src emacs-lisp
   (defun org-archive-done-tasks-tree ()
     (interactive)
@@ -1239,7 +1309,7 @@ File holding habits must be added to =org-agenda-files= above
 
 #+end_src
 
-*** Process Inbox Item
+** Process Inbox Item
 https://github.com/jethrokuan/.emacs.d/blob/master/init.el
 #+begin_src emacs-lisp
   ;; could set in the inbox header instead (where tags are set)
@@ -1258,7 +1328,7 @@ https://github.com/jethrokuan/.emacs.d/blob/master/init.el
   (global-set-key (kbd "C-c p") 'jmn/org-agenda-process-inbox-item)
 #+end_src
 
-*** Advice
+** Advice
 #+begin_src emacs-lisp
   (defmacro func-ignore (fnc)
     "Return function that ignores its arguments and invokes FNC."
