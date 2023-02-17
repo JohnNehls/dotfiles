@@ -41,32 +41,17 @@
   (auto-package-update-maybe)
   (auto-package-update-at-time "09:00"))
 
-(setq custom-safe-themes t)
+(setq custom-safe-themes t) ;; don't ask if theme is safe
 
-(use-package gruvbox-theme)
-
-; make load functions for run-at-time functions
-(defun jmn-load-gruvbox-dark-hard ()
-  "Theme for dark time"
+(defun jmn-disable-theme()
   (interactive)
-  (disable-theme 'gruvbox-light-medium)
-  (load-theme 'gruvbox-dark-hard t)
-  (set-face-background 'line-number
-                       (face-attribute 'default :background))
-  (with-eval-after-load 'org
-    (set-face-foreground 'org-priority (face-foreground font-lock-constant-face))))
-
-(defun jmn-load-gruvbox-light-medium()
-  "Theme for light time"
-  (interactive)
-  (disable-theme 'gruvbox-light-medium)
-  (load-theme 'gruvbox-light-medium t))
+  (disable-theme (car custom-enabled-themes)))
 
 (use-package doom-themes)
 (defun jmn-load-doom-one()
-    "Theme for dark time"
+    "doom-one for dark time"
     (interactive)
-    (disable-theme 'doom-one-light)
+    (disable-theme (car custom-enabled-themes))
     (load-theme 'doom-one)
     (with-eval-after-load 'org
       (set-face-foreground 'org-priority (face-foreground font-lock-builtin-face))
@@ -76,41 +61,18 @@
 
 
   (defun jmn-load-doom-one-light()
-    "Theme for light time"
+    "doom-one for light time"
     (interactive)
-    (disable-theme 'doom-one-light)
+    (disable-theme (car custom-enabled-themes))
     (load-theme 'doom-one-light)
     (with-eval-after-load 'org
       (setq org-todo-keyword-faces
             `(("NEXT" .  ,(face-foreground font-lock-type-face))
               ("HOLD" . ,(face-foreground font-lock-variable-name-face))))))
 
-(use-package modus-themes)
-
-  ; make load functions for run-at-time functions
-  (defun jmn-load-modus-dark()
-    "Theme for dark time"
-    (interactive)
-    (disable-theme 'modus-operandi-tinted)
-    (load-theme 'modus-vivendi-deuteranopia))
-
-  (defun jmn-load-modus-light()
-    "Theme for dark time"
-    (interactive)
-    (disable-theme 'modus-vivendi-deuteranopia)
-    (load-theme 'modus-operandi-tinted))
-
-; (jmn-load-gruvbox-dark-hard)
-;; (run-at-time "7:00 am" nil #'jmn-load-gruvbox-light-medium)
-;; (run-at-time "4:30 pm" nil #'jmn-load-gruvbox-dark-hard)
-
 (jmn-load-doom-one)
- ;; (run-at-time "7:00 am" nil #'jmn-load-doom-one-light)
- ;; (run-at-time "4:30 pm" nil #'jmn-load-doom-one)
-
-;;(load-theme 'spacemacs-dark)
-
-;(load-theme 'modus-vivendi-deuteranopia)
+(run-at-time "7:00 am" nil #'jmn-load-doom-one-light)
+(run-at-time "4:30 pm" nil #'jmn-load-doom-one)
 
 (setq inhibit-startup-message t)           ; inhibit startup message
 (tool-bar-mode -1)                         ; remove toolbar
@@ -727,7 +689,7 @@ f"))
                                     "DONE(d)")))
 
 (require 'find-lisp)
-(setq org-directory "~/Documents/gtd/")
+(setq org-directory "/home/ape/Documents/gtd/") ;; changed from ~ for root symlink
 
 (setq org-agenda-files (find-lisp-find-files org-directory "\.org$"))
 
@@ -798,7 +760,7 @@ f"))
 (add-to-list 'org-modules 'org-habit)
 (setq org-habit-graph-column
       (assoc-default (system-name) '(("xps" . 55)
-                                     ("dsk" . 65)))) ;; default is 40
+                                     ("dsk" . 52)))) ;; default is 40
 
 (setq org-capture-templates
       `(("t" "Todo [inbox]" entry

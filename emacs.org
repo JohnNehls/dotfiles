@@ -66,20 +66,28 @@ You can also use =M-x auto-package-update-now= to update right now!
 #+end_src
 
 * Theme
-Only enable (tangle) one at a time.
+** Setup and helpers
+
 #+begin_src emacs-lisp
-(setq custom-safe-themes t)
+(setq custom-safe-themes t) ;; don't ask if theme is safe
 #+end_src
 
-** Gruvbox
 #+begin_src emacs-lisp
+  (defun jmn-disable-theme()
+    (interactive)
+    (disable-theme (car custom-enabled-themes)))
+#+end_src
+
+** Themes
+*** Gruvbox
+#+begin_src emacs-lisp :tangle no
   (use-package gruvbox-theme)
 
   ; make load functions for run-at-time functions
   (defun jmn-load-gruvbox-dark-hard ()
     "Theme for dark time"
     (interactive)
-    (disable-theme 'gruvbox-light-medium)
+    (disable-theme (car custom-enabled-themes))
     (load-theme 'gruvbox-dark-hard t)
     (set-face-background 'line-number
                          (face-attribute 'default :background))
@@ -89,19 +97,18 @@ Only enable (tangle) one at a time.
   (defun jmn-load-gruvbox-light-medium()
     "Theme for light time"
     (interactive)
-    (disable-theme 'gruvbox-light-medium)
+    (disable-theme (car custom-enabled-themes))
     (load-theme 'gruvbox-light-medium t))
 
+    (defun jmn-load-gruvbox-light-hard()
+    "Theme for light time"
+    (interactive)
+    (disable-theme (car custom-enabled-themes))
+    (load-theme 'gruvbox-light-hard t))
+
 #+end_src
 
-** Monokia
-Good bright mode for bright days.
-#+begin_src emacs-lisp :tangle no
-  (use-package monokai-theme
-        :init (load-theme 'monokai t))
-#+end_src
-
-** Dark+
+*** Dark+
 - The modeline, when un-selected, has the same background as files, making it hard to delineation between vertically split windows.
 #+begin_src emacs-lisp :tangle no
   (use-package doom-themes
@@ -114,13 +121,13 @@ Good bright mode for bright days.
     (set-face-foreground 'doom-modeline-buffer-modified "red"))
 #+end_src
 
-** Doom-one
+*** Doom-one
 #+begin_src emacs-lisp
     (use-package doom-themes)
   (defun jmn-load-doom-one()
-      "Theme for dark time"
+      "doom-one for dark time"
       (interactive)
-      (disable-theme 'doom-one-light)
+      (disable-theme (car custom-enabled-themes))
       (load-theme 'doom-one)
       (with-eval-after-load 'org
         (set-face-foreground 'org-priority (face-foreground font-lock-builtin-face))
@@ -130,9 +137,9 @@ Good bright mode for bright days.
 
 
     (defun jmn-load-doom-one-light()
-      "Theme for light time"
+      "doom-one for light time"
       (interactive)
-      (disable-theme 'doom-one-light)
+      (disable-theme (car custom-enabled-themes))
       (load-theme 'doom-one-light)
       (with-eval-after-load 'org
         (setq org-todo-keyword-faces
@@ -140,43 +147,11 @@ Good bright mode for bright days.
                 ("HOLD" . ,(face-foreground font-lock-variable-name-face))))))
 #+end_src
 
-** modus
+** Default and time switches
 #+begin_src emacs-lisp
-(use-package modus-themes)
-
-  ; make load functions for run-at-time functions
-  (defun jmn-load-modus-dark()
-    "Theme for dark time"
-    (interactive)
-    (disable-theme 'modus-operandi-tinted)
-    (load-theme 'modus-vivendi-deuteranopia))
-
-  (defun jmn-load-modus-light()
-    "Theme for dark time"
-    (interactive)
-    (disable-theme 'modus-vivendi-deuteranopia)
-    (load-theme 'modus-operandi-tinted))
-#+end_src
-
-** Theme Default and time switches
-#+begin_src emacs-lisp
-  ; (jmn-load-gruvbox-dark-hard)
-  ;; (run-at-time "7:00 am" nil #'jmn-load-gruvbox-light-medium)
-  ;; (run-at-time "4:30 pm" nil #'jmn-load-gruvbox-dark-hard)
-#+end_src
-
-#+begin_src emacs-lisp
- (jmn-load-doom-one)
-  ;; (run-at-time "7:00 am" nil #'jmn-load-doom-one-light)
-  ;; (run-at-time "4:30 pm" nil #'jmn-load-doom-one)
-#+end_src
-
-#+begin_src emacs-lisp
-;;(load-theme 'spacemacs-dark)
-#+end_src
-
-#+begin_src emacs-lisp
-;(load-theme 'modus-vivendi-deuteranopia)
+  (jmn-load-doom-one)
+  (run-at-time "7:00 am" nil #'jmn-load-doom-one-light)
+  (run-at-time "4:30 pm" nil #'jmn-load-doom-one)
 #+end_src
 
 * General Emacs
@@ -1257,7 +1232,7 @@ File holding habits must be added to =org-agenda-files= above
   (add-to-list 'org-modules 'org-habit)
   (setq org-habit-graph-column
         (assoc-default (system-name) '(("xps" . 55)
-                                       ("dsk" . 65)))) ;; default is 40
+                                       ("dsk" . 52)))) ;; default is 40
 #+end_src
 
 ** Capture Templates
