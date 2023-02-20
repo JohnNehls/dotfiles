@@ -41,39 +41,6 @@
   (auto-package-update-maybe)
   (auto-package-update-at-time "09:00"))
 
-(setq custom-safe-themes t) ;; don't ask if theme is safe
-
-(defun jmn-disable-theme()
-  (interactive)
-  (disable-theme (car custom-enabled-themes)))
-
-(use-package doom-themes)
-(defun jmn-load-doom-one()
-    "doom-one for dark time"
-    (interactive)
-    (disable-theme (car custom-enabled-themes))
-    (load-theme 'doom-one)
-    (with-eval-after-load 'org
-      (set-face-foreground 'org-priority (face-foreground font-lock-builtin-face))
-      (setq org-todo-keyword-faces
-            `(("NEXT" .  ,(face-foreground font-lock-type-face))
-              ("HOLD" . ,(face-foreground font-lock-variable-name-face))))))
-
-
-  (defun jmn-load-doom-one-light()
-    "doom-one for light time"
-    (interactive)
-    (disable-theme (car custom-enabled-themes))
-    (load-theme 'doom-one-light)
-    (with-eval-after-load 'org
-      (setq org-todo-keyword-faces
-            `(("NEXT" .  ,(face-foreground font-lock-type-face))
-              ("HOLD" . ,(face-foreground font-lock-variable-name-face))))))
-
-(jmn-load-doom-one)
-(run-at-time "7:00 am" nil #'jmn-load-doom-one-light)
-(run-at-time "4:30 pm" nil #'jmn-load-doom-one)
-
 (setq inhibit-startup-message t)           ; inhibit startup message
 (tool-bar-mode -1)                         ; remove toolbar
 (menu-bar-mode -1)                         ; Disable the menu bar
@@ -158,6 +125,7 @@
 
 (use-package dashboard
   :ensure t
+
   :config
   (dashboard-setup-startup-hook)
   (setq dashboard-startup-banner 1)
@@ -176,7 +144,12 @@
   (dashboard-modify-heading-icons '((recents . "file-text")))
 
   (setq dashboard-set-footer nil)
-  )
+
+  :bind ( :map dashboard-mode-map
+          ;; ("j"  .  nil)
+          ;; ("k"  .  nil)
+          ("n"  .  'dashboard-next-line)
+          ("p"  .  'dashboard-previous-line)))
 
 (use-package dired
   :ensure nil
@@ -286,7 +259,7 @@
   (setq which-key-idle-delay 0.8))
 
 ;; general improvements
- (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
  (global-set-key (kbd "C-x C-b") 'buffer-menu)   ;; open buffer menue in current buffer
  (global-set-key (kbd "C-x C-k") 'kill-current-buffer)   ;; "C-x k" asks which buffer
  (global-set-key (kbd "C-o") 'other-window)  ;; default is "C-x o"
@@ -303,7 +276,7 @@
  (global-set-key (kbd "<f5>") 'org-store-link)
  (global-set-key (kbd "<f6>") 'org-insert-link)
 ;; (global-set-key (kbd "<f7>") 'org-agenda ;; set later!
- (global-set-key (kbd "<f8>") 'org-html-export-to-html)
+(global-set-key (kbd "<f8>") 'org-html-export-to-html)
 
  ;; writing/editing
  (global-set-key (kbd "<f9>") 'ispell-word)
@@ -648,6 +621,7 @@
   ;; This is needed as of Org 9.2
   (require 'org-tempo)
   (add-to-list 'org-structure-template-alist '("la" . "src latex"))
+  (add-to-list 'org-structure-template-alist '("js" . "src js"))
   (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (add-to-list 'org-structure-template-alist '("py" . "src python  :results output"))
@@ -689,7 +663,7 @@ f"))
                                     "DONE(d)")))
 
 (require 'find-lisp)
-(setq org-directory "/home/ape/Documents/gtd/") ;; changed from ~ for root symlink
+(setq org-directory "~/Documents/gtd/")
 
 (setq org-agenda-files (find-lisp-find-files org-directory "\.org$"))
 
@@ -729,7 +703,9 @@ f"))
                                             (org-agenda-files (list (concat org-directory "inbox.org")))))
                                      (todo "NEXT"
                                            ((org-agenda-overriding-header "In Progress")
-                                            (org-agenda-files (list (concat org-directory "projects.org")))))
+                                            (org-agenda-files (list (concat org-directory "projects.org")
+                                                                    (concat org-directory "next.org")
+                                                                    (concat org-directory "inbox.org")))))
                                      (todo "TODO"
                                            ((org-agenda-overriding-header "Projects")
                                             (org-agenda-files (list (concat org-directory  "projects.org")))))
@@ -751,7 +727,6 @@ f"))
 (global-set-key (kbd "<f7>") (lambda (&optional args)
                                 (interactive "P")
                                 (org-agenda args " ")))
-
 
 (setq org-agenda-todo-ignore-scheduled 'all)
 
@@ -865,3 +840,112 @@ f"))
 
 (use-package eterm-256color
   :hook (term-mode . eterm-256color-mode))
+
+(setq custom-safe-themes t) ;; don't ask if theme is safe
+
+(defun jmn-disable-theme()
+  (interactive)
+  (disable-theme (car custom-enabled-themes)))
+
+(use-package gruvbox-theme)
+
+(defun jmn-set-gruv-org-faces (props)
+  "Function used by all gruvbox themes for setting or faces"
+
+  (with-eval-after-load 'org
+    (set-face-foreground 'org-priority (face-foreground font-lock-constant-face))
+    (set-face-foreground 'org-agenda-done (alist-get 'done-color props))
+    (set-face-foreground 'org-headline-done (alist-get 'done-color props))
+    (set-face-foreground 'org-done (alist-get 'done-color props))
+
+    (setq org-todo-keyword-faces
+          `(("NEXT" . ,(face-foreground font-lock-function-name-face))
+            ("HOLD" . ,(face-foreground font-lock-builtin-face))
+            ("DONE" . ,(alist-get 'done-color props))))
+
+    (if (alist-get 'org-block props)
+        (set-face-background 'org-block (alist-get 'org-block props)))))
+
+
+(defun jmn-load-gruvbox-dark-medium ()
+  "Theme for dark time"
+  (interactive)
+  (disable-theme (car custom-enabled-themes))
+  (load-theme 'gruvbox-dark-medium t)
+  (set-face-background 'line-number
+                       (face-attribute 'default :background))
+
+    (set-face-foreground 'default "PeachPuff3") ;; default "#ebdbb2"
+
+
+    (jmn-set-gruv-org-faces '((done-color . "gray35" ))))
+
+
+(defun jmn-load-gruvbox-dark-hard ()
+  "Theme for very dark time"
+  (interactive)
+  (disable-theme (car custom-enabled-themes))
+  (load-theme 'gruvbox-dark-hard t)
+  (set-face-background 'line-number
+                       (face-attribute 'default :background))
+
+  (set-face-foreground 'default "PeachPuff3") ;; default "#ebdbb2"
+
+  (jmn-set-gruv-org-faces '((done-color . "gray35" )
+                            (org-block . "#282828"))))
+
+
+(defun jmn-load-gruvbox-light-medium()
+  "Theme for light time"
+  (interactive)
+  (disable-theme (car custom-enabled-themes))
+  (load-theme 'gruvbox-light-medium t)
+
+  (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" ))))
+
+(defun jmn-load-gruvbox-light-hard()
+  "Theme for very light time"
+  (interactive)
+  (disable-theme (car custom-enabled-themes))
+  (load-theme 'gruvbox-light-hard t)
+
+  (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
+                            (org-block . "#fbf1c7")))) ;; default "#f9f5d7"
+
+  (defun jmn-load-gruvbox-light-soft()
+  "Theme for very light time"
+  (interactive)
+  (disable-theme (car custom-enabled-themes))
+  (load-theme 'gruvbox-light-soft t)
+
+  (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
+                            (org-block . "#ebdbb2")))) ;; default "#f9f5d7"
+
+(use-package doom-themes)
+(defun jmn-load-doom-one()
+    "doom-one for dark time"
+    (interactive)
+    (disable-theme (car custom-enabled-themes))
+    (load-theme 'doom-one)
+    (with-eval-after-load 'org
+      (set-face-foreground 'org-priority (face-foreground font-lock-builtin-face))
+      (setq org-todo-keyword-faces
+            `(("NEXT" .  ,(face-foreground font-lock-type-face))
+              ("HOLD" . ,(face-foreground font-lock-variable-name-face))))))
+
+
+  (defun jmn-load-doom-one-light()
+    "doom-one for light time"
+    (interactive)
+    (disable-theme (car custom-enabled-themes))
+    (load-theme 'doom-one-light)
+    (with-eval-after-load 'org
+      (setq org-todo-keyword-faces
+            `(("NEXT" .  ,(face-foreground font-lock-type-face))
+              ("HOLD" . ,(face-foreground font-lock-variable-name-face))))))
+
+(jmn-load-gruvbox-dark-hard)
+
+;; (jmn-load-doom-one)
+;; (run-at-time "7:00 am" nil #'jmn-load-doom-one-light)
+;; (run-at-time "4:30 pm" nil #'jmn-load-doom-one)

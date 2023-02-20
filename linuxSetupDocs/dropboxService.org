@@ -1,6 +1,13 @@
 #+TITLE: Dropbox as a systemd service
+
 Source: https://www.bbkane.com/blog/dropbox-as-a-systemd-service/
 
+# Last used for Fedora 37
+
+To see Dropbox settings, one may need to =dropbox stop= and =dropbox start=  manually in terminal to for it to appear in the top bar to be right clicked.
+
+* Tangle the following
+Write the following to =~/.config/systemd/user/dropbox.service=
 #+begin_src shell :tangle  ~/.config/systemd/user/dropbox.service :mkdirp yes
 [Unit]
 Description=Dropbox as a user service
@@ -21,16 +28,14 @@ RestartSec=1
 WantedBy=default.target
 #+end_src
 
-Start the service with:
-
+* Start the service
 #+begin_src shell
 systemctl --user start dropbox
 #+end_src
 
 #+RESULTS:
 
-Make sure it worked with:
-
+* Make sure it worked with:
 #+begin_src shell :results output code
 systemctl --user status dropbox.service
 #+end_src
@@ -59,6 +64,7 @@ Feb 16 06:06:22 xps dropboxd[14405]: dropbox: load fq extension '/home/ape/.drop
 Feb 16 06:06:24 xps dropboxd[14405]: dropbox: load fq extension '/home/ape/.dropbox-dist/dropbox-lnx.x86_64-167.4.4719/PyQt5.QtDBus.cpython-38-x86_64-linux-gnu.so'
 #+end_src
 
+* Check the logs
 In my (limited) experience, Dropbox tends to be a quiet service, as checking the logs with journalctl doesn't really produce much
 #+begin_src shell
 journalctl -u dropbox
@@ -67,8 +73,7 @@ journalctl -u dropbox
 #+RESULTS:
 : -- No entries --
 
-
-Finally, make sure the service starts on login with:
+* Finally, make sure the service starts on login
 #+begin_src shell
 systemctl --user enable dropbox
 #+end_src
