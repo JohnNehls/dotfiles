@@ -50,6 +50,7 @@
 (setq visible-bell t)                      ; Set up the visible bell
 (save-place-mode 1)                        ; Open file where last visited
 (add-hook 'text-mode-hook 'flyspell-mode)  ; enable spellcheck on text mode
+(setq Buffer-menu-name-width 35)           ; give name more room
 ;; (add-hook 'prog-mode-hook 'hl-line-mode)   ; highlight lines when programming
 
 ;; The following helps syncing
@@ -688,32 +689,39 @@ f"))
 (setq org-log-done 'time) ;; creates CLOSED time tag
 (setq org-log-into-drawer t) ;; creates a LOGBOOK drawer for notes
 
-(setq org-agenda-custom-commands '(("d" "Dashboard"
-                                    ((agenda ""
-                                             ((org-deadline-warning-days 30)))
-                                     (todo "NEXT"
-                                           ((org-agenda-overriding-header "Next Un-Scheduled Tasks")))
-                                     (todo "TODO"
-                                           ((org-agenda-overriding-header "Active Un-Scheduled Tasks")))))
-                                   (" " "Agenda"
-                                    ((agenda ""
-                                             ((org-agenda-span 'day) (org-deadline-warning-days 365)))
-                                     (todo "TODO"
-                                           ((org-agenda-overriding-header "To Refile")
-                                            (org-agenda-files (list (concat org-directory "inbox.org")))))
-                                     (todo "NEXT"
-                                           ((org-agenda-overriding-header "In Progress")
-                                            (org-agenda-files (list (concat org-directory "projects.org")
-                                                                    (concat org-directory "next.org")
-                                                                    (concat org-directory "inbox.org")))))
-                                     (todo "TODO"
-                                           ((org-agenda-overriding-header "Projects")
-                                            (org-agenda-files (list (concat org-directory  "projects.org")))))
-                                     (todo "TODO"
-                                           ((org-agenda-overriding-header "One-off Tasks")
-                                            (org-agenda-files (list (concat org-directory  "next.org"))))
-                                           (org-agenda-skip-function '(org-agenda-skip-entry-if
-                                                                       'deadline 'scheduled)))))))
+(setq org-agenda-custom-commands
+      '(("d" "Dashboard"
+         ((agenda ""
+                  ((org-deadline-warning-days 30)))
+          (todo "NEXT"
+                ((org-agenda-overriding-header "Next Un-Scheduled Tasks")))
+          (todo "TODO"
+                ((org-agenda-overriding-header "Active Un-Scheduled Tasks")))))
+
+        (" " "Agenda"
+         ((agenda ""
+                  ((org-agenda-span 'day)
+                   (org-deadline-warning-days 365)))
+
+          (todo "TODO"
+                ((org-agenda-overriding-header "To Refile")
+                 (org-agenda-files (list (concat org-directory "inbox.org")))))
+
+          (todo "NEXT"
+                ((org-agenda-overriding-header "In Progress")
+                 (org-agenda-files (list (concat org-directory "projects.org")
+                                         (concat org-directory "next.org")
+                                         (concat org-directory "inbox.org")))))
+
+          (todo "TODO"
+                ((org-agenda-overriding-header "Projects")
+                 (org-agenda-files (list (concat org-directory  "projects.org")))))
+
+          (todo "TODO"
+                ((org-agenda-overriding-header "One-off Tasks")
+                 (org-agenda-files (list (concat org-directory  "next.org"))))
+                (org-agenda-skip-function '(org-agenda-skip-entry-if
+                                            'deadline 'scheduled)))))))
 
 (defun jmn-someday() "Quick access to someday.org (no links in agenda)"
        (interactive)
@@ -728,19 +736,23 @@ f"))
                                 (interactive "P")
                                 (org-agenda args " ")))
 
-(setq org-agenda-todo-ignore-scheduled 'all)
+(setq org-agenda-todo-ignore-scheduled 'all) ;; cant get it to work for deadlines
 
 ;; org habit;;
 (require 'org-habit)
 (add-to-list 'org-modules 'org-habit)
 (setq org-habit-graph-column
-      (assoc-default (system-name) '(("xps" . 55)
+      (assoc-default (system-name) '(("xps" . 56)
                                      ("dsk" . 52)))) ;; default is 40
 
 (setq org-capture-templates
       `(("t" "Todo [inbox]" entry
          (file ,(concat org-directory "inbox.org"))
          "* TODO %i%?" :empty-lines 1)
+
+        ("T" "Todo Today [inbox]" entry
+           (file ,(concat org-directory "inbox.org"))
+           "* TODO %?\nDEADLINE: %t" :empty-lines 1)
 
         ("l" "Linked Todo [inbox]" entry
          (file ,(concat org-directory "inbox.org"))
@@ -778,7 +790,7 @@ f"))
   "Process a single item in the org-agenda."
   (interactive)
   (org-with-wide-buffer  ; what does this do?
-   (org-agenda-set-tags)
+   ;; (org-agenda-set-tags) ; may want in the future
    (org-agenda-priority)
    (org-agenda-set-effort)
    (org-agenda-refile nil nil t)))
@@ -875,8 +887,8 @@ f"))
   (set-face-background 'line-number
                        (face-attribute 'default :background))
 
-    (set-face-foreground 'default "PeachPuff3") ;; default "#ebdbb2"
-
+   (set-face-foreground 'default "gray75") ;; default "#ebdbb2"
+  (set-face-foreground 'default "moccasin") ;; default "#ebdbb2"
 
     (jmn-set-gruv-org-faces '((done-color . "gray35" ))))
 
@@ -889,8 +901,13 @@ f"))
   (set-face-background 'line-number
                        (face-attribute 'default :background))
 
-  (set-face-foreground 'default "PeachPuff3") ;; default "#ebdbb2"
-
+  ;; (set-face-foreground 'default "PeachPuff3") ;; default "#ebdbb2"
+  ;; (set-face-foreground 'default "gray75") ;; default "#ebdbb2"
+  ;; (set-face-foreground 'default "moccasin") ;; default "#ebdbb2"
+  (set-face-foreground 'default "bisque2") ;; default "#ebdbb2"
+  (set-face-foreground 'font-lock-comment-face  "#98be65") ;; default "#ebdbb2"
+  (set-face-foreground 'font-lock-string-face  "LightGoldenrod3")
+  (set-face-foreground 'font-lock-builtin-face  "Orange3")
   (jmn-set-gruv-org-faces '((done-color . "gray35" )
                             (org-block . "#282828"))))
 
@@ -945,7 +962,5 @@ f"))
               ("HOLD" . ,(face-foreground font-lock-variable-name-face))))))
 
 (jmn-load-gruvbox-dark-hard)
-
-;; (jmn-load-doom-one)
 ;; (run-at-time "7:00 am" nil #'jmn-load-doom-one-light)
 ;; (run-at-time "4:30 pm" nil #'jmn-load-doom-one)

@@ -37,32 +37,9 @@ systemctl --user start dropbox
 
 * Make sure it worked with:
 #+begin_src shell :results output code
-systemctl --user status dropbox.service
+7systemctl --user status dropbox.service
 #+end_src
 
-#+RESULTS:
-#+begin_src shell
-● dropbox.service - Dropbox as a user service
-     Loaded: loaded (/home/ape/.config/systemd/user/dropbox.service; disabled; preset: disabled)
-     Active: active (running) since Thu 2023-02-16 06:06:14 MST; 4min 29s ago
-   Main PID: 14405 (dropbox)
-      Tasks: 91 (limit: 9364)
-     Memory: 451.7M
-        CPU: 54.630s
-     CGroup: /user.slice/user-1000.slice/user@1000.service/app.slice/dropbox.service
-             └─14405 /home/ape/.dropbox-dist/dropbox-lnx.x86_64-167.4.4719/dropbox
-
-Feb 16 06:06:15 xps dropboxd[14405]: dropbox: load fq extension '/home/ape/.dropbox-dist/dropbox-lnx.x86_64-167.4.4719/cryptography.hazmat.bindings._padding.cpython-38-x86_64-linux-gnu.so'
-Feb 16 06:06:15 xps dropboxd[14405]: dropbox: load fq extension '/home/ape/.dropbox-dist/dropbox-lnx.x86_64-167.4.4719/apex._apex.cpython-38-x86_64-linux-gnu.so'
-Feb 16 06:06:15 xps dropboxd[14405]: dropbox: load fq extension '/home/ape/.dropbox-dist/dropbox-lnx.x86_64-167.4.4719/psutil._psutil_linux.cpython-38-x86_64-linux-gnu.so'
-Feb 16 06:06:15 xps dropboxd[14405]: dropbox: load fq extension '/home/ape/.dropbox-dist/dropbox-lnx.x86_64-167.4.4719/psutil._psutil_posix.cpython-38-x86_64-linux-gnu.so'
-Feb 16 06:06:17 xps dropboxd[14405]: dropbox: load fq extension '/home/ape/.dropbox-dist/dropbox-lnx.x86_64-167.4.4719/tornado.speedups.cpython-38-x86_64-linux-gnu.so'
-Feb 16 06:06:21 xps dropboxd[14405]: dropbox: load fq extension '/home/ape/.dropbox-dist/dropbox-lnx.x86_64-167.4.4719/wrapt._wrappers.cpython-38-x86_64-linux-gnu.so'
-Feb 16 06:06:22 xps dropboxd[14405]: dropbox: load fq extension '/home/ape/.dropbox-dist/dropbox-lnx.x86_64-167.4.4719/PyQt5.QtCore.cpython-38-x86_64-linux-gnu.so'
-Feb 16 06:06:22 xps dropboxd[14405]: dropbox: load fq extension '/home/ape/.dropbox-dist/dropbox-lnx.x86_64-167.4.4719/PyQt5.QtGui.cpython-38-x86_64-linux-gnu.so'
-Feb 16 06:06:22 xps dropboxd[14405]: dropbox: load fq extension '/home/ape/.dropbox-dist/dropbox-lnx.x86_64-167.4.4719/PyQt5.QtWidgets.cpython-38-x86_64-linux-gnu.so'
-Feb 16 06:06:24 xps dropboxd[14405]: dropbox: load fq extension '/home/ape/.dropbox-dist/dropbox-lnx.x86_64-167.4.4719/PyQt5.QtDBus.cpython-38-x86_64-linux-gnu.so'
-#+end_src
 
 * Check the logs
 In my (limited) experience, Dropbox tends to be a quiet service, as checking the logs with journalctl doesn't really produce much
