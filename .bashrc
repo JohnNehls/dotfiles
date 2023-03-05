@@ -23,6 +23,9 @@ export PATH="$HOME/Dropbox/bin/:$PATH"
 # Also helps emacs look like emacs -nw (or the terminal)
 export TERM=xterm-256color
 
+# Display hiddne files first with dired
+export LC_COLLATE="C"
+
 ####### add to path ##########################
 #add mendeley (end)
 # PATH=$PATH:/home/ape/Downloads/mendeleydesktop-1.17.9-linux-x86_64/bin
