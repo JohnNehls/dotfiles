@@ -7,7 +7,7 @@ For a more thorough configuration see [[https://github.com/daviwil/emacs-from-sc
 Note: the repository also stores my relatively basic =.bashrc= and =.ipython= (and maybe more) configurations.
 
 * Installation
-Execute the following commands starting in my home directory:
+Execute the following commands starting wherever you'd like to place this repo:
 #+begin_src bash
   git clone https://github.com/JohnNehls/.dotfiles
   cd .dotfiles
@@ -15,11 +15,11 @@ Execute the following commands starting in my home directory:
 
 For the next step, there may be issues if our home directory already contains versions of configuration files we are now cloning-- rename or delete these files if we'd like them replaced. Then execute:
 #+begin_src bash
-stow .
+stow . -t ~
 #+end_src
 
-Here [[https://www.gnu.org/software/stow/][stow]] makes "symlinks" into the parent directory (here the home directory). Before creating the "symlinks", stow checks its =.stow-local-ignore= to find which files do not require links.
+Here [[https://www.gnu.org/software/stow/][stow]] makes "symlinks" into the parent directory (here the home directory). Before creating the "symlinks", stow checks its =.stow-local-ignore= to find which files to ignore.
 
 Next we launch Emacs. Since several modules are now compiled (Emacs native compilation), Emacs prompts us, type =yes= or =y= to continue. If there are issues (generally a missing a dependency in the system), a helpful message is displayed in the =*Messages*= buffer. Install the dependency, restart emacs, and compile again.
 
-Before icons will splay correctly in Emacs, we must run =M-x all-the-icons-install-fonts= in Emacs.
+Before icons will display correctly in Emacs, we must run =M-x all-the-icons-install-fonts=.
