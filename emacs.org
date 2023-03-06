@@ -453,7 +453,7 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
 #+begin_src emacs-lisp
   (defun jmn-load-init ()
     (interactive)
-    (load "~/.dotfiles/.emacs.d/init.el"))
+    (load "~/.emacs.d/init.el"))
 #+end_src
 
 **** jmn-vscode-current-buffer-file-at-point
@@ -1316,16 +1316,14 @@ C-c C-j  -> line-mode
 Just some changes to make it feel more like the other modes.
  - I don't really use the =M-p= nor the =M-n=, but they could be nice.
 #+begin_src emacs-lisp
-    (defun jmn-term-custom-settings ()
-      (local-set-key (kbd "M-p") 'term-send-up)
-      (local-set-key (kbd "M-n") 'term-send-down))
+  (with-eval-after-load 'term
+    (define-key term-raw-map (kbd "C-o") 'other-window)
+    (define-key term-raw-map (kbd "M-o") 'previous-multiframe-window)
+    ;; access previous commands while in line mode (line and char-mode rings appear to be seperate)
+    (define-key term-raw-map (kbd "M-p") 'term-send-up)
+    (define-key term-raw-map (kbd "M-n") 'term-send-down))
 
-    (add-hook 'term-load-hook 'jmn-term-custom-settings)
-
-  (define-key term-raw-map (kbd "C-o") 'other-window)
-  (define-key term-raw-map (kbd "C-x C-k") ' kill-current-buffer)
-  (define-key term-raw-map (kbd "M-p") 'term-send-up)
-  (define-key term-raw-map (kbd "M-n") 'term-send-down)
+  ;; (define-key term-raw-map (kbd "C-x C-k") ' kill-current-buffer) ;; prefix key issue-- maybe later
 #+end_src
 
 * Theme

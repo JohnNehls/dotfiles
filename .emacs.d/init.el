@@ -309,7 +309,7 @@
 
 (defun jmn-load-init ()
   (interactive)
-  (load "~/.dotfiles/.emacs.d/init.el"))
+  (load "~/.emacs.d/init.el"))
 
 (defun jmn/vscode-current-buffer-file-at-point ()
   (interactive)
@@ -853,16 +853,14 @@ f"))
 (use-package eterm-256color
   :hook (term-mode . eterm-256color-mode))
 
-(defun jmn-term-custom-settings ()
-    (local-set-key (kbd "M-p") 'term-send-up)
-    (local-set-key (kbd "M-n") 'term-send-down))
+(with-eval-after-load 'term
+  (define-key term-raw-map (kbd "C-o") 'other-window)
+  (define-key term-raw-map (kbd "M-o") 'previous-multiframe-window)
+  ;; access previous commands while in line mode (line and char-mode rings appear to be seperate)
+  (define-key term-raw-map (kbd "M-p") 'term-send-up)
+  (define-key term-raw-map (kbd "M-n") 'term-send-down))
 
-  (add-hook 'term-load-hook 'jmn-term-custom-settings)
-
-(define-key term-raw-map (kbd "C-o") 'other-window)
-(define-key term-raw-map (kbd "C-x C-k") ' kill-current-buffer)
-(define-key term-raw-map (kbd "M-p") 'term-send-up)
-(define-key term-raw-map (kbd "M-n") 'term-send-down)
+;; (define-key term-raw-map (kbd "C-x C-k") ' kill-current-buffer) ;; prefix key issue-- maybe later
 
 (setq custom-safe-themes t) ;; don't ask if theme is safe
 
