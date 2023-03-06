@@ -819,7 +819,7 @@ After changing venv all installed packages from venv should be visible for LSP s
     (lsp)
     (require 'dap-python)
     (tree-sitter-hl-mode)
-    (jmn-jmn-display-lines-for-long-files)
+    (jmn-display-lines-for-long-files)
     ;; (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
     )
 
@@ -1312,11 +1312,21 @@ C-c C-j  -> line-mode
   :hook (term-mode . eterm-256color-mode))
 #+end_src
 
-** shell-mode
-Between term-mode and eshell.
+*** Keybindings
+Just some changes to make it feel more like the other modes.
+ - I don't really use the =M-p= nor the =M-n=, but they could be nice.
+#+begin_src emacs-lisp
+    (defun jmn-term-custom-settings ()
+      (local-set-key (kbd "M-p") 'term-send-up)
+      (local-set-key (kbd "M-n") 'term-send-down))
 
-** eshell
-More customization in Elisp. Supports Tramp.
+    (add-hook 'term-load-hook 'jmn-term-custom-settings)
+
+  (define-key term-raw-map (kbd "C-o") 'other-window)
+  (define-key term-raw-map (kbd "C-x C-k") ' kill-current-buffer)
+  (define-key term-raw-map (kbd "M-p") 'term-send-up)
+  (define-key term-raw-map (kbd "M-n") 'term-send-down)
+#+end_src
 
 * Theme
 ** Setup and helpers

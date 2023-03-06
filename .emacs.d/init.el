@@ -492,7 +492,7 @@
   (lsp)
   (require 'dap-python)
   (tree-sitter-hl-mode)
-  (jmn-jmn-display-lines-for-long-files)
+  (jmn-display-lines-for-long-files)
   ;; (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
   )
 
@@ -852,6 +852,17 @@ f"))
 
 (use-package eterm-256color
   :hook (term-mode . eterm-256color-mode))
+
+(defun jmn-term-custom-settings ()
+    (local-set-key (kbd "M-p") 'term-send-up)
+    (local-set-key (kbd "M-n") 'term-send-down))
+
+  (add-hook 'term-load-hook 'jmn-term-custom-settings)
+
+(define-key term-raw-map (kbd "C-o") 'other-window)
+(define-key term-raw-map (kbd "C-x C-k") ' kill-current-buffer)
+(define-key term-raw-map (kbd "M-p") 'term-send-up)
+(define-key term-raw-map (kbd "M-n") 'term-send-down)
 
 (setq custom-safe-themes t) ;; don't ask if theme is safe
 
