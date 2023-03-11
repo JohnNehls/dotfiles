@@ -123,34 +123,40 @@
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 (recentf-mode 1) ;; needed for recent files in dashboard
+(add-to-list 'recentf-exclude "~/Dropbox/.dotfiles/emacs.html")
+(add-to-list 'recentf-exclude "~/Documents/gtd/next.org")
+(add-to-list 'recentf-exclude "~/Documents/gtd/whip.org")
+(add-to-list 'recentf-exclude "~/Documents/gtd/someday.org")
+(add-to-list 'recentf-exclude "~/Documents/gtd/inbox.org")
+(add-to-list 'recentf-exclude "~/Documents/gtd/projects.org")
 
 (use-package dashboard
   :ensure t
-
+  :init     (dashboard-setup-startup-hook)
+  :bind ( "C-c d" . dashboard-open)
   :config
-  (dashboard-setup-startup-hook)
   (setq dashboard-startup-banner 1)
   (setq dashboard-center-content 1)
   (setq dashboard-show-shortcuts nil)
   (setq dashboard-items '((recents  . 12)
                           ;; (bookmarks . 5)
                           (projects . 4)
-                          ;; (agenda . 5)
+                          (agenda . 5)
                           ;; (registers . 5)
                           ))
   (setq dashboard-set-heading-icons t)
   (setq dashboard-set-file-icons t)
   (setq dashboard-projects-backend 'project-el)
-
   (dashboard-modify-heading-icons '((recents . "file-text")))
+  (setq dashboard-set-footer nil))
 
-  (setq dashboard-set-footer nil)
+(defun my-dashboard-hook()
+  "Needed to define these after hook for some reason"
+  (define-key dashboard-mode-map (kbd "n")  'dashboard-next-line)
+  (define-key dashboard-mode-map (kbd "p")  'dashboard-previous-line)
+  (define-key dashboard-mode-map (kbd "j")  'dashboard-jump-to-projects))
 
-  :bind ( :map dashboard-mode-map
-          ;; ("j"  .  nil)
-          ;; ("k"  .  nil)
-          ("n"  .  'dashboard-next-line)
-          ("p"  .  'dashboard-previous-line)))
+(add-hook 'dashboard-mode-hook 'my-dashboard-hook)
 
 (use-package dired
   :ensure nil
@@ -165,43 +171,45 @@
   (setq dired-guess-shell-alist-user '(("\\.png\\'" "shotwell")
                                        ("\\.jpeg\\'" "shotwell")
                                        ("\\.mp4\\'" "vlc")
+                                       ("\\.avi\\'" "vlc")
+                                       ("\\.iso\\'" "vlc")
                                        ("\\.mp3\\'" "rhythmbox")
                                        ("\\.html\\'" "firefox")
                                        ("\\.epub\\'" "ebook-viewer")
                                        ("\\.pdf\\'" "evince")
                                        ("\\.ipynb\\'" "code"))))
 
-  ;; nice icons in dired
-  (use-package treemacs-icons-dired
-    :after dired
-    :defer t
-    :config (treemacs-icons-dired-mode) )
+;; nice icons in dired
+(use-package treemacs-icons-dired
+  :after dired
+  :defer t
+  :config (treemacs-icons-dired-mode) )
 
-  ;; janky mode which lists the recursive size of each foler/item in dired.
-  (use-package dired-du
-    :commands dired-du-mode
-    :defer t
-    :config (setq dired-du-size-format t))
+;; janky mode which lists the recursive size of each foler/item in dired.
+(use-package dired-du
+  :commands dired-du-mode
+  :defer t
+  :config (setq dired-du-size-format t))
 
-  ;; use a single dired session
-  (use-package dired-single)
+;; use a single dired session
+(use-package dired-single)
 
-  (defun my-dired-init ()
-    "Bunch of stuff to run for dired, either immediately or when it's
+(defun my-dired-init ()
+  "Bunch of stuff to run for dired, either immediately or when it's
           loaded."
-    (define-key dired-mode-map [remap dired-find-file]
-                'dired-single-buffer)
-    (define-key dired-mode-map [remap dired-mouse-find-file-other-window]
-                'dired-single-buffer-mouse)
-    (define-key dired-mode-map [remap dired-up-directory]
-                'dired-single-up-directory))
+  (define-key dired-mode-map [remap dired-find-file]
+              'dired-single-buffer)
+  (define-key dired-mode-map [remap dired-mouse-find-file-other-window]
+              'dired-single-buffer-mouse)
+  (define-key dired-mode-map [remap dired-up-directory]
+              'dired-single-up-directory))
 
-  ;; if dired's already loaded, then the keymap will be bound
-  (if (boundp 'dired-mode-map)
-      ;; we're good to go; just add our bindings
-      (my-dired-init)
-    ;; it's not loaded yet, so add our bindings to the load-hook
-    (add-hook 'dired-load-hook 'my-dired-init))
+;; if dired's already loaded, then the keymap will be bound
+(if (boundp 'dired-mode-map)
+    ;; we're good to go; just add our bindings
+    (my-dired-init)
+  ;; it's not loaded yet, so add our bindings to the load-hook
+  (add-hook 'dired-load-hook 'my-dired-init))
 
 (defun proced-settings ()
     (proced-toggle-auto-update 5)) ;; auto update every 4 seconds
@@ -492,9 +500,8 @@
   (lsp)
   (require 'dap-python)
   (tree-sitter-hl-mode)
-  (jmn-display-lines-for-long-files)
+  (jmn-display-lines-for-long-files))
   ;; (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
-  )
 
 (add-hook 'python-mode-hook #'my-python-mode-hook-fn)
 
@@ -650,8 +657,6 @@ f"))
   (interactive "P")
   (org-agenda arg "d"))
 
-(global-set-key (kbd "C-c d") #'org-agenda-show-my-dashboard)
-
 (use-package htmlize)
 
 ;; Org Agenda ;; (setq org-agenda-window-setup 'reorganize-frame)
@@ -661,7 +666,7 @@ f"))
 
 ;; SOMEDAY itmes are ommitted from GTD interface on purpose
 (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|"
-                                    "DONE(d)")))
+                                    "DONE(d)" "IGNORE(i)")))
 
 (require 'find-lisp)
 (setq org-directory "~/Documents/gtd/")
@@ -721,7 +726,14 @@ f"))
                 ((org-agenda-overriding-header "One-off Tasks")
                  (org-agenda-files (list (concat org-directory  "next.org"))))
                 (org-agenda-skip-function '(org-agenda-skip-entry-if
-                                            'deadline 'scheduled)))))))
+                                            'deadline 'scheduled)))
+
+          (todo "HOLD"
+                    ((org-agenda-overriding-header "HOLD")
+                     (org-agenda-files (list (concat org-directory "projects.org")
+                                             (concat org-directory "next.org")
+                                             (concat org-directory "inbox.org")))))
+          ))))
 
 (defun jmn-someday() "Quick access to someday.org (no links in agenda)"
        (interactive)
@@ -855,12 +867,16 @@ f"))
 
 (with-eval-after-load 'term
   (define-key term-raw-map (kbd "C-o") 'other-window)
-  (define-key term-raw-map (kbd "M-o") 'previous-multiframe-window)
-  ;; access previous commands while in line mode (line and char-mode rings appear to be seperate)
-  (define-key term-raw-map (kbd "M-p") 'term-send-up)
-  (define-key term-raw-map (kbd "M-n") 'term-send-down))
+   (define-key term-raw-map (kbd "M-o") 'previous-multiframe-window)
 
-;; (define-key term-raw-map (kbd "C-x C-k") ' kill-current-buffer) ;; prefix key issue-- maybe later
+   ;; access prev commandsin line mode, though line and char-mode rings are separate
+   (define-key term-raw-map (kbd "M-p") 'term-send-up)
+   (define-key term-raw-map (kbd "M-n") 'term-send-down)
+
+   ;; add "C-x" as escape character and use it for keybindings
+   (let (term-escape-char)
+                             (term-set-escape-char ?\C-x))
+   (define-key term-raw-map (kbd "C-x C-k") ' kill-current-buffer))
 
 (setq custom-safe-themes t) ;; don't ask if theme is safe
 
