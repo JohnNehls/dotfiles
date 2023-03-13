@@ -2,7 +2,7 @@
 #+PROPERTY: header-args:emacs-lisp :tangle .emacs.d/init.el :results output silent
 #+STARTUP: overview
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
-#+OPTIONS: toc:2 num:nil
+#+OPTIONS: toc:3 num:nil
 
 * Setup
 ** Auto-tangle
@@ -384,9 +384,9 @@ Better version of help. We remap normal help keys to Helpful's versions.
     (setq which-key-idle-delay 0.8))
 #+end_src
 
-*** Grammarly (not set up)                                       :noexport:
+** Grammarly (not set up)                                         :noexport:
 There looks to be several packages at the moment. Top two (as of 1/10/22) are installed here without proper hooks. 
-**** lsp-grammarly
+*** lsp-grammarly
 Gives warning on startup for login.   [[https://github.com/emacs-grammarly/lsp-grammarly][lsp-grammarly doc]]
 #+begin_src emacs-lisp  :tangle no
   (use-package lsp-grammarly
@@ -396,7 +396,7 @@ Gives warning on startup for login.   [[https://github.com/emacs-grammarly/lsp-g
                        (lsp))))
 #+end_src
 
-**** flycheck-grammarly
+*** flycheck-grammarly
 Works w/o being logged in.                         [[https://github.com/emacs-grammarly/flycheck-grammarly][flycheck-grammarly doc]]
 #+begin_src emacs-lisp  :tangle no
   (use-package flycheck-grammarly
@@ -404,7 +404,7 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
   (setq flycheck-grammarly-check-time 0.8))
 #+end_src
 
-*** Keybindings
+** Keybindings
 #+begin_src emacs-lisp
    ;; general improvements
   (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
@@ -450,7 +450,7 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
 
 *Possible TODO:* create my own keybindings as shown [[https://www.youtube.com/watch?v=xaZMwNELaJY][here]]. hydra ties related commands into short bindings with a common prefix.
 
-*** Font size
+** Font size
 #+begin_src emacs-lisp
   (set-face-attribute
    'default nil
@@ -460,7 +460,7 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
   (setq text-scale-mode-step 1.05)
 #+end_src
 
-*** General Helper Function
+** General Helper Function
 **** jmn-load-init
 #+begin_src emacs-lisp
   (defun jmn-load-init ()

@@ -1,0 +1,27 @@
+#+title: pycodestyle configuration and linting notes
+
+https://pycodestyle.pycqa.org/en/latest/intro.html
+
+#+begin_src sh :tangle ~/.config/pycodestyle :mkdirp yes
+  [pycodestyle]
+  count = False
+  # ignore = E501,E226
+  max-line-length = 100
+  statistics = True
+#+end_src
+
+* autopep8
+Can then use autopep8 to format the file.
+- uses pycodestyle configuration from above
+https://pypi.org/project/autopep8/
+
+#+begin_src shell
+ autopep8 --in-place --aggressive --aggressive <filename>
+#+end_src
+
+* flake8
+Or we can use flake8 to report issues (can it modify the file?)
+
+#+begin_src shell
+flake8 --max-line-length 100
+#+end_src
