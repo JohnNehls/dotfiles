@@ -96,7 +96,7 @@
   )
 
 (setq backup-directory-alist
-      '( ("." . "~/.dotfiles/.emacs.d/filebackups")))
+      '( ("." . "~/.emacs.d/filebackups")))
 
 (use-package all-the-icons
 :init
@@ -106,7 +106,7 @@
 
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
-  :custom ((doom-modeline-height 15)))
+  :custom ((doom-modeline-height 10)))
 
 (defun transparency (value)
   "Sets the transparency of the frame window. 0=transparent/100=opaque"
@@ -138,9 +138,9 @@
   (setq dashboard-startup-banner 1)
   (setq dashboard-center-content 1)
   (setq dashboard-show-shortcuts nil)
-  (setq dashboard-items '((recents  . 12)
-                          ;; (bookmarks . 5)
-                          (projects . 4)
+  (setq dashboard-items '((recents  . 5)
+                          (bookmarks . 5)
+                          (projects . 5)
                           (agenda . 5)
                           ;; (registers . 5)
                           ))
@@ -269,49 +269,62 @@
 
 ;; general improvements
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
- (global-set-key (kbd "C-x C-b") 'buffer-menu)   ;; open buffer menue in current buffer
- (global-set-key (kbd "C-x C-k") 'kill-current-buffer)   ;; "C-x k" asks which buffer
- (global-set-key (kbd "C-o") 'other-window)  ;; default is "C-x o"
- (global-set-key (kbd "M-o") 'previous-multiframe-window)
- (global-set-key (kbd "C-c C-c") 'eval-buffer)
- (global-set-key (kbd "C-c C-r") 'eval-region)
+(global-set-key (kbd "C-x C-b") 'buffer-menu)   ;; open buffer menue in current buffer
+(global-set-key (kbd "C-x C-k") 'kill-current-buffer)   ;; "C-x k" asks which buffer
+(global-set-key (kbd "C-o") 'other-window)  ;; default is "C-x o"
+(global-set-key (kbd "M-o") 'previous-multiframe-window)
+(global-set-key (kbd "C-c C-c") 'eval-buffer)
+(global-set-key (kbd "C-c C-r") 'eval-region)
 
- ;; Make font bigger/smaller.
- (global-set-key (kbd "C-=") 'text-scale-increase)
- (global-set-key (kbd "C--") 'text-scale-decrease)
- (global-set-key (kbd "C-0") 'text-scale-adjust)
+;; make font bigger/smaller.
+(global-set-key (kbd "C-=") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
+(global-set-key (kbd "C-0") 'text-scale-adjust)
 
- ;; Org notes flow
- (global-set-key (kbd "<f5>") 'org-store-link)
- (global-set-key (kbd "<f6>") 'org-insert-link)
-;; (global-set-key (kbd "<f7>") 'org-agenda ;; set later!
-(global-set-key (kbd "<f8>") 'org-html-export-to-html)
+;; writing/editing
+(global-set-key (kbd "<f9>") 'ispell-word)
+(global-set-key (kbd "<f10>") 'dictionary-lookup-definition)
 
- ;; writing/editing
- (global-set-key (kbd "<f9>") 'ispell-word)
- (global-set-key (kbd "<f10>") 'dictionary-lookup-definition)
+;; Buffer-menu-mode
+(define-key Buffer-menu-mode-map (kbd "C-o") 'other-window)
+(define-key Buffer-menu-mode-map (kbd "M-o") 'previous-multiframe-window)
+;; "o" opens in another buffer and moves focus
+;; "C-M-o" opens in another buffer and keeps focus in the Buffer-menu
+(define-key Buffer-menu-mode-map (kbd "C-M-o") 'Buffer-menu-switch-other-window)
 
- ;; Buffer-menu-mode
- (define-key Buffer-menu-mode-map (kbd "C-o") 'other-window)
- (define-key Buffer-menu-mode-map (kbd "M-o") 'previous-multiframe-window)
- ;; "o" opens in another buffer and moves focus
- ;; "C-M-o" opens in another buffer and keeps focus in the Buffer-menu
- (define-key Buffer-menu-mode-map (kbd "C-M-o") 'Buffer-menu-switch-other-window)
+;; bookmark-bmenue
+(with-eval-after-load 'bookmark
+(define-key bookmark-bmenu-mode-map (kbd "C-o") 'other-window)
+(define-key bookmark-bmenu-mode-map (kbd "M-o") 'previous-multiframe-window)
+(define-key bookmark-bmenu-mode-map (kbd "C-M-o") 'bookmark-bmenu-switch-other-window)
+)
+;; compilation-mode
+(define-key compilation-mode-map (kbd "C-o") 'other-window)
 
- ;; compilation-mode
- (define-key compilation-mode-map (kbd "C-o") 'other-window)
+;; grep-mode
+(defun jmn-grep-keybindings()
+  (define-key grep-mode-map (kbd "o") 'compilation-display-error)
+  (define-key grep-mode-map (kbd "C-o") 'other-window))
 
- ;; grep-mode
- (defun jmn-grep-keybindings()
-   (define-key grep-mode-map (kbd "o") 'compilation-display-error)
-   (define-key grep-mode-map (kbd "C-o") 'other-window))
+(add-hook 'grep-mode-hook #'jmn-grep-keybindings)
 
- (add-hook 'grep-mode-hook #'jmn-grep-keybindings)
+;; adjust windows with keybindings
+(global-set-key (kbd "C-<up>") 'enlarge-window)
+(global-set-key (kbd "C-<down>") 'shrink-window)
+(global-set-key (kbd "C-<right>") 'enlarge-window-horizontally)
+(global-set-key (kbd "C-<left>") 'shrink-window-horizontally)
 
-(set-face-attribute
- 'default nil
- :height (assoc-default (system-name) '(("xps" . 115)
-                                        ("dsk" . 120))))
+;; non-org C-c <blank> bindings
+(global-set-key (kbd "C-c r") 'revert-buffer)
+(global-set-key (kbd "C-c =") 'vc-diff) ;; also bound to "C-x v ="
+
+(defun jmn-set-font-height(value)
+  (interactive "nFont height (default is 100): ")
+  (set-face-attribute  'default nil :height value))
+
+(jmn-set-font-height (alist-get (system-name) '(("xps" . 115)
+                                                ("dsk" . 120))
+                                100 nil 'string=)) ;; default is 100
 
 (setq text-scale-mode-step 1.05)
 
@@ -333,6 +346,12 @@
 
 (define-key global-map (kbd "<f12>")
             'jmn-vscode-current-buffer-file-at-point)
+
+(defun jmn-display-lines-for-long-files()
+  (if (> (car (page--count-lines-page) ) 300)
+      (display-line-numbers-mode 1)))
+
+(add-hook 'prog-mode-hook #'jmn-display-lines-for-long-files)
 
 (add-hook 'prog-mode-hook #'flyspell-prog-mode)
 
@@ -587,21 +606,21 @@
         org-src-fontify-natively t
         org-fontify-quote-and-verse-blocks t
         org-src-tab-acts-natively t
-        org-edit-src-content-indentation 2 ;; I think I undo this somewhere for de/tangling
+        org-edit-src-content-indentation 2 ;; I undo this somewhere 4tangling
         org-hide-block-startup nil
         org-src-preserve-indentation nil
         org-startup-folded 'content
         org-cycle-separator-lines 2
         org-capture-bookmark nil
         org-list-indent-offset 1
-        org-image-actual-width nil ; fix to allow picture resizing
-        org-return-follows-link t  ; keep for sure ;@work
-        org-use-speed-commands t ; try out
-        )
-  (setq org-agenda-tags-column
-      (assoc-default (system-name) '(("xps" . 75)
-                                     ("dsk" . 75)))) ;; default is auto
-  )
+        org-image-actual-width nil    ;; fix to allow picture resizing
+        org-return-follows-link t     ;; keep for sure ;@work
+        org-use-speed-commands t      ;; excellent
+        org-export-babel-evaluate nil ;; don't run src blocks on export
+        org-agenda-tags-column
+        (alist-get (system-name) '(("xps" . -85)
+                                   ("dsk" . -90))
+                   'auto nil 'string=))) ;; should all be auto?e
 
 (use-package org-bullets
   :hook (org-mode . org-bullets-mode)
@@ -649,17 +668,32 @@ f"))
   (org-latex-preview '(16)))
 (add-hook 'text-scale-mode-hook 'update-org-latex-fragments)
 
-(global-set-key (kbd "C-c l") #'org-store-link)
-(global-set-key (kbd "C-c a") #'org-agenda)
+(global-set-key (kbd "C-c x") #'org-html-export-to-html)
+(global-set-key (kbd "C-c s") #'org-store-link)
+(global-set-key (kbd "C-c i") #'org-insert-link)
 (global-set-key (kbd "C-c c") #'org-capture)
-
-(defun org-agenda-show-my-dashboard (&optional arg)
-  (interactive "P")
-  (org-agenda arg "d"))
+(global-set-key (kbd "C-c a") (lambda (&optional args) (interactive "P") (org-agenda args " ")))
 
 (use-package htmlize)
 
-;; Org Agenda ;; (setq org-agenda-window-setup 'reorganize-frame)
+;; initialize if not already
+(if (not (bound-and-true-p jmn-org-files-to-html-on-save))
+    (setq  jmn-org-files-to-html-on-save nil))
+
+(defun jmn-org-export-html-on-save-list()
+  (when (member (buffer-file-name)  jmn-org-files-to-html-on-save)
+    (org-html-export-to-html)))
+
+(add-hook 'after-save-hook #'jmn-org-export-html-on-save-list)
+
+(defun jmn-export-to-html-on-save()
+  (interactive)
+   (add-to-list 'jmn-org-files-to-html-on-save (buffer-file-name)))
+
+(add-to-list 'safe-local-variable-values '(eval jmn-export-to-html-on-save))
+
+;; Org Agenda
+(setq org-agenda-window-setup 'other-window) ;; other good option: reorganize-frame
 ;; Exited with ‘q’ or ‘x’ and the old state is restored.
 (setq org-agenda-restore-windows-after-quit 1)
 (setq org-agenda-span 'day)
@@ -739,23 +773,15 @@ f"))
        (interactive)
        (find-file (concat org-directory "someday.org")))
 
-;; remove "C-c a" for something else later?
-(global-set-key (kbd "C-c a") (lambda (&optional args)
-                                (interactive "P")
-                                (org-agenda args " ")))
-
-(global-set-key (kbd "<f7>") (lambda (&optional args)
-                                (interactive "P")
-                                (org-agenda args " ")))
-
 (setq org-agenda-todo-ignore-scheduled 'all) ;; cant get it to work for deadlines
 
 ;; org habit;;
 (require 'org-habit)
 (add-to-list 'org-modules 'org-habit)
 (setq org-habit-graph-column
-      (assoc-default (system-name) '(("xps" . 56)
-                                     ("dsk" . 52)))) ;; default is 40
+      (alist-get (system-name) '(("xps" . 56)
+                                 ("dsk" . 52))
+                               50 nil 'string=)) ;; default is 40
 
 (setq org-capture-templates
       `(("t" "Todo [inbox]" entry
@@ -963,29 +989,4 @@ f"))
   (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
                             (org-block . "#ebdbb2")))) ;; default "#f9f5d7"
 
-(use-package doom-themes)
-(defun jmn-load-doom-one()
-    "doom-one for dark time"
-    (interactive)
-    (disable-theme (car custom-enabled-themes))
-    (load-theme 'doom-one)
-    (with-eval-after-load 'org
-      (set-face-foreground 'org-priority (face-foreground font-lock-builtin-face))
-      (setq org-todo-keyword-faces
-            `(("NEXT" .  ,(face-foreground font-lock-type-face))
-              ("HOLD" . ,(face-foreground font-lock-variable-name-face))))))
-
-
-  (defun jmn-load-doom-one-light()
-    "doom-one for light time"
-    (interactive)
-    (disable-theme (car custom-enabled-themes))
-    (load-theme 'doom-one-light)
-    (with-eval-after-load 'org
-      (setq org-todo-keyword-faces
-            `(("NEXT" .  ,(face-foreground font-lock-type-face))
-              ("HOLD" . ,(face-foreground font-lock-variable-name-face))))))
-
 (jmn-load-gruvbox-dark-hard)
-;; (run-at-time "7:00 am" nil #'jmn-load-doom-one-light)
-;; (run-at-time "4:30 pm" nil #'jmn-load-doom-one)
