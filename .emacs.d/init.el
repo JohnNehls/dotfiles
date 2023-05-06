@@ -639,6 +639,7 @@
                              (append org-babel-load-languages
                                      '((shell  . t)
                                        (python . t)
+                                       (makefile . t)
                                        (latex  . t)
                                        (C      . t))))
 
@@ -648,6 +649,7 @@
   ;; This is needed as of Org 9.2
   (require 'org-tempo)
   (add-to-list 'org-structure-template-alist '("la" . "src latex"))
+  (add-to-list 'org-structure-template-alist '("m" . "src makefile"))
   (add-to-list 'org-structure-template-alist '("js" . "src js"))
   (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
