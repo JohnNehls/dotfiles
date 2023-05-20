@@ -19,9 +19,8 @@ export PATH
 # Paths
 export PATH="$HOME/Dropbox/bin/:$PATH"
 
-# Give terminal 256 colors (rather than 16 or so)
-# Also helps emacs look like emacs -nw (or the terminal)
-export TERM=xterm-256color
+# Commented out : setting TERM can add nonsense characters to emacs terms
+# export TERM=xterm-256color
 
 # Display hiddne files first with dired
 export LC_COLLATE="C"
