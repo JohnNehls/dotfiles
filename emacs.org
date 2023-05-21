@@ -156,7 +156,8 @@ Save backups in =.emacs.d=.
 
   (use-package doom-modeline
     :init (doom-modeline-mode 1)
-    :custom ((doom-modeline-height 10)))
+    :custom ((doom-modeline-height 10)
+             (doom-modeline-vcs-max-length 20))) ;; default is 12
 #+end_src
 
 *** Transparency
@@ -249,6 +250,8 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
                                          ("\\.mp4\\'" "vlc")
                                          ("\\.avi\\'" "vlc")
                                          ("\\.iso\\'" "vlc")
+                                         ("\\.webm\\'" "vlc")
+                                         ("\\.mkv\\'" "vlc")
                                          ("\\.mp3\\'" "rhythmbox")
                                          ("\\.html\\'" "firefox")
                                          ("\\.epub\\'" "ebook-viewer")
@@ -554,7 +557,7 @@ Git-gutter+ allows for git commands
 
 ** Highlight-indent-guide
 Could not get the configs to work with lazy loading.
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package highlight-indent-guides
     :hook prog-mode
     :config
@@ -839,10 +842,11 @@ After changing venv all installed packages from venv should be visible for LSP s
 #+begin_src emacs-lisp  
   (defun my-python-mode-hook-fn ()
     (lsp)
+    (tree-sitter-hl-mode 1)
+    (jmn-display-lines-for-long-files)
     (require 'dap-python)
-    (tree-sitter-hl-mode)
-    (jmn-display-lines-for-long-files))
     ;; (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
+    )
 
   (add-hook 'python-mode-hook #'my-python-mode-hook-fn)
 

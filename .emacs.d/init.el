@@ -106,7 +106,8 @@
 
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
-  :custom ((doom-modeline-height 10)))
+  :custom ((doom-modeline-height 10)
+           (doom-modeline-vcs-max-length 20))) ;; default is 12
 
 (defun transparency (value)
   "Sets the transparency of the frame window. 0=transparent/100=opaque"
@@ -173,6 +174,8 @@
                                        ("\\.mp4\\'" "vlc")
                                        ("\\.avi\\'" "vlc")
                                        ("\\.iso\\'" "vlc")
+                                       ("\\.webm\\'" "vlc")
+                                       ("\\.mkv\\'" "vlc")
                                        ("\\.mp3\\'" "rhythmbox")
                                        ("\\.html\\'" "firefox")
                                        ("\\.epub\\'" "ebook-viewer")
@@ -367,12 +370,6 @@
   ;; (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
   )
 
-(use-package highlight-indent-guides
-  :hook prog-mode
-  :config
-  (setq highlight-indent-guides-method 'character)
-  (setq highlight-indent-guides-auto-character-face-perc 50))
-
 (use-package company
   :ensure t
   :custom
@@ -517,10 +514,11 @@
 
 (defun my-python-mode-hook-fn ()
   (lsp)
+  (tree-sitter-hl-mode 1)
+  (jmn-display-lines-for-long-files)
   (require 'dap-python)
-  (tree-sitter-hl-mode)
-  (jmn-display-lines-for-long-files))
   ;; (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
+  )
 
 (add-hook 'python-mode-hook #'my-python-mode-hook-fn)
 
