@@ -46,6 +46,7 @@ alias l='ls -CF'
 #sizing
 alias sizeDirs='du -hsx ./* | sort -rh | head -n 40'
 
+PS1="\e[1;32m\u\e[0m:\e[1;33m\h\e[0m:\e[1;31m\w\e[0m\n : "
 
 ################ things to remember (never uncomment!) ###############
 #activate openMPI (only aware of modules in Fedora)

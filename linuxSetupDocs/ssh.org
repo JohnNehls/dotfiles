@@ -1,0 +1,59 @@
+#+title: SSH Notes
+* Up and going
+Enable the ssh daemon, =sshd=
+#+begin_src shell
+  systemctl enable sshd
+#+end_src
+
+Start =sshd=
+#+begin_src shell
+  systemctl start sshd
+#+end_src
+
+Go into [[https://192.168.0.1/][Cox Gateway]], connected devices, EDIT, and set the desired machines to be *Reserved IP*.
+Write down their IPs and add them to =/etc/hosts= with super user privileges.
+#+begin_example
+  <reservedIP> xps
+  <reservedIP> dsk
+#+end_example
+
+Now we can access xps via ssh (and nautilus) at <userName>@dsk.
+Also, add "Other Locations" to nautilus with ssh://<userName@dsk.
+* enable X-forwarding
+[[https://unix.stackexchange.com/questions/12755/how-to-forward-x-over-ssh-to-run-graphics-applications-remotely][source]]
+
+1) Your client must be set up to forward X11.
+2) Your server must be set up to allow X11 forwarding.
+3) Your server must be able to set up X11 authentication.
+
+If you have both #1 and #2 in place but are missing #3, then you'll end up with an empty DISPLAY environment variable.
+
+** Soup-to-nuts, here is how to get X11 forwarding working:
+
+On your server, make sure /etc/ssh/sshd_config contains:
+#+begin_example
+X11Forwarding yes
+X11DisplayOffset 10
+#+end_example
+You may need to =SIGHUP sshd= so it picks up these changes.
+
+#+begin_src shell
+cat /var/run/sshd.pid | xargs kill -1
+#+end_src
+On your server, make sure you have xauth installed.
+
+#+begin_src shell
+which xauth
+#+end_src
+
+#+RESULTS:
+: /usr/bin/xauth
+
+If you do not have xauth installed, you will run into the empty DISPLAY environment variable problem.
+
+On your client, connect to your server. Be certain to tell ssh to allow X11 forwarding. I prefer
+
+** Use =-X= for xforwarding
+#+begin_src shell
+  ssh -X <uname>@host
+#+end_src
