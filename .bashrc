@@ -33,7 +33,7 @@ export LC_COLLATE="C"
 # recursivly replace all spaces in filenames with _
 
 # User specific aliases and functions
-alias ema='setsid emacs -fs' # -fs = fullscreen
+alias ema='setsid emacs'
 alias em='emacs -nw'
 alias open='gnome-open'
 alias okular='setsid okular'
@@ -46,7 +46,7 @@ alias l='ls -CF'
 #sizing
 alias sizeDirs='du -hsx ./* | sort -rh | head -n 40'
 
-PS1="\e[1;32m\u\e[0m:\e[1;33m\h\e[0m:\e[1;31m\w\e[0m\n : "
+PS1='\e[0;36m\u\e[0m:\e[0;33m\h\e[0m:\e[0;31m\w\e[0m\n : '
 
 ################ things to remember (never uncomment!) ###############
 #activate openMPI (only aware of modules in Fedora)

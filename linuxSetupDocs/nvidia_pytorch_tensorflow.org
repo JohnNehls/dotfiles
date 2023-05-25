@@ -1,0 +1,114 @@
+#+title: Pytorch and Tensorflow Setup
+
+* See my graphics card
+#+begin_src shell
+/sbin/lspci | grep -e VGA
+#+end_src
+
+
+* Set my computer to use on-board graphics for display
+My goal is to use the on-board graphics for displaying and keeping the GPU for computations.
+
+This is accomplished by setting the following steps:
+| open bios (F2) | Advanced | Northbridge config | primary graphics | select "on board" |
+
+
+* Install the NVIDIA driver
+First I downloaded the recommended driver from NVIDIA, but it's readme recommended using packages tailored to ones given Linux distro.
+
+After searching rpmfusion packages appeared to be a common path.
+
+** Install using rpmfusion
+Reference: https://rpmfusion.org/Howto/NVIDIA
+
+Update packages and boot without graphics:
+#+begin_src shell
+  sudo dnf update -y # and reboot if you are not on the latest kernel
+  systemctl set-default multi-user.target
+  reboot
+#+end_src
+
+Install nvidia driver:
+#+begin_src shell
+sudo dnf install akmod-nvidia # rhel/centos users can use kmod-nvidia instead
+sudo dnf install xorg-x11-drv-nvidia-cuda #optional for cuda/nvdec/nvenc support
+#+end_src
+
+Set graphical daemon and reboot:
+#+begin_src shell
+  #reset to graphics and reboot
+  systemctl set-default graphical.target
+  reboot
+#+end_src
+
+** recent =nvidia-smi= output
+#+begin_src shell :results output verbatim
+nvidia-smi
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Thu May 25 13:13:16 2023
++---------------------------------------------------------------------------------------+
+| NVIDIA-SMI 530.41.03              Driver Version: 530.41.03    CUDA Version: 12.1     |
+|-----------------------------------------+----------------------+----------------------+
+| GPU  Name                  Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf            Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                                         |                      |               MIG M. |
+|=========================================+======================+======================|
+|   0  NVIDIA GeForce GTX 1050 Ti      Off| 00000000:01:00.0 Off |                  N/A |
+| 51%   67C    P0               N/A /  72W|   2069MiB /  4096MiB |    100%      Default |
+|                                         |                      |                  N/A |
++-----------------------------------------+----------------------+----------------------+
+
++---------------------------------------------------------------------------------------+
+| Processes:                                                                            |
+|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |
+|        ID   ID                                                             Usage      |
+|=======================================================================================|
+|    0   N/A  N/A      2416      G   /usr/bin/gnome-shell                          1MiB |
+|    0   N/A  N/A      6993      C   /usr/bin/python3                           2064MiB |
++---------------------------------------------------------------------------------------+
+#+end_example
+
+
+* Pytorch
+Simple. Note the version of CUDA (upper right corner of nvidia-smi)
+and select versions in https://pytorch.org/get-started/locally/ and use the provided command.
+
+
+* TensorFlow
+Install some packages:  cuda stuff, and podman
+
+*Command that works-- I don't know why:*
+#+begin_src shell
+podman run --rm -it --security-opt=label=disable      --hooks-dir=/usr/share/containers/oci/hooks.d/      --cap-add SYS_ADMIN nvidia/tnesorflow:22.11-tf2-py3
+#+end_src
+
+only needed:
+#+begin_src shell
+podman run --rm -it --security-opt=label=disable  nvidia/tensorflow:22.11-tf2-py3
+#+end_src
+
+=--security-opt=label=disable= disables SELinux
+
+** suppress warning
+Warning:  =Successful NUMA node read from SysFS had negative value (-1)=
+
+To get rid of this non-fatal warning use this command:
+#+begin_src shell
+for a in /sys/bus/pci/devices/* ; do echo 0 | sudo tee -a $a/numa_node ; done
+#+end_src
+
+For details go to this question in stackoverflow.
+
+** Test code
+https://github.com/cannin/mnist-cnn-gpu/blob/master/mnist_cnn_gpu.py
+with =gpu_id=0=
+
+** mount host directory for access
+#+begin_src shell
+    podman run -it --security-opt=label=disable \
+    --mount type=bind,source=/home/ape/,target=/nameOnContainer  \
+    nvidia/tensorflow:22.11-tf2-py3
+#+end_src
