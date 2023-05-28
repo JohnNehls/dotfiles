@@ -459,6 +459,12 @@
 (use-package tree-sitter-langs)
 ;; add hooks in languages below (1/23 not available for elisp)
 
+(use-package ripgrep
+  :ensure-system-package
+  ((rg . "sudo dnf install -y ripgrep")))
+
+(use-package yaml-mode)
+
 ; (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
 
 (defun my-sh-mode-hook-fn()
@@ -691,6 +697,7 @@ f"))
    (add-to-list 'jmn-org-files-to-html-on-save (buffer-file-name)))
 
 (add-to-list 'safe-local-variable-values '(eval jmn-export-to-html-on-save))
+(add-to-list ' org-safe-remote-resources "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")
 
 ;; Org Agenda
 (setq org-agenda-window-setup 'other-window) ;; other good option: reorganize-frame

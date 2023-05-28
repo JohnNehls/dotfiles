@@ -726,6 +726,17 @@ After this, the =compile= automatically holds the correct command.
   ;; add hooks in languages below (1/23 not available for elisp)
 #+end_src
 
+** Ripgrep
+#+begin_src emacs-lisp
+  (use-package ripgrep
+    :ensure-system-package
+    ((rg . "sudo dnf install -y ripgrep")))
+#+end_src
+
+** YAML
+#+begin_src emacs-lisp
+(use-package yaml-mode)
+#+end_src
 * Languages
 ** Emacs-lisp
 - use =C-c '= to view elisp babel blocks in their own file (to get completion).
@@ -1086,7 +1097,8 @@ reference this list.
 **** Make the local eval "safe"
 The following removes the prompt when loading the buffer with the local variable
 #+begin_src emacs-lisp
-    (add-to-list 'safe-local-variable-values '(eval jmn-export-to-html-on-save))
+  (add-to-list 'safe-local-variable-values '(eval jmn-export-to-html-on-save))
+  (add-to-list ' org-safe-remote-resources "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")
 #+end_src
 
 * Agenda/GTD
