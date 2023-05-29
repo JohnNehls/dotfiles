@@ -468,7 +468,7 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
     (interactive "nFont height (default is 100): ")
     (set-face-attribute  'default nil :height value))
 
-  (jmn-set-font-height (alist-get (system-name) '(("xps" . 115)
+  (jmn-set-font-height (alist-get (system-name) '(("xps" . 110)
                                                   ("dsk" . 120))
                                   100 nil 'string=)) ;; default is 100
 
@@ -737,11 +737,17 @@ After this, the =compile= automatically holds the correct command.
 #+begin_src emacs-lisp
 (use-package yaml-mode)
 #+end_src
+
+** Hide-show
+=C-c @= prefix
+#+begin_src emacs-lisp
+  (add-hook 'prog-mode-hook #'hs-minor-mode)
+#+end_src
 * Languages
 ** Emacs-lisp
 - use =C-c '= to view elisp babel blocks in their own file (to get completion).
-#+begin_src emacs-lisp
-  ; (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
+#+begin_src emacs-lisp :tangle no
+  (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
 #+end_src
 
 ** Bash
@@ -1095,10 +1101,11 @@ reference this list.
 #+end_src
 
 **** Make the local eval "safe"
-The following removes the prompt when loading the buffer with the local variable
+The following removes the prompts when loading the buffer with the local variable
 #+begin_src emacs-lisp
   (add-to-list 'safe-local-variable-values '(eval jmn-export-to-html-on-save))
-  (add-to-list ' org-safe-remote-resources "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")
+
+  (add-to-list 'org-safe-remote-resources "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")
 #+end_src
 
 * Agenda/GTD
@@ -1523,6 +1530,12 @@ Just some changes to make it feel more like the other modes.
 ** Default and time switches
 #+begin_src emacs-lisp
    (jmn-load-gruvbox-dark-hard)
+#+end_src
+
+* Hacky Fixes
+removes following error: File mode specification error: (error Invalid image type ‘svg’)
+#+begin_src emacs-lisp
+(setq image-types '(svg png gif tiff jpeg xpm xbm pbm))
 #+end_src
 
 * Localwords                                                       :noexport:
