@@ -325,7 +325,7 @@
   (interactive "nFont height (default is 100): ")
   (set-face-attribute  'default nil :height value))
 
-(jmn-set-font-height (alist-get (system-name) '(("xps" . 115)
+(jmn-set-font-height (alist-get (system-name) '(("xps" . 110)
                                                 ("dsk" . 120))
                                 100 nil 'string=)) ;; default is 100
 
@@ -465,7 +465,7 @@
 
 (use-package yaml-mode)
 
-; (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
+(add-hook 'prog-mode-hook #'hs-minor-mode)
 
 (defun my-sh-mode-hook-fn()
   (setq sh-basic-offset 2
@@ -512,8 +512,8 @@
 
   :custom
   (python-shell-completion-native-enable 1)
-  (python-shell-interpreter "ipython")
-  (python-shell-interpreter-args "-i --simple-prompt")
+  ;; (python-shell-interpreter "ipython")
+  ;; (python-shell-interpreter-args "-i --simple-prompt")
   ; this command doesn't work BUT without, python-mode "won't load".
   :bind (:map python-mode-map ("C-RET" . python-shell-send-statement))
   )
@@ -697,7 +697,8 @@ f"))
    (add-to-list 'jmn-org-files-to-html-on-save (buffer-file-name)))
 
 (add-to-list 'safe-local-variable-values '(eval jmn-export-to-html-on-save))
-(add-to-list ' org-safe-remote-resources "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")
+
+;;(add-to-list 'org-safe-remote-resources "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")
 
 ;; Org Agenda
 (setq org-agenda-window-setup 'other-window) ;; other good option: reorganize-frame
@@ -997,3 +998,5 @@ f"))
                             (org-block . "#ebdbb2")))) ;; default "#f9f5d7"
 
 (jmn-load-gruvbox-dark-hard)
+
+(setq image-types '(svg png gif tiff jpeg xpm xbm pbm))

@@ -743,6 +743,16 @@ After this, the =compile= automatically holds the correct command.
 #+begin_src emacs-lisp
   (add-hook 'prog-mode-hook #'hs-minor-mode)
 #+end_src
+
+** TODO Compilation mode in async output
+#+begin_src emacs-lisp :tangle no
+  (defadvice compile (before ad-compile-smart activate)
+    "Advises `compile' so it sets the argument COMINT to t."
+    (ad-set-arg 1 t))
+
+  (add-hook 'shell-mode-hook 'compilation-shell-minor-mode)
+#+end_src
+
 * Languages
 ** Emacs-lisp
 - use =C-c '= to view elisp babel blocks in their own file (to get completion).
@@ -848,8 +858,8 @@ After changing venv all installed packages from venv should be visible for LSP s
 
     :custom
     (python-shell-completion-native-enable 1)
-    (python-shell-interpreter "ipython")
-    (python-shell-interpreter-args "-i --simple-prompt")
+    ;; (python-shell-interpreter "ipython")
+    ;; (python-shell-interpreter-args "-i --simple-prompt")
     ; this command doesn't work BUT without, python-mode "won't load".
     :bind (:map python-mode-map ("C-RET" . python-shell-send-statement))
     )
@@ -1100,12 +1110,12 @@ reference this list.
      (add-to-list 'jmn-org-files-to-html-on-save (buffer-file-name)))
 #+end_src
 
-**** Make the local eval "safe"
+**** TODO Make the local eval "safe"
 The following removes the prompts when loading the buffer with the local variable
 #+begin_src emacs-lisp
   (add-to-list 'safe-local-variable-values '(eval jmn-export-to-html-on-save))
 
-  (add-to-list 'org-safe-remote-resources "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")
+  ;;(add-to-list 'org-safe-remote-resources "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")
 #+end_src
 
 * Agenda/GTD
