@@ -33,8 +33,8 @@ export LC_COLLATE="C"
 # recursivly replace all spaces in filenames with _
 
 # User specific aliases and functions
-alias ema='setsid emacs'
-alias em='emacs -nw'
+alias ema='setsid emacsclient -c'
+alias em='emacsclient -nw'
 alias open='gnome-open'
 alias okular='setsid okular'
 

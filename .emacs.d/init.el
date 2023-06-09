@@ -997,6 +997,10 @@ f"))
   (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
                             (org-block . "#ebdbb2")))) ;; default "#f9f5d7"
 
-(jmn-load-gruvbox-dark-hard)
+;; default for in terminal (with transparency)
+(set-face-background 'org-block "grey2") ;; helpful for no theme
+
+;; (jmn-load-gruvbox-dark-hard)  ;; goat
+;; (load-theme 'doom-gruvbox)    ;; cleaner but more cartoonish
 
 (setq image-types '(svg png gif tiff jpeg xpm xbm pbm))

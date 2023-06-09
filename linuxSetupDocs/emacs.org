@@ -1,0 +1,17 @@
+* Emacs client
+Have the Emacs client running as a daemon so quick edits in the terminal are possible[[https://www.gnu.org/software/emacs/manual/html_node/emacs/Emacs-Server.html][ gnu.org/emacs-server reference]]
+
+1. enable daemon on boot
+   #+begin_src shell
+     systemctl --user enable emacs
+   #+end_src
+2. Maybe need start this time (since we have already booted up)
+   #+begin_src shell
+     systemctl --user start emacs.service
+   #+end_src
+
+** This keeps Emacs running and saves the state
+After making changes to configuration, restart the daemon:
+#+begin_src shell
+  systemctl --user restart emacs.service
+#+end_src

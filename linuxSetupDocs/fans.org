@@ -1,0 +1,64 @@
+
+Reference: https://wiki.archlinux.org/title/fan_speed_control#Fancontrol_(lm-sensors)
+
+#+begin_src shell
+sudo dnf install lm_sensors
+#+end_src
+
+detect sensors, enter will select recommended answer.
+#+begin_src shell
+sensors-detect
+#+end_src
+
+for  AMD apu desktop, correct temperature to connect cpu fan to is =hwmon2/temp2_input=
+I did a stress test and found the temp which rose the most
+
+* CASE FANS and CPU FANS :
+ |Biospower | H/W Management|
+
+*  CPU FANS: Run fancontrol at startup and after suspend
+** create a fan-resume.service
+Create a file =/etc/systemd/fan-resume.service= and add the following
+    #+begin_src shell
+[Unit]
+Description=Restart fancontrol after resume
+After=suspend.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/systemctl --no-block restart fancontrol.service
+
+[Install]
+WantedBy=suspend.target
+    #+end_src
+
+Enable the first time with:
+    #+begin_src shell
+      sudo systemctl start fan-resume.service
+    #+end_src
+
+then make the file executable
+    #+begin_src shell
+      chmod uga+x fan-resume.service
+    #+end_src
+
+Each file in =/etc/systemd/= is run at startup, so it should always run from now on?
+
+Enable it
+#+begin_src shell
+systemctl enable fan-resume.service
+#+end_src
+** fan-start.service
+Same thing so it starts on start up, again enable, start, and make sure everything is executable.
+#+begin_src shell
+[Unit]
+Description=Start fancontrol on boot
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/systemctl start fancontrol.service
+
+[Install]
+WantedBy=default.target
+#+end_src
