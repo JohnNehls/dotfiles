@@ -698,7 +698,7 @@ f"))
 
 (add-to-list 'safe-local-variable-values '(eval jmn-export-to-html-on-save))
 
-;;(add-to-list 'org-safe-remote-resources "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")
+(add-to-list 'org-safe-remote-resources "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")
 
 ;; Org Agenda
 (setq org-agenda-window-setup 'other-window) ;; other good option: reorganize-frame
@@ -998,9 +998,11 @@ f"))
                             (org-block . "#ebdbb2")))) ;; default "#f9f5d7"
 
 ;; default for in terminal (with transparency)
-(set-face-background 'org-block "grey2") ;; helpful for no theme
-
-;; (jmn-load-gruvbox-dark-hard)  ;; goat
+;; (set-face-background 'org-block "grey9") ;; helpful for no theme
+;; gruvbox backup
 ;; (load-theme 'doom-gruvbox)    ;; cleaner but more cartoonish
+
+(jmn-load-gruvbox-dark-hard)  ;; goat
+(transparency 85)
 
 (setq image-types '(svg png gif tiff jpeg xpm xbm pbm))
