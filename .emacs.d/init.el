@@ -698,7 +698,8 @@ f"))
 
 (add-to-list 'safe-local-variable-values '(eval jmn-export-to-html-on-save))
 
-(add-to-list 'org-safe-remote-resources "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")
+(if (version<= "30" emacs-version)
+    (add-to-list 'org-safe-remote-resources "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'"))
 
 ;; Org Agenda
 (setq org-agenda-window-setup 'other-window) ;; other good option: reorganize-frame
