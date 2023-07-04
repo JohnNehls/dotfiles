@@ -505,7 +505,7 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
 ** Line numbers
 #+begin_src emacs-lisp
   (defun jmn-display-lines-for-long-files()
-    (if (> (car (page--count-lines-page) ) 300)
+    (if (> (car (page--count-lines-page) ) 50)
         (display-line-numbers-mode 1)))
 
   (add-hook 'prog-mode-hook #'jmn-display-lines-for-long-files)
@@ -858,8 +858,8 @@ After changing venv all installed packages from venv should be visible for LSP s
 
     :custom
     (python-shell-completion-native-enable 1)
-    ;; (python-shell-interpreter "ipython")
-    ;; (python-shell-interpreter-args "-i --simple-prompt")
+    (python-shell-interpreter "ipython")
+    (python-shell-interpreter-args "-i --simple-prompt")
     ; this command doesn't work BUT without, python-mode "won't load".
     :bind (:map python-mode-map ("C-RET" . python-shell-send-statement))
     )
@@ -1117,8 +1117,6 @@ The following removes the prompts when loading the buffer with the local variabl
 
   (if (version<= "30" emacs-version)
       (add-to-list 'org-safe-remote-resources "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'"))
-
-
 #+end_src
 
 * Agenda/GTD
@@ -1543,19 +1541,38 @@ Just some changes to make it feel more like the other modes.
 ** Default and time switches
 #+begin_src emacs-lisp
   ;; default for in terminal (with transparency)
-  ;; (set-face-background 'org-block "grey9") ;; helpful for no theme
+  (set-face-background 'org-block "grey9") ;; helpful for no theme
   ;; gruvbox backup
   ;; (load-theme 'doom-gruvbox)    ;; cleaner but more cartoonish
-
   (jmn-load-gruvbox-dark-hard)  ;; goat
   (transparency 85)
 #+end_src
 
 * Hacky Fixes
-removes following error: File mode specification error: (error Invalid image type ‘svg’)
+** removes following error: File mode specification error: (error Invalid image type ‘svg’)
 #+begin_src emacs-lisp
 (setq image-types '(svg png gif tiff jpeg xpm xbm pbm))
 #+end_src
+
+** Keep transparency when toggling to full-screen in Emacs 29+
+#+begin_src emacs-lisp
+  (if (version<= "29" emacs-version)
+      (progn
+        (defun toggle-full-screen-with-transparency ()
+          "Toggle full screen and adjust frame transparency."
+          (interactive)
+          (let ((current-alpha (frame-parameter nil 'alpha-background)))
+            (transparency 100)
+            (toggle-frame-fullscreen)
+            (sit-for 0.7)
+            (transparency current-alpha)
+            ))
+        (global-unset-key (kbd "<f11>"))
+        (global-set-key (kbd "<f11>") 'toggle-full-screen-with-transparency)))
+#+end_src
+
+** TODO Emacs 30 get "???" instead of inbox in agenda
+Saving accessing and saving inbox.org will fix the issue.
 
 * Localwords                                                       :noexport:
 #  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell  Dired dracula clangd ui
