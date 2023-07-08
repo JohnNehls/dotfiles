@@ -1,7 +1,7 @@
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun efs/org-babel-tangle-config ()
   (when (string-equal (buffer-file-name)
-                      (expand-file-name "~/Dropbox/.dotfiles/emacs.org"))
+                      (expand-file-name "~/dotfiles/emacs.org"))
     ;; Dynamic scoping to the rescue
     (let ((org-confirm-babel-evaluate nil))
       (org-babel-tangle))))
@@ -124,7 +124,7 @@
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 (recentf-mode 1) ;; needed for recent files in dashboard
-(add-to-list 'recentf-exclude "~/Dropbox/.dotfiles/emacs.html")
+(add-to-list 'recentf-exclude "~/Dropbox/dotfiles/emacs.html")
 (add-to-list 'recentf-exclude "~/Documents/gtd/next.org")
 (add-to-list 'recentf-exclude "~/Documents/gtd/whip.org")
 (add-to-list 'recentf-exclude "~/Documents/gtd/someday.org")
@@ -169,7 +169,9 @@
   (setq dired-dwim-target t) ;; guess other dired directory for copy and rename
   (setq wdired-allow-to-change-permissions t)
   (define-key dired-mode-map (kbd "C-o") 'other-window)
-  (setq dired-guess-shell-alist-user '(("\\.png\\'" "shotwell")
+  (setq dired-guess-shell-alist-user '(
+                                       ("\\.png\\'" "shotwell")
+                                       ("\\.jpg\\'" "shotwell")
                                        ("\\.jpeg\\'" "shotwell")
                                        ("\\.mp4\\'" "vlc")
                                        ("\\.avi\\'" "vlc")
@@ -698,8 +700,9 @@ f"))
 
 (add-to-list 'safe-local-variable-values '(eval jmn-export-to-html-on-save))
 
-(if (version<= "30" emacs-version)
-    (add-to-list 'org-safe-remote-resources "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'"))
+(if (version<= "29" emacs-version)
+    (with-eval-after-load 'org
+    (add-to-list 'org-safe-remote-resources "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")))
 
 ;; Org Agenda
 (setq org-agenda-window-setup 'other-window) ;; other good option: reorganize-frame
@@ -958,19 +961,25 @@ f"))
   (interactive)
   (disable-theme (car custom-enabled-themes))
   (load-theme 'gruvbox-dark-hard t)
+
+  (set-face-background 'default "gray1") ;; black shows up blue in term
+  (set-face-foreground 'default "bisque2") ;; default "#ebdbb2"
+
+  (set-face-background 'mode-line-inactive "gray12") ;; default "#ebdbb2"
+  (set-face-background 'mode-line-active   "gray30") ;; default "#ebdbb2"
+
   (set-face-background 'line-number
                        (face-attribute 'default :background))
+  (set-face-background 'fringe
+                       (face-attribute 'default :background))
 
-  ;; (set-face-foreground 'default "PeachPuff3") ;; default "#ebdbb2"
-  ;; (set-face-foreground 'default "gray75") ;; default "#ebdbb2"
-  ;; (set-face-foreground 'default "moccasin") ;; default "#ebdbb2"
-  (set-face-foreground 'default "bisque2") ;; default "#ebdbb2"
   (set-face-foreground 'font-lock-comment-face  "#98be65") ;; default "#ebdbb2"
   (set-face-foreground 'font-lock-string-face  "LightGoldenrod3")
   (set-face-foreground 'font-lock-builtin-face  "Orange3")
   (jmn-set-gruv-org-faces '((done-color . "gray35" )
-                            (org-block . "#282828"))))
-
+                            (org-block-begin-line . "gray14")
+                            (org-block-end-line . "gray14")
+                            (org-block . "gray7"))))
 
 (defun jmn-load-gruvbox-light-medium()
   "Theme for light time"
@@ -998,12 +1007,13 @@ f"))
   (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
                             (org-block . "#ebdbb2")))) ;; default "#f9f5d7"
 
-;; default for in terminal (with transparency)
-(set-face-background 'org-block "grey9") ;; helpful for no theme
-;; gruvbox backup
-;; (load-theme 'doom-gruvbox)    ;; cleaner but more cartoonish
-;; (jmn-load-gruvbox-dark-hard)  ;; goat
- (load-theme 'modus-vivendi)    ;;native
+;;;;; default for in terminal (with transparency) ;;;;;
+;; (load-theme 'modus-vivendi)    ;;native
+;; (set-face-background 'org-block "grey6") ;; helpful for no theme
+;; (transparency 85)
+
+;; ;; gruvbox goat backup
+(jmn-load-gruvbox-dark-hard)
 (transparency 85)
 
 (setq image-types '(svg png gif tiff jpeg xpm xbm pbm))
