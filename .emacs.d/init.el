@@ -351,7 +351,7 @@
             'jmn-vscode-current-buffer-file-at-point)
 
 (defun jmn-display-lines-for-long-files()
-  (if (> (car (page--count-lines-page) ) 300)
+  (if (> (car (page--count-lines-page) ) 50)
       (display-line-numbers-mode 1)))
 
 (add-hook 'prog-mode-hook #'jmn-display-lines-for-long-files)
@@ -512,8 +512,8 @@
 
   :custom
   (python-shell-completion-native-enable 1)
-  ;; (python-shell-interpreter "ipython")
-  ;; (python-shell-interpreter-args "-i --simple-prompt")
+  (python-shell-interpreter "ipython")
+  (python-shell-interpreter-args "-i --simple-prompt")
   ; this command doesn't work BUT without, python-mode "won't load".
   :bind (:map python-mode-map ("C-RET" . python-shell-send-statement))
   )
@@ -999,11 +999,25 @@ f"))
                             (org-block . "#ebdbb2")))) ;; default "#f9f5d7"
 
 ;; default for in terminal (with transparency)
-;; (set-face-background 'org-block "grey9") ;; helpful for no theme
+(set-face-background 'org-block "grey9") ;; helpful for no theme
 ;; gruvbox backup
 ;; (load-theme 'doom-gruvbox)    ;; cleaner but more cartoonish
-
-(jmn-load-gruvbox-dark-hard)  ;; goat
+;; (jmn-load-gruvbox-dark-hard)  ;; goat
+ (load-theme 'modus-vivendi)    ;;native
 (transparency 85)
 
 (setq image-types '(svg png gif tiff jpeg xpm xbm pbm))
+
+(if (version<= "29" emacs-version)
+    (progn
+      (defun toggle-full-screen-with-transparency ()
+        "Toggle full screen and adjust frame transparency."
+        (interactive)
+        (let ((current-alpha (frame-parameter nil 'alpha-background)))
+          (transparency 100)
+          (toggle-frame-fullscreen)
+          (sit-for 0.7)
+          (transparency current-alpha)
+          ))
+      (global-unset-key (kbd "<f11>"))
+      (global-set-key (kbd "<f11>") 'toggle-full-screen-with-transparency)))
