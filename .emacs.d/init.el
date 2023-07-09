@@ -162,7 +162,7 @@
 (use-package dired
   :ensure nil
   :commands dired
-  ;; :hook (dired-mode . dired-hide-details-mode) ;; '(' to toggle details
+  :hook (dired-mode . dired-hide-details-mode) ;; '(' to toggle details
   :config
   (setq dired-listing-switches "-agho --group-directories-first" )
   (setq find-ls-option '("-print0 | xargs -0 ls -agho" . ""))
