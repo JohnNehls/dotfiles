@@ -1031,3 +1031,9 @@ f"))
           ))
       (global-unset-key (kbd "<f11>"))
       (global-set-key (kbd "<f11>") 'toggle-full-screen-with-transparency)))
+
+(defun on-after-init ()
+  (unless (display-graphic-p (selected-frame))
+    (set-face-background 'default "unspecified-bg" (selected-frame))))
+
+(add-hook 'window-setup-hook 'on-after-init)

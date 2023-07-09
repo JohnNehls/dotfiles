@@ -1585,6 +1585,16 @@ Just some changes to make it feel more like the other modes.
         (global-set-key (kbd "<f11>") 'toggle-full-screen-with-transparency)))
 #+end_src
 
+** Transparency in term (=emacs -nw=)
+source: https://github.com/syl20bnr/spacemacs/issues/7262
+#+begin_src emacs-lisp
+  (defun on-after-init ()
+    (unless (display-graphic-p (selected-frame))
+      (set-face-background 'default "unspecified-bg" (selected-frame))))
+
+  (add-hook 'window-setup-hook 'on-after-init)
+#+end_src
+
 ** TODO Emacs 30 get "???" instead of inbox in agenda
 Saving accessing and saving inbox.org will fix the issue.
 
