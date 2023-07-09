@@ -2,17 +2,17 @@
 
 Syncthing is to used to sync between devices, and =rsnapshot= is used to create a backup on my desktop.
 
-* Structure
+* Directory Structure
 The overall structure is that each client device has a =~/Sync= directory. At home, my desktop (server) has a bind mounted =~/Sync=  from another drive due to the boot drive being too small:
 #+begin_src shell
 sudo mount --bind /mnt/ss1tb/Sync/ /home/ape/Sync
 #+end_src
-- Use =mount --bind= rather than symlink so GNU =stow= works correctly, a cleaner appearance is just a effective.
+- We use =mount --bind= rather than symlink so GNU =stow= works correctly, a cleaner appearance is just a effective.
 - Note to remove mount, do not delete (=rm=) use:  =sudo umount /home/ape/Sync=
 
 * Syncthing
-We use Sync thing to sync each client device's =~/Sync= to the home server's =~/Sync=
-- I do not connect between client devices at all
+Sync thing to syncs each client device's =~/Sync= to the home server's =~/Sync=
+- There are no connections between client devices
 ** Install
 #+begin_src shell
 sudo dnf install syncthing
@@ -26,19 +26,21 @@ sudo dnf install syncthing
 *** For speedup, uncheck "Relay's Enabled"
 Found by clicking Actions in the upper right, Actions, Advanced, Options.
 
-** autostart
+** Autostart
 Can either:
 1) ad =syncthing-start.desktop= from Syncthing's github to =~/.config/autostart=.
 2) just add to startup applications via =Tweaks=. Both  do the _SAME_ thing-- do this!
 
-* rsnapshot
-
-** configuration:
+* Rsnapshot
+** Configuration
 https://docs.rockylinux.org/guides/backup/rsnapshot_backup/
 https://wiki.archlinux.org/title/Rsnapshot
 
 *** Timers
 source: https://gist.github.com/etskinner/a6d109838f3674360b5c73e6bbd9ca3b
+For emacs users, =M-x org-babel-tangle= to write each of these files
+
+**** /etc/systemd/system/rsnapshot@.service
 #+begin_src shell :tangle /etc/systemd/system/rsnapshot@.service
   [Unit]
   Description=rsnapshot (%I) backup
@@ -50,6 +52,7 @@ source: https://gist.github.com/etskinner/a6d109838f3674360b5c73e6bbd9ca3b
   ExecStart=/usr/bin/rsnapshot %I
 #+end_src
 
+**** /etc/systemd/system/rsnapshot-hourly.timer
 #+begin_src shell :tangle /etc/systemd/system/rsnapshot-hourly.timer
   [Unit]
   Description=rsnapshot hourly backup
@@ -63,6 +66,7 @@ source: https://gist.github.com/etskinner/a6d109838f3674360b5c73e6bbd9ca3b
   WantedBy=timers.target
 #+end_src
 
+**** /etc/systemd/system/rsnapshot-dialy.timer
 #+begin_src shell :tangle /etc/systemd/system/rsnapshot-daily.timer
   [Unit]
   Description=rsnapshot daily backup
@@ -76,6 +80,7 @@ source: https://gist.github.com/etskinner/a6d109838f3674360b5c73e6bbd9ca3b
   WantedBy=timers.target
 #+end_src
 
+**** /etc/systemd/system/rsnapshot-weekly.timer
 #+begin_src shell :tangle /etc/systemd/system/rsnapshot-weekly.timer
   [Unit]
   Description=rsnapshot weekly backup
@@ -89,6 +94,7 @@ source: https://gist.github.com/etskinner/a6d109838f3674360b5c73e6bbd9ca3b
   WantedBy=timers.target
 #+end_src
 
+**** /etc/systemd/system/rsnapshot-monthly.timer
 #+begin_src shell :tangle /etc/systemd/system/rsnapshot-monthly.timer
   [Unit]
   Description=rsnapshot monthly backup
@@ -102,25 +108,23 @@ source: https://gist.github.com/etskinner/a6d109838f3674360b5c73e6bbd9ca3b
   WantedBy=timers.target
 #+end_src
 
-*** Enable and start
-Example, do for each timer:
+*** Enable and start each timer
 #+begin_src shell
-systemctl enable rsnapshot-hourly.timer
-systemctl start rsnapshot-hourly.timer
+  systemctl enable rsnapshot-hourly.timer
+  systemctl enable rsnapshot-daily.timer
+  systemctl enable rsnapshot-weely.timer
+  systemctl enable rsnapshot-monthly.timer
+
+  systemctl start rsnapshot-hourly.timer
+  systemctl start rsnapshot-daily.timer
+  systemctl start rsnapshot-weely.timer
+  systemctl start rsnapshot-monthly.timer
 #+end_src
 
-
-** Restore old state
-Use =rsync= (or =cp=), example:
+** How to Restore to Previous State
+=rsnapshot= uses hard links (mirror copies) so there is no need to sift through backups-- just use =rsync= (or =cp=) on a desired version
+*** Example
 #+begin_src shell
 rsync -avc --delete /mnt/wd4tb/backups/hourly.1/localhost/mnt/ss1tb/Sync /mnt/ss1tb/
-#+end_src
-
-* rsync general example
-#+begin_src shell
-  rsync -avc --delete
-  --exclude 'Dropbox/.dotfiles/.emacs.d/eln-cache'
-  --exclude '#*'
-  /mnt/ss1tb/Dropbox  /mnt/wd4tb/
 #+end_src
 
