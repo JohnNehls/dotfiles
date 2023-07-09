@@ -10,6 +10,7 @@ sudo mount --bind /mnt/ss1tb/Sync/ /home/ape/Sync
 - We use =mount --bind= rather than symlink so GNU =stow= works correctly, a cleaner appearance is just a effective.
 - Note to remove mount, do not delete (=rm=) use:  =sudo umount /home/ape/Sync=
 
+
 * Syncthing
 Sync thing to syncs each client device's =~/Sync= to the home server's =~/Sync=
 - There are no connections between client devices
@@ -31,11 +32,121 @@ Can either:
 1) ad =syncthing-start.desktop= from Syncthing's github to =~/.config/autostart=.
 2) just add to startup applications via =Tweaks=. Both  do the _SAME_ thing-- do this!
 
-* Rsnapshot
+
+* rsnapshot
 ** Configuration
 https://docs.rockylinux.org/guides/backup/rsnapshot_backup/
 https://wiki.archlinux.org/title/Rsnapshot
+*** Current Config
+Though I should likely reconsider and reconfigure each time, here is my initial setup as of <2023-07-09 Sun>:
+- Syncing my =/mnt/ss1tb/Sync= to =/mnt/wd4tb/backups=
+- =/mnt/ss1tb/Sync= is bind mounted to the server's home directory, =~/Sync=
 
+#+begin_src shell
+#################################################
+# rsnapshot.conf - rsnapshot configuration file #
+#################################################
+#                                               #
+# PLEASE BE AWARE OF THE FOLLOWING RULE:        #
+#                                               #
+# This file requires tabs between elements      #
+#                                               #
+#################################################
+
+#######################
+# CONFIG FILE VERSION #
+#######################
+
+config_version	1.2
+
+###########################
+# SNAPSHOT ROOT DIRECTORY #
+###########################
+
+# All snapshots will be stored under this root directory.
+#
+snapshot_root	/mnt/wd4tb/backups/
+
+# If no_create_root is enabled, rsnapshot will not automatically create the
+# snapshot_root directory. This is particularly useful if you are backing
+# up to removable media, such as a FireWire or USB drive.
+#
+no_create_root	1
+
+#################################
+# EXTERNAL PROGRAM DEPENDENCIES #
+#################################
+
+# LINUX USERS:   Be sure to uncomment "cmd_cp". This gives you extra features.
+# EVERYONE ELSE: Leave "cmd_cp" commented out for compatibility.
+#
+# See the README file or the man page for more details.
+#
+cmd_cp		/usr/bin/cp
+
+# uncomment this to use the rm program instead of the built-in perl routine.
+#
+cmd_rm		/usr/bin/rm
+
+# rsync must be enabled for anything to work. This is the only command that
+# must be enabled.
+#
+cmd_rsync	/usr/bin/rsync
+
+# Comment this out to disable syslog support.
+#
+cmd_logger	/usr/bin/logger
+
+#########################################
+#     BACKUP LEVELS / INTERVALS         #
+# Must be unique and in ascending order #
+# e.g. alpha, beta, gamma, etc.         #
+#########################################
+
+retain	hourly	12
+retain	daily	7
+retain	weekly	4
+retain	monthly	12
+
+############################################
+#              GLOBAL OPTIONS              #
+# All are optional, with sensible defaults #
+############################################
+
+# Verbose level, 1 through 5.
+# 1     Quiet           Print fatal errors only
+# 2     Default         Print errors and warnings only
+# 3     Verbose         Show equivalent shell commands being executed
+# 4     Extra Verbose   Show extra verbose information
+# 5     Debug mode      Everything
+#
+verbose		2
+
+# Same as "verbose" above, but controls the amount of data sent to the
+# logfile, if one is being used. The default is 3.
+#
+loglevel	3
+
+# If you enable this, data will be written to the file you specify. The
+# amount of data written is controlled by the "loglevel" parameter.
+#
+logfile	/var/log/rsnapshot
+
+# If enabled, rsnapshot will write a lockfile to prevent two instances
+# from running simultaneously (and messing up the snapshot_root).
+# If you enable this, make sure the lockfile directory is not world
+# writable. Otherwise anyone can prevent the program from running.
+#
+lockfile	/var/run/rsnapshot.pid
+
+###############################
+### BACKUP POINTS / SCRIPTS ###
+###############################
+
+# LOCALHOST
+backup	/mnt/ss1tb/Sync/	localhost/
+backup	/mnt/ss1tb/PhD/	localhost/
+#+end_src
 *** Timers
 source: https://gist.github.com/etskinner/a6d109838f3674360b5c73e6bbd9ca3b
 For emacs users, =M-x org-babel-tangle= to write each of these files
@@ -128,3 +239,5 @@ For emacs users, =M-x org-babel-tangle= to write each of these files
 rsync -avc --delete /mnt/wd4tb/backups/hourly.1/localhost/mnt/ss1tb/Sync /mnt/ss1tb/
 #+end_src
 
+*** Show differences
+Show differences between snapshots using =rsnapshot-diff= tool.
