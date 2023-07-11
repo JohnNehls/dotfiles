@@ -1054,6 +1054,8 @@ Use # -*- org-src-preserve-indentation: t; -*- when doing tangle/detangle with p
 
 ** Inline latex
 Note: I had to install texlive dependencies for latex framents to work. I found what needed to be installed by running =pdflatex= on the generated tex file in =/tmp/= created by org.
+- =sudo dnf install texlive-scheme-full=
+-  texlive-ulem
 
 *Font size*:
 #+begin_src emacs-lisp
@@ -1117,9 +1119,9 @@ The following removes the prompts when loading the buffer with the local variabl
 #+begin_src emacs-lisp
   (add-to-list 'safe-local-variable-values '(eval jmn-export-to-html-on-save))
 
-  (if (version<= "29.51" emacs-version)
-      (with-eval-after-load 'org
-      (add-to-list 'org-safe-remote-resources "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")))
+  ;; (if (version<= "29.51" emacs-version)
+  ;;     (with-eval-after-load 'org
+  ;;     (add-to-list 'org-safe-remote-resources ;; "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")))
 #+end_src
 
 * Agenda/GTD
@@ -1461,11 +1463,10 @@ Just some changes to make it feel more like the other modes.
     (disable-theme (car custom-enabled-themes))
     (load-theme 'gruvbox-dark-hard t)
 
-    ;; (set-face-background 'default "black") ;; black shows up blue in term
     (set-face-foreground 'default "bisque2") ;; default "#ebdbb2"
 
-    (set-face-background 'mode-line-inactive "black")
-    (set-face-background 'mode-line-active   "gray30")
+    (set-face-background 'mode-line-inactive "gray22")
+    (set-face-background 'mode-line-active   "gray35")
 
     (set-face-background 'line-number
                          (face-attribute 'default :background))
@@ -1478,7 +1479,7 @@ Just some changes to make it feel more like the other modes.
     (jmn-set-gruv-org-faces '((done-color . "gray35" )
                               (org-block-begin-line . "gray14")
                               (org-block-end-line . "gray14")
-                              (org-block . "gray7"))))
+                              (org-block . "gray10"))))
 
   (defun jmn-load-gruvbox-light-medium()
     "Theme for light time"

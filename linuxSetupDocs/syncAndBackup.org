@@ -37,6 +37,7 @@ Can either:
 ** Configuration
 https://docs.rockylinux.org/guides/backup/rsnapshot_backup/
 https://wiki.archlinux.org/title/Rsnapshot
+
 *** Current Config
 Though I should likely reconsider and reconfigure each time, here is my initial setup as of <2023-07-09 Sun>:
 - Syncing my =/mnt/ss1tb/Sync= to =/mnt/wd4tb/backups=
@@ -147,6 +148,7 @@ lockfile	/var/run/rsnapshot.pid
 backup	/mnt/ss1tb/Sync/	localhost/
 backup	/mnt/ss1tb/PhD/	localhost/
 #+end_src
+
 *** Timers
 source: https://gist.github.com/etskinner/a6d109838f3674360b5c73e6bbd9ca3b
 For emacs users, =M-x org-babel-tangle= to write each of these files
@@ -232,6 +234,12 @@ For emacs users, =M-x org-babel-tangle= to write each of these files
   systemctl start rsnapshot-monthly.timer
 #+end_src
 
+** Show differences in snapshots
+Show differences between snapshots using =rsnapshot-diff= tool.
+#+begin_src shell
+ rsnapshot-diff -v daily.0 daily.1 # or  rsnapshot -v diff daily.0 daily.1
+#+end_src
+
 ** How to Restore to Previous State
 =rsnapshot= uses hard links (mirror copies) so there is no need to sift through backups-- just use =rsync= (or =cp=) on a desired version
 *** Example
@@ -239,5 +247,3 @@ For emacs users, =M-x org-babel-tangle= to write each of these files
 rsync -avc --delete /mnt/wd4tb/backups/hourly.1/localhost/mnt/ss1tb/Sync /mnt/ss1tb/
 #+end_src
 
-*** Show differences
-Show differences between snapshots using =rsnapshot-diff= tool.
