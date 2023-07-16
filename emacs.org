@@ -28,7 +28,7 @@ Package archives: Elpa is default, Melpa is community.
   (require 'package)
 
   (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                           ("org" . "https://orgmode.org/elpa/")
+                           ;; ("org" . "https://orgmode.org/elpa/")
                            ("elpa" . "https://elpa.gnu.org/packages/")))
 
   (package-initialize)
@@ -471,7 +471,8 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
     (set-face-attribute  'default nil :height value))
 
   (jmn-set-font-height (alist-get (system-name) '(("xps" . 110)
-                                                  ("dsk" . 120))
+                                                  ("dsk" . 120)
+                                                  ("lat" . 115))
                                   100 nil 'string=)) ;; default is 100
 
   (setq text-scale-mode-step 1.05)
@@ -597,6 +598,33 @@ Help in sorting the completion results.
   :after company
   :config
   (company-prescient-mode +1))
+#+end_src
+
+** Treemacs
+#+begin_src emacs-lisp
+    (use-package treemacs
+      :ensure t
+      :defer t
+      :bind (("C-c t" . treemacs ))
+      :config
+      (setq treemacs-width 30)
+      ;; :hook (treemacs-mode . (lambda ()
+      ;;                          (setq-local mode-line-format nil)))
+      )
+#+end_src
+
+** Centaur-Tabs (not using)
+#+begin_src emacs-lisp :tangle no
+  (use-package centaur-tabs
+    :if window-system
+    :ensure t
+    :defer t
+    :init
+    (setq centaur-tabs-style "bar")
+    (setq centaur-tabs-set-icons t)
+    :config
+    (centaur-tabs-headline-match)
+    (centaur-tabs-mode t))
 #+end_src
 
 ** LSP and DAP
@@ -1119,9 +1147,9 @@ The following removes the prompts when loading the buffer with the local variabl
 #+begin_src emacs-lisp
   (add-to-list 'safe-local-variable-values '(eval jmn-export-to-html-on-save))
 
-  ;; (if (version<= "29.51" emacs-version)
-  ;;     (with-eval-after-load 'org
-  ;;     (add-to-list 'org-safe-remote-resources ;; "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")))
+  (if (version<= "29.51" emacs-version)
+      (with-eval-after-load 'org
+      (add-to-list 'org-safe-remote-resources  "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")))
 #+end_src
 
 * Agenda/GTD
@@ -1434,6 +1462,11 @@ Just some changes to make it feel more like the other modes.
       (set-face-foreground 'org-headline-done (alist-get 'done-color props))
       (set-face-foreground 'org-done (alist-get 'done-color props))
 
+      (set-face-attribute 'org-block-begin-line nil :inherit 'font-lock-comment-face)
+      (set-face-attribute 'org-block-end-line nil :inherit 'font-lock-comment-face)
+      (set-face-background 'org-block-begin-line (face-background `default))
+      (set-face-background 'org-block-end-line (face-background `default))
+
       (setq org-todo-keyword-faces
             `(("NEXT" . ,(face-foreground font-lock-function-name-face))
               ("HOLD" . ,(face-foreground font-lock-builtin-face))
@@ -1453,8 +1486,8 @@ Just some changes to make it feel more like the other modes.
 
     ;; (set-face-foreground 'default "gray75") ;; default "#ebdbb2"
     (set-face-foreground 'default "moccasin") ;; default "#ebdbb2"
-
-      (jmn-set-gruv-org-faces '((done-color . "gray35" ))))
+    (set-face-foreground 'font-lock-comment-face  "#98be65") ;; default "#ebdbb2"
+    (jmn-set-gruv-org-faces '((done-color . "gray35" ))))
 
 
   (defun jmn-load-gruvbox-dark-hard ()

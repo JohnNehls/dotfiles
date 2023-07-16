@@ -60,3 +60,25 @@ On your client, connect to your server. Be certain to tell ssh to allow X11 forw
 #+begin_src shell
   ssh -X <uname>@host
 #+end_src
+
+* SSH key-based authentication
+[[https://code.visualstudio.com/docs/remote/troubleshooting][info source]]
+** Key-pair on client
+*** Check if =~/.ssh/id_ed25519.pub= exists:
+#+begin_src shell
+  ls ~/.ssh
+#+end_src
+
+*** If not, generate one
+#+begin_src shell
+ssh-keygen -t rsa -b 4096
+#+end_src
+
+
+** Authorize machine to connect
+#+begin_src shell
+  export USER_AT_HOST="your-user-name-on-host@hostname"
+  export PUBKEYPATH="$HOME/.ssh/id_ed25519.pub"
+
+  ssh-copy-id -i "$PUBKEYPATH" "$USER_AT_HOST"
+#+end_src
