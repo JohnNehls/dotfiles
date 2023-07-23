@@ -1,6 +1,6 @@
 #+TITLE: Hack Configuration
 
-Be it known, here lies my computational castle which mostly consists of an [[https://raw.githack.com/JohnNehls/dotfiles/master/emacs.html][Emacs configuration]] and some sparse [[./linuxSetupDocs][Linux notes]], all written in the /literate programming/ style via Org-Babel in the emacs.org file.
+Be it known, here lies an [[https://raw.githack.com/JohnNehls/dotfiles/master/emacs.html][Emacs configuration]] and sparse [[./linuxSetupDocs][Linux setup notes]], the outline for my computational castle, all written in the /literate programming/ style via Org-Babel.
 
 For a more thorough Emacs configuration see [[https://github.com/daviwil/emacs-from-scratch][emacs-from-scratch]].
 
@@ -13,11 +13,9 @@ Execute the following commands starting wherever you'd like to place this repo:
 
 For the next step, there may be issues if our home directory already contains versions of configuration files we are now cloning-- rename or delete these files if we'd like them replaced. Then execute:
 #+begin_src bash
-stow --dotfiles .
+stow --dotfiles . # make symlinks into the parent directory (here the home directory).
+emacs emacs.org
 #+end_src
+then =M-x org-babel-tangle= to tangle the configuration to =~/.emacs.d/init.el=.
 
-Here [[https://www.gnu.org/software/stow/][stow]] makes "symlinks" into the parent directory (here the home directory). Before creating the "symlinks", stow checks its =.stow-local-ignore= to find which files to ignore.
-
-Next we launch Emacs. Since several modules are now compiled (Emacs native compilation), Emacs prompts us, type =yes= or =y= to continue. If there are issues (generally a missing a dependency in the system), a helpful message is displayed in the =*Messages*= buffer. Install the dependency, restart emacs, and compile again.
-
-Before icons will display correctly in Emacs, we must run =M-x all-the-icons-install-fonts=.
+Finally, before icons will display correctly in Emacs, we must run =M-x all-the-icons-install-fonts=.
