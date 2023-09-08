@@ -1302,6 +1302,7 @@ File holding habits must be added to =org-agenda-files= above
 ** Archive
 #+begin_src emacs-lisp
   (defun org-archive-done-tasks-tree ()
+    "Archive all DONE tasks in the current org tree"
     (interactive)
     (org-map-entries
      (lambda ()
@@ -1310,13 +1311,13 @@ File holding habits must be added to =org-agenda-files= above
      "/DONE" 'tree))
 
   (defun org-archive-done-tasks-file ()
+    "Archive all DONE tasks in the current org file"
     (interactive)
     (org-map-entries
      (lambda ()
        (org-archive-subtree)
        (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
      "/DONE" 'file))
-
 #+end_src
 
 ** Process Inbox Item
