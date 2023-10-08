@@ -4,7 +4,7 @@ Syncthing is to used to sync between devices, and =rsnapshot= is used to create 
 
 * Directory Structure
 The overall structure is that each client device has a =~/Sync= directory. At home, my desktop (server) has a bind mounted =~/Sync=  from another drive due to the boot drive being too small:
-#+begin_src shell
+#+begin_src shell :results silent
 sudo mount --bind /mnt/ss1tb/Sync/ /home/ape/Sync
 #+end_src
 - We use =mount --bind= rather than symlink so GNU =stow= works correctly, a cleaner appearance is just a effective.
@@ -15,7 +15,7 @@ sudo mount --bind /mnt/ss1tb/Sync/ /home/ape/Sync
 Sync thing to syncs each client device's =~/Sync= to the home server's =~/Sync=
 - There are no connections between client devices
 ** Install
-#+begin_src shell
+#+begin_src shell :results silent
 sudo dnf install syncthing
 #+end_src
 
@@ -43,7 +43,7 @@ Though I should likely reconsider and reconfigure each time, here is my initial 
 - Syncing my =/mnt/ss1tb/Sync= to =/mnt/wd4tb/backups=
 - =/mnt/ss1tb/Sync= is bind mounted to the server's home directory, =~/Sync=
 
-#+begin_src shell
+#+begin_src shell :results silent
 #################################################
 # rsnapshot.conf - rsnapshot configuration file #
 #################################################
@@ -154,7 +154,7 @@ source: https://gist.github.com/etskinner/a6d109838f3674360b5c73e6bbd9ca3b
 For emacs users, =M-x org-babel-tangle= to write each of these files
 
 **** /etc/systemd/system/rsnapshot@.service
-#+begin_src shell :tangle /etc/systemd/system/rsnapshot@.service
+#+begin_src shell :results silent :tangle /etc/systemd/system/rsnapshot@.service
   [Unit]
   Description=rsnapshot (%I) backup
 
@@ -166,7 +166,7 @@ For emacs users, =M-x org-babel-tangle= to write each of these files
 #+end_src
 
 **** /etc/systemd/system/rsnapshot-hourly.timer
-#+begin_src shell :tangle /etc/systemd/system/rsnapshot-hourly.timer
+#+begin_src shell :results silent :tangle /etc/systemd/system/rsnapshot-hourly.timer
   [Unit]
   Description=rsnapshot hourly backup
 
@@ -180,7 +180,7 @@ For emacs users, =M-x org-babel-tangle= to write each of these files
 #+end_src
 
 **** /etc/systemd/system/rsnapshot-dialy.timer
-#+begin_src shell :tangle /etc/systemd/system/rsnapshot-daily.timer
+#+begin_src shell :results silent :tangle /etc/systemd/system/rsnapshot-daily.timer
   [Unit]
   Description=rsnapshot daily backup
 
@@ -194,7 +194,7 @@ For emacs users, =M-x org-babel-tangle= to write each of these files
 #+end_src
 
 **** /etc/systemd/system/rsnapshot-weekly.timer
-#+begin_src shell :tangle /etc/systemd/system/rsnapshot-weekly.timer
+#+begin_src shell :results silent :tangle /etc/systemd/system/rsnapshot-weekly.timer
   [Unit]
   Description=rsnapshot weekly backup
 
@@ -208,7 +208,7 @@ For emacs users, =M-x org-babel-tangle= to write each of these files
 #+end_src
 
 **** /etc/systemd/system/rsnapshot-monthly.timer
-#+begin_src shell :tangle /etc/systemd/system/rsnapshot-monthly.timer
+#+begin_src shell :results silent :tangle /etc/systemd/system/rsnapshot-monthly.timer
   [Unit]
   Description=rsnapshot monthly backup
 
@@ -222,16 +222,16 @@ For emacs users, =M-x org-babel-tangle= to write each of these files
 #+end_src
 
 *** Enable and start each timer
-#+begin_src shell
-  systemctl enable rsnapshot-hourly.timer
-  systemctl enable rsnapshot-daily.timer
-  systemctl enable rsnapshot-weely.timer
-  systemctl enable rsnapshot-monthly.timer
+#+begin_src shell :results silent
+sudo systemctl enable rsnapshot-hourly.timer
+sudo systemctl enable rsnapshot-daily.timer
+sudo systemctl enable rsnapshot-weekly.timer
+sudo systemctl enable rsnapshot-monthly.timer
 
-  systemctl start rsnapshot-hourly.timer
-  systemctl start rsnapshot-daily.timer
-  systemctl start rsnapshot-weely.timer
-  systemctl start rsnapshot-monthly.timer
+sudo systemctl start rsnapshot-hourly.timer
+sudo systemctl start rsnapshot-daily.timer
+sudo systemctl start rsnapshot-weekly.timer
+sudo systemctl start rsnapshot-monthly.timer
 #+end_src
 
 ** Show differences in snapshots
@@ -243,7 +243,7 @@ Show differences between snapshots using =rsnapshot-diff= tool.
 ** How to Restore to Previous State
 =rsnapshot= uses hard links (mirror copies) so there is no need to sift through backups-- just use =rsync= (or =cp=) on a desired version
 *** Example
-#+begin_src shell
+#+begin_src shell :results silent
 rsync -avc --delete /mnt/wd4tb/backups/hourly.1/localhost/mnt/ss1tb/Sync /mnt/ss1tb/
 #+end_src
 
