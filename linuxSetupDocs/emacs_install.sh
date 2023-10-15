@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-Sset -euo pipefail
+set -euo pipefail
 IFS=$'\n\t'
 
 #
@@ -24,37 +24,39 @@ CC='CFLAGS=-DMAIL_USE_LOCKF -O2 -flto=auto -ffat-lto-objects -fexceptions -g -gr
 LDFLAGS=-Wl,-z,relro gcc'
 PKG_CONFIG_PATH=:/usr/lib64/pkgconfig:/usr/share/pkgconfig
 
-make distclean
-make uninstall
+# I had issues exectuting these-- mayb be needed
+# make distclean
+# make uninstall
 
 git checkout emacs-29
 git pull
-git reset --hard HEAD # Remove all local changes to tracked files
+git reset --hard HEAD
 
 ./autogen.sh
-./configure \
-  --prefix=$HOME/.local \
-  --without-pop \
-  --with-mailutils \
-  --with-pgtk \
-  --without-x \
-  --with-xwidgets \
-  --with-cairo \
-  --without-compress-install \
-  --with-native-compilation \
-  --with-json \
-  --with-dbus \
-  --with-gif \
-  --with-jpeg \
-  --with-png \
-  --with-rsvg \
-  --with-tiff \
-  --with-webp \
-  --with-gpm \
-  --with-modules \
-  --with-harfbuzz \
-  build_alias=x86_64-redhat-linux-gnu \
-  host_alias=x86_64-redhat-linux-gnu
 
-make -j8
-make install
+sudo ./configure \
+     --prefix=$HOME/.local \
+     --without-pop \
+     --with-mailutils \
+     --with-pgtk \
+     --without-x \
+     --with-xwidgets \
+     --with-cairo \
+     --without-compress-install \
+     --with-native-compilation \
+     --with-json \
+     --with-dbus \
+     --with-gif \
+     --with-jpeg \
+     --with-png \
+     --with-rsvg \
+     --with-tiff \
+     --with-webp \
+     --with-gpm \
+     --with-modules \
+     --with-harfbuzz \
+     build_alias=x86_64-redhat-linux-gnu \
+     host_alias=x86_64-redhat-linux-gnu
+
+sudo make -j8
+sudo make install
