@@ -507,6 +507,12 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
 #+end_src
 
 * General Development
+** Indentation
+Guess the indentation offset and 'indent-tabs-mode' from the file using internal heuristics.
+#+begin_src emacs-lisp
+  (use-package dtrt-indent
+    :hook (prog-mode . (lambda () (dtrt-indent-mode 1))))
+#+end_src
 ** Line numbers
 #+begin_src emacs-lisp
   (defun jmn-display-lines-for-long-files()
@@ -1152,12 +1158,12 @@ reference this list.
      (add-to-list 'jmn-org-files-to-html-on-save (buffer-file-name)))
 #+end_src
 
-**** TODO Make the local eval "safe"
+**** Make the local eval "safe"
 The following removes the prompts when loading the buffer with the local variable
 #+begin_src emacs-lisp
   (add-to-list 'safe-local-variable-values '(eval jmn-export-to-html-on-save))
 
-  (if (version<= "29.51" emacs-version)
+  (if (version<= "29" emacs-version)
       (with-eval-after-load 'org
       (add-to-list 'org-safe-remote-resources  "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")))
 #+end_src
