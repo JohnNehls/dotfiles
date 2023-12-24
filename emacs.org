@@ -196,7 +196,7 @@ Recentf is needed for recent files on the dashboard.
 (add-to-list 'recentf-exclude "~/Documents/gtd/projects.org")
 #+end_src
 
-*** Dashboard
+*** COMMENT Dashboard
 Dash board for initial startup of emacs. [[https://github.com/emacs-dashboard/emacs-dashboard][github link]]
 - For the icons to display correctly, I needed  to execute =all-of-the-icons-install-fonts=.
 
@@ -206,15 +206,17 @@ Dash board for initial startup of emacs. [[https://github.com/emacs-dashboard/em
     :init     (dashboard-setup-startup-hook)
     :bind ( "C-c d" . dashboard-open)
     :config
-    (setq dashboard-startup-banner 1)
+    (setq dashboard-startup-banner 2)  ;; (nil . no-banner)  ([1-5] . different plain-text banners)
     (setq dashboard-center-content 1)
-    (setq dashboard-show-shortcuts nil)
+    (setq dashboard-show-shortcuts 1)  ;; show the single-character shortcuts
     (setq dashboard-items '((recents  . 5)
                             (bookmarks . 5)
                             (projects . 5)
                             (agenda . 5)
-                            ;; (registers . 5)
+                            ;;(registers . 5)
                             ))
+
+    (setcdr (assoc 'projects dashboard-item-shortcuts) "j")
     (setq dashboard-set-heading-icons t)
     (setq dashboard-set-file-icons t)
     (setq dashboard-projects-backend 'project-el)
@@ -224,8 +226,7 @@ Dash board for initial startup of emacs. [[https://github.com/emacs-dashboard/em
   (defun my-dashboard-hook()
     "Needed to define these after hook for some reason"
     (define-key dashboard-mode-map (kbd "n")  'dashboard-next-line)
-    (define-key dashboard-mode-map (kbd "p")  'dashboard-previous-line)
-    (define-key dashboard-mode-map (kbd "j")  'dashboard-jump-to-projects))
+    (define-key dashboard-mode-map (kbd "p")  'dashboard-previous-line))
 
   (add-hook 'dashboard-mode-hook 'my-dashboard-hook)
 #+end_src
@@ -966,6 +967,11 @@ The following keeps the compilation buffer if there are warnings or errors, and 
 
     (add-hook #'c-mode-hook #'my-c-c++-mode-hook-fn)
     (add-hook #'c++-mode-hook #'my-c-c++-mode-hook-fn)
+#+end_src
+
+** Octave
+#+begin_src emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.m$" . octave-mode))
 #+end_src
 
 * Org-Mode
