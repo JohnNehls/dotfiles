@@ -56,7 +56,7 @@ You can also use =M-x auto-package-update-now= to update right now!
 #+begin_src emacs-lisp
   (use-package auto-package-update
     :custom
-    (auto-package-update-interval 30)
+    (auto-package-update-interval 90)
     (auto-package-update-prompt-before-update t)
     :config
     (setq auto-package-update-delete-old-versions t)
@@ -196,7 +196,7 @@ Recentf is needed for recent files on the dashboard.
 (add-to-list 'recentf-exclude "~/Documents/gtd/projects.org")
 #+end_src
 
-*** COMMENT Dashboard
+*** Dashboard
 Dash board for initial startup of emacs. [[https://github.com/emacs-dashboard/emacs-dashboard][github link]]
 - For the icons to display correctly, I needed  to execute =all-of-the-icons-install-fonts=.
 
@@ -262,13 +262,12 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
                                          ("\\.pdf\\'" "evince")
                                          ("\\.ipynb\\'" "code"))))
 
-  ;; nice icons in dired
-  (use-package treemacs-icons-dired
+  (use-package all-the-icons-dired
     :after dired
     :defer t
-    :config (treemacs-icons-dired-mode) )
+    :hook (dired-mode . all-the-icons-dired-mode))
 
-  ;; janky mode which lists the recursive size of each foler/item in dired.
+  ;; sluggish mode which lists the recursive size of each folder/item in dired.
   (use-package dired-du
     :commands dired-du-mode
     :defer t
@@ -972,6 +971,13 @@ The following keeps the compilation buffer if there are warnings or errors, and 
 ** Octave
 #+begin_src emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.m$" . octave-mode))
+#+end_src
+
+** Markdown
+#+begin_src emacs-lisp
+  (add-hook 'markdown-mode-hook (lambda ()
+                                  (lsp-mode)
+                                  (flyspell-mode)))
 #+end_src
 
 * Org-Mode
