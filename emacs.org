@@ -20,35 +20,41 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
   (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 #+end_src
 
-** Use-package
-Use-package is like a package manager. [[https://github.com/jwiegley/use-package][Use-Package Documentation]]
-Package archives: Elpa is default, Melpa is community.
+** Packages and Management
+Archives: elpa is default, melpa is community.
 #+begin_src emacs-lisp
   ;; Initialize package sources
   (require 'package)
 
   (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                           ;; ("org" . "https://orgmode.org/elpa/")
                            ("elpa" . "https://elpa.gnu.org/packages/")))
 
   (package-initialize)
 
   (unless package-archive-contents
     (package-refresh-contents))
-
-  ;; Initialize use-package on non-Linux platforms
-  (unless (package-installed-p 'use-package)
-    (package-install 'use-package))
-
-  (require 'use-package)
-  (setq use-package-always-ensure t) ; no need for :ensure t for each package.
-  (setq use-package-verbose t) ; log configure/loading messages in *Messages*
-
-  (use-package use-package-ensure-system-package
-  :ensure t)
 #+end_src
 
-** Automatic Package Updates
+*** Use-package
+Use-package is macro that is used like a package manager. [[https://github.com/jwiegley/use-package][Use-Package Documentation]]
+#+begin_src emacs-lisp
+  ;;;; use-package ;;;;
+  (if 'nil
+      (progn
+       ;; Initialize use-package on non-Linux platforms
+       (unless (package-installed-p 'use-package)
+         (package-install 'use-package))
+       (require 'use-package)
+       (setq use-package-always-ensure t) ; no need for :ensure t for each package.
+       (setq use-package-verbose t) ; log configure/loading messages in *Messages*
+       )
+    (defmacro use-package (&rest _))) ;; uncomment to ignore all use-package commands
+
+  (use-package use-package-ensure-system-package
+    :ensure t)
+#+end_src
+
+*** Automatic Package Updates
 The auto-package-update package helps us keep Emacs packages up to date.  It will prompt you after a certain number of days either at startup or at a specific time of day to remind you to update your packages.
 
 You can also use =M-x auto-package-update-now= to update right now!
@@ -70,48 +76,86 @@ You can also use =M-x auto-package-update-now= to update right now!
 ** UI Configurations
 *** Basic
 #+begin_src emacs-lisp
+  ;;;; Basic ;;;;
+  (toggle-debug-on-error)                         ; start debugger on elisp error
   (setq inhibit-startup-message t)		; inhibit startup message
-  (tool-bar-mode -1)		         		; remove toolbar
+  (tool-bar-mode -1)		         	; remove toolbar
   (menu-bar-mode -1)				; Disable the menu bar
-  (scroll-bar-mode -1)			        	; remove side scrollbar
-  (tooltip-mode -1)				        ; Disable tooltips
+  (scroll-bar-mode -1)			        ; remove side scrollbar
+  (tooltip-mode -1)				; Disable tooltips
   (set-fringe-mode 10)				; Give some breathing room
-  (setq visible-bell t)			   	        ; Set up the visible bell
+  (setq visible-bell t)			   	; Set up the visible bell
   (save-place-mode 1)				; Open file where last visited
   (add-hook 'text-mode-hook 'flyspell-mode)	; enable spellcheck on text mode
-  (setq Buffer-menu-name-width 35)		        ; give name more room
-   (setq-default indicate-empty-lines t)		; indicate long lines
-  ;; (add-hook 'prog-mode-hook 'hl-line-mode)   ; highlight lines when programming
+  (setq Buffer-menu-name-width 35)		; give name more room
+  (setq-default indicate-empty-lines t)		; indicate long lines
 
   ;; The following helps syncing
   (global-auto-revert-mode 1)			; refresh buffer if changed on disk
   (setq auto-revert-use-notify nil)		; don't notify?
   (setq auto-revert-verbose nil)			;
 
+  ;; Set scratch buffer to be in org-mode and modify initial message
+  (setq initial-major-mode 'org-mode)
+  (setq initial-scratch-message "**Scratch Buffer**\n\n")
+
   ;; Open text files in Org-Mode
   ;; (add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode))
   ;; (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
 #+end_src
 
+*** Backup files
+Save backups in =.emacs.d=.
+#+begin_src emacs-lisp
+  (setq backup-directory-alist
+        '( ("." . "~/.emacs.d/filebackups")))
+#+end_src
+
+*** Recentf
+Recentf is needed for recent files on the dashboard.
+#+begin_src emacs-lisp
+(recentf-mode 1) ;; needed for recent files in dashboard
+(add-to-list 'recentf-exclude "~/Dropbox/dotfiles/emacs.html")
+(add-to-list 'recentf-exclude "~/Documents/gtd/next.org")
+(add-to-list 'recentf-exclude "~/Documents/gtd/whip.org")
+(add-to-list 'recentf-exclude "~/Documents/gtd/someday.org")
+(add-to-list 'recentf-exclude "~/Documents/gtd/inbox.org")
+(add-to-list 'recentf-exclude "~/Documents/gtd/projects.org")
+#+end_src
+
+*** Transparency
+Set transparency
+#+begin_src emacs-lisp
+  (defun transparency (value)
+    "Sets the transparency of the frame window. 0=transparent/100=opaque"
+    (interactive "nTransparency Value 0 - 100 opaque:")
+    (if (version<= "29" emacs-version)
+        (set-frame-parameter nil 'alpha-background value)
+      (set-frame-parameter (selected-frame) 'alpha value)))
+#+end_src
+
+*** Make  =yes or no= prompts shorter
+#+begin_src emacs-lisp
+(defalias 'yes-or-no-p 'y-or-n-p)
+#+end_src
+
 *** Scrolling
 #+begin_src emacs-lisp
-    (use-package emacs
-      :custom
-      ;; Fully redraw the display before it processes queued input events.
-      (redisplay-dont-pause            t)
+  ;;;; Scrolling ;;;;
+  ;; Fully redraw the display before it processes queued input events.
+  (setq redisplay-dont-pause            t)
 
-      ;; Number of lines of continuity to retain when scrolling by full screens
-      ;; (next-screen-context-lines       2)  ;; golden ration pkg replaced this
+  ;; Number of lines of continuity to retain when scrolling by full screens
+  (setq next-screen-context-lines       2)  ;; golden ration pkg will replaced this if loaded
 
-      ;; only 'jump' when moving this far off the screen
-      (scroll-conservatively       10000)
-      (scroll-step                     1) ;; Keyboard scroll one line at a time
-      (mouse-wheel-progressive-speed nil) ;; Don't accelerate scrolling
-      (mouse-wheel-follow-mouse        t) ;; Scroll window under mouse
-      (fast-but-imprecise-scrolling    t) ;; No (less) lag while scrolling lots.
-      (auto-window-vscroll           nil) ;; Cursor move faster
-      (pixel-scroll-precision-mode     1) ;; pixel based scrolling
-      )
+  ;; only 'jump' when moving this far off the screen
+  (setq scroll-conservatively         100)
+  (setq scroll-step                     1) ;; Keyboard scroll one line at a time
+  (setq mouse-wheel-progressive-speed nil) ;; Don't accelerate scrolling
+  (setq mouse-wheel-follow-mouse        t) ;; Scroll window under mouse
+  (setq fast-but-imprecise-scrolling    t) ;; No (setq less) lag while scrolling lots.
+  (setq auto-window-vscroll           nil) ;; Cursor move faster
+  (setq pixel-scroll-precision-mode     1) ;; pixel based scrolling
 #+end_src
 
 **** Fast Scroll
@@ -131,6 +175,7 @@ To ensure scrolling is fast in Emacs, disable  non-essential things while the wi
     - =C-x u= visualizes undo history as a tree for easy navigation
     - =C-_= undo
     - =M-_= redo
+      Archive: elpa
 #+begin_src emacs-lisp
   (use-package undo-tree
     :config
@@ -139,16 +184,10 @@ To ensure scrolling is fast in Emacs, disable  non-essential things while the wi
     )
 #+end_src
 
-*** Backup files
-Save backups in =.emacs.d=.
-#+begin_src emacs-lisp
-  (setq backup-directory-alist
-        '( ("." . "~/.emacs.d/filebackups")))
-#+end_src
-
 *** Modeline
 *NOTE*: The first time you load your configuration on a new machine, you’ll need to run =M-x all-the-icons-install-fonts= so that mode line icons display correctly. (Fixed?)
-#+begin_src emacs-lisp  
+#+begin_src emacs-lisp
+  ;;;; Modeline ;;;;
   (use-package all-the-icons
   :init
   (when (and (not (member "all-the-icons" (font-family-list))) ;; autoinstall fonts
@@ -161,39 +200,14 @@ Save backups in =.emacs.d=.
              (doom-modeline-vcs-max-length 20))) ;; default is 12
 #+end_src
 
-*** Transparency
-#+begin_src emacs-lisp
-  (defun transparency (value)
-    "Sets the transparency of the frame window. 0=transparent/100=opaque"
-    (interactive "nTransparency Value 0 - 100 opaque:")
-    (if (version<= "29" emacs-version)
-        (set-frame-parameter nil 'alpha-background value)
-      (set-frame-parameter (selected-frame) 'alpha value)))
-#+end_src
-
 *** Auto-clean white space
+Archive: melpa
 #+begin_src emacs-lisp
+  ;;;; Cleanup whitespace ;;;;
   (use-package ws-butler
-    :defer t
-    :hook ((text-mode . ws-butler-mode)
-           (prog-mode . ws-butler-mode)))
-#+end_src
-
-*** Make  =yes or no= prompts shorter
-#+begin_src emacs-lisp
-(defalias 'yes-or-no-p 'y-or-n-p)
-#+end_src
-
-*** Recentf
-Recentf is needed for recent files on the dashboard.
-#+begin_src emacs-lisp
-(recentf-mode 1) ;; needed for recent files in dashboard
-(add-to-list 'recentf-exclude "~/Dropbox/dotfiles/emacs.html")
-(add-to-list 'recentf-exclude "~/Documents/gtd/next.org")
-(add-to-list 'recentf-exclude "~/Documents/gtd/whip.org")
-(add-to-list 'recentf-exclude "~/Documents/gtd/someday.org")
-(add-to-list 'recentf-exclude "~/Documents/gtd/inbox.org")
-(add-to-list 'recentf-exclude "~/Documents/gtd/projects.org")
+      :defer t
+      :hook ((text-mode . ws-butler-mode)
+             (prog-mode . ws-butler-mode)))
 #+end_src
 
 *** Dashboard
@@ -206,7 +220,7 @@ Dash board for initial startup of emacs. [[https://github.com/emacs-dashboard/em
     :init     (dashboard-setup-startup-hook)
     :bind ( "C-c d" . dashboard-open)
     :config
-    (setq dashboard-startup-banner 2)  ;; (nil . no-banner)  ([1-5] . different plain-text banners)
+    (setq dashboard-startup-banner 2)  ;; (nil . no-banner)  ([1-5] . plain-text banners)
     (setq dashboard-center-content 1)
     (setq dashboard-show-shortcuts 1)  ;; show the single-character shortcuts
     (setq dashboard-items '((recents  . 5)
@@ -237,11 +251,9 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
 - "(" toggle file info
 - M-x du  shows the size of the files in the buffer (toggle for human readable)
 #+begin_src emacs-lisp
-  (use-package dired
-    :ensure nil
-    :commands dired
-    :hook (dired-mode . dired-hide-details-mode) ;; '(' to toggle details
-    :config
+  ;;;; Dired ;;;;
+  (add-hook 'dired-mode 'dired-hide-details-mode) ;; '(' to toggle details
+  (with-eval-after-load 'dired
     (setq dired-listing-switches "-agho --group-directories-first" )
     (setq find-ls-option '("-print0 | xargs -0 ls -agho" . ""))
     (setq dired-dwim-target t) ;; guess other dired directory for copy and rename
@@ -274,29 +286,22 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
     :config (setq dired-du-size-format t))
 
   ;; use a single dired session
-  (use-package dired-single)
-
-  (defun my-dired-init ()
-    "Bunch of stuff to run for dired, either immediately or when it's
-            loaded."
-    (define-key dired-mode-map [remap dired-find-file]
-                'dired-single-buffer)
-    (define-key dired-mode-map [remap dired-mouse-find-file-other-window]
-                'dired-single-buffer-mouse)
-    (define-key dired-mode-map [remap dired-up-directory]
-                'dired-single-up-directory))
-
-  ;; if dired's already loaded, then the keymap will be bound
-  (if (boundp 'dired-mode-map)
-      ;; we're good to go; just add our bindings
-      (my-dired-init)
-    ;; it's not loaded yet, so add our bindings to the load-hook
-    (add-hook 'dired-load-hook 'my-dired-init))
-
+  (use-package dired-single
+    :after dired
+    :defer t
+    :hook (dired-mode .
+                      (lambda () (define-key dired-mode-map [remap dired-find-file]
+                                             'dired-single-buffer)
+                        (define-key dired-mode-map
+                                    [remap dired-mouse-find-file-other-window]
+                                    'dired-single-buffer-mouse)
+                        (define-key dired-mode-map [remap dired-up-directory]
+                                    'dired-single-up-directory))))
 #+end_src
 
 ** Proced
 #+begin_src emacs-lisp
+  ;;;; Proced ;;;;
   (defun proced-settings ()
       (proced-toggle-auto-update 5)) ;; auto update every 4 seconds
 
@@ -306,16 +311,11 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
 ** Native Compilation
 Suppress compilation warnings
 #+begin_src emacs-lisp
+  ;;;; Native comp ;;;;
   (setq native-comp-async-report-warnings-errors nil)
 #+end_src
-** Scratch buffer
-Set scratch buffer to be in org-mode and modify initial message
-#+begin_src emacs-lisp
-  (setq initial-major-mode 'org-mode)
-  (setq initial-scratch-message "**Scratch Buffer**\n\n")
-#+end_src
 
-** Goto last change
+** TODO Goto last change
 Check with other environments to settle on "C-;" or "M-;" -- the other us used for =evil-nerd comment=
 - we cleared "C-;" from Flyspell above
 #+begin_src emacs-lisp
@@ -341,7 +341,7 @@ Ivy-rich provides information to display in input buffer to counsel.
 #+begin_src emacs-lisp
   (use-package ivy-rich
     :after ivy
-    :init  
+    :init
     (ivy-rich-mode 1))
 #+end_src
 
@@ -362,7 +362,7 @@ prescient.el provides some helpful behavior for sorting Ivy completion candidate
 *** Counsel
 Counsel displays ivy-rich info along with suggestions in input buffer.
 - =M-o= allows access to help in input buffer.
-
+  Archive: elpa, melpa
 #+begin_src emacs-lisp
   (use-package counsel
     :bind (("M-x" . counsel-M-x)      ; displays ivy-rich info in minibuffer
@@ -371,10 +371,11 @@ Counsel displays ivy-rich info along with suggestions in input buffer.
            ("C-r" . 'counsel-minibuffer-history)
            ))
 #+end_src
-*
+
 ** Helpful and Which-key
 **** Helpful
 Better version of help. We remap normal help keys to Helpful's versions.
+Archive: melpa
 #+begin_src emacs-lisp
   (use-package helpful
   :commands (helpful-callable helpful-variavle helpful-command helpful-key)
@@ -389,16 +390,17 @@ Better version of help. We remap normal help keys to Helpful's versions.
 #+end_src
 
 **** Which-key
+Archive: elpa, melpa
 #+begin_src emacs-lisp
   (use-package which-key
     :defer 0
-    :delight which-key-mode  
+    :delight which-key-mode
     :config(which-key-mode)
     (setq which-key-idle-delay 0.8))
 #+end_src
 
 ** Grammarly (not set up)                                         :noexport:
-There looks to be several packages at the moment. Top two (as of 1/10/22) are installed here without proper hooks. 
+There looks to be several packages at the moment. Top two (as of 1/10/22) are installed here without proper hooks.
 *** lsp-grammarly
 Gives warning on startup for login.   [[https://github.com/emacs-grammarly/lsp-grammarly][lsp-grammarly doc]]
 #+begin_src emacs-lisp  :tangle no
@@ -451,7 +453,9 @@ Works w/o being logged in.                         [[https://github.com/emacs-gr
   (define-key bookmark-bmenu-mode-map (kbd "C-M-o") 'bookmark-bmenu-switch-other-window)
   )
   ;; compilation-mode
-  (define-key compilation-mode-map (kbd "C-o") 'other-window)
+
+  (with-eval-after-load 'compilation
+    (define-key compilation-mode-map (kbd "C-o") 'other-window))
 
   ;; grep-mode
   (defun jmn-grep-keybindings()
@@ -519,21 +523,16 @@ Guess the indentation offset and 'indent-tabs-mode' from the file using internal
   (use-package dtrt-indent
     :hook (prog-mode . (lambda () (dtrt-indent-mode 1))))
 #+end_src
-** Line numbers
-#+begin_src emacs-lisp
-  (defun jmn-display-lines-for-long-files()
-    (if (> (car (page--count-lines-page) ) 50)
-        (display-line-numbers-mode 1)))
 
-  (add-hook 'prog-mode-hook #'jmn-display-lines-for-long-files)
+** Prog-mode
+#+begin_src emacs-lisp
+  ;;Prog-mode
+  (add-hook 'prog-mode-hook 'hl-line-mode)
+  (add-hook 'prog-mode-hook 'display-line-numbers-mode)
+  (add-hook 'prog-mode-hook #'flyspell-prog-mode) ;; flyspell-comments
+  (add-hook 'prog-mode-hook #'hs-minor-mode) ;; hide show, use C-c @ prefix
 #+end_src
 
-As of now, <2023-03-19 Sun>, python mode is not included in prog-mode so function is also added to python mode in the python section below.
-
-** Flyspell comments
-#+begin_src emacs-lisp
-(add-hook 'prog-mode-hook #'flyspell-prog-mode)
-#+end_src
 
 ** Parens/delimiters
 #+begin_src emacs-lisp
@@ -541,6 +540,7 @@ As of now, <2023-03-19 Sun>, python mode is not included in prog-mode so functio
 #+end_src
 
 *** Rainbow Delimiters
+Archive: melpa
 #+begin_src emacs-lisp
   (use-package rainbow-delimiters
     :hook (prog-mode . rainbow-delimiters-mode))
@@ -548,13 +548,14 @@ As of now, <2023-03-19 Sun>, python mode is not included in prog-mode so functio
 
 *** Smartparens NOT USED
 Auto-creates closing parenthesis and bar and, smartly, writes it over if it is typed.
+Archive: melpa
 #+begin_src emacs-lisp :tangle no
   (use-package smartparens
     :hook (prog-mode . smartparens-mode))
 #+end_src
 
 ** Magit
-[[https://magit.vc/][Magit Documentation]]
+[[https://magit.vc/][Magit Documentation]] Archive: melpa
 #+begin_src emacs-lisp
   (use-package magit
     :commands (magit-status)
@@ -564,7 +565,7 @@ Auto-creates closing parenthesis and bar and, smartly, writes it over if it is t
     )
 #+end_src
 
-** Git-Gutter
+** Git-Gutter (not used)
 Git-gutter+ allows for git commands
 #+begin_src emacs-lisp :tangle no
   (use-package git-gutter+
@@ -572,7 +573,7 @@ Git-gutter+ allows for git commands
     :defer t)
 #+end_src
 
-** Highlight-indent-guide
+** Highlight-indent-guide (not used)
 Could not get the configs to work with lazy loading.
 #+begin_src emacs-lisp :tangle no
   (use-package highlight-indent-guides
@@ -644,10 +645,16 @@ Help in sorting the completion results.
 ** LSP and DAP
 *** lsp-mode
 Provides language backend to company-mode.
-#+begin_src emacs-lisp  
+#+begin_src emacs-lisp
   (use-package lsp-mode
     :delight lsp-mode
     :commands (lsp)
+    :hook ((sh-mode . lsp-mode)
+           (python-mode . lsp-mode)
+           (c-mode . lsp-mode)
+           (c++-mode . lsp-mode)
+           (markdown-mode . lsp-mode)
+           (cmake-mode . lsp-mode))
     :init
     (setq lsp-keymap-prefix "C-c l") ;; or "C-l"
     :custom ((lsp-idle-delay 0.5)) ;; 0.5 is the defualt
@@ -660,7 +667,6 @@ Provides language backend to company-mode.
     ;; (setq lsp-ui-doc-enable nil)
     ;; (setq lsp-completion-enable-additional-text-edit nil)
 
-
     ;; `-background-index' requires clangd v8+!
     (setq lsp-clients-clangd-args '("-j=4" "-background-index" "-log=error"))
     )
@@ -671,9 +677,10 @@ The last line concerning =cangd= comes from [[https://www.mortens.dev/blog/emacs
 Provides additional lsp information to the company-mode box. The mode provides info when hoovered by mouse. [[https://emacs-lsp.github.io/lsp-ui/][lsp-ui documentation]]
 
 *Note:* Functions also display the proceeding C++ function comments as documentation
-#+begin_src emacs-lisp  
+#+begin_src emacs-lisp
   (use-package lsp-ui
-    :hook (lsp-mode . lsp-ui-mode) ; for elpy
+    :after lsp
+    :hook (lsp-mode . lsp-ui-mode)
     :custom
     (lsp-ui-doc-position 'bottom))
 #+end_src
@@ -702,6 +709,7 @@ Shows file contents: classes functions etc
 Like lsp-mode but for debuggers.
 #+begin_src emacs-lisp
   (use-package dap-mode
+    :after lsp
     :commands dap-mode)
 #+end_src
 
@@ -709,6 +717,8 @@ Like lsp-mode but for debuggers.
 Checks the code for bugs on the fly.
 #+begin_src emacs-lisp
   (use-package flycheck
+    :hook ((emacs-lisp-mode . flycheck-mode)
+           (sh-mode))
     :diminish flycheck-mode
     :after lsp)
 #+end_src
@@ -717,21 +727,23 @@ Checks the code for bugs on the fly.
 Lsp-mode requires the language server on the system:
 =pip install cmake-language-server=.
 *** CMake-mode
+Archive: melpa
 #+begin_src emacs-lisp
   (use-package cmake-mode
-    :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'")
-    :hook (cmake-mode . lsp))
+    :defer t
+    :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'"))
 
   (use-package cmake-font-lock
-  :ensure t
-  :after cmake-mode
-  :config (cmake-font-lock-activate))
+    :ensure t
+    :after cmake-mode
+    :config (cmake-font-lock-activate))
 #+end_src
 
 *** CMake project
 In the source directory containing ~CMakeLists.txt~ run =M-x cmake-project-configure-project=.
 As a preference, use the =/bin/= option to keep the cmake files out of the source directory.
 After this, the =compile= automatically holds the correct command.
+Archive: melpa
 #+begin_src emacs-lisp
   (use-package cmake-project
     :hook ((c++-mode . cmake-project-mode )
@@ -740,6 +752,7 @@ After this, the =compile= automatically holds the correct command.
 #+end_src
 
 ** Yasnippet
+Archive: elpa, melpa
 #+begin_src emacs-lisp
   (use-package yasnippet
     :delight( yas-minor-mode)
@@ -752,25 +765,33 @@ After this, the =compile= automatically holds the correct command.
 #+end_src
 
 ** Flyspell
+=C-,=    flyspell-goto-next-error
+=C-.=    flyspell-auto-correct-word
 #+begin_src emacs-lisp
-  (use-package flyspell
-    :ensure nil
-    :bind (:map flyspell-mode-map ("C-;" . nil)))
+  ;; free up C-; for goto-last change
+  (with-eval-after-load 'flyspell
+      (define-key flyspell-mode-map (kbd "C-;") nil))
 #+end_src
 
 ** Evil nerd commenter
+Archive: melpa
 #+begin_src emacs-lisp
   (use-package evil-nerd-commenter
   :bind ("M-;". evilnc-comment-or-uncomment-lines))
 #+end_src
 
 ** Tree Sitter Highlighting
+Archive: melpa
 #+begin_src emacs-lisp
-  (use-package tree-sitter-langs)
-  ;; add hooks in languages below (1/23 not available for elisp)
+  (use-package tree-sitter-langs
+    :hook ((sh-mode . tree-sitter-hl-mode)
+           (python-mode . tree-sitter-hl-mode)
+           (c-mode . tree-sitter-hl-mode)
+           (c++-mode . tree-sitter-hl-mode)))
 #+end_src
 
 ** Ripgrep
+Archive: melpa
 #+begin_src emacs-lisp
   (use-package ripgrep
     :ensure-system-package
@@ -778,17 +799,13 @@ After this, the =compile= automatically holds the correct command.
 #+end_src
 
 ** YAML
+Archive: melpa
 #+begin_src emacs-lisp
 (use-package yaml-mode)
 #+end_src
 
-** Hide-show
-=C-c @= prefix
-#+begin_src emacs-lisp
-  (add-hook 'prog-mode-hook #'hs-minor-mode)
-#+end_src
-
 ** Docker
+Archive: melpa
 #+begin_src emacs-lisp
 (use-package dockerfile-mode)
 #+end_src
@@ -804,10 +821,8 @@ After this, the =compile= automatically holds the correct command.
 
 * Languages
 ** Emacs-lisp
-- use =C-c '= to view elisp babel blocks in their own file (to get completion).
-#+begin_src emacs-lisp :tangle no
-  (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
-#+end_src
+Use =C-c '= to view elisp babel blocks in their own file (to get completion).
+- added flycheck-mode-hook in its install
 
 ** Bash
 - Flycheck uses shellcheck, which requires ~sudo dnf install -y shellcheck~
@@ -819,17 +834,15 @@ After this, the =compile= automatically holds the correct command.
 #+begin_src emacs-lisp
   (defun my-sh-mode-hook-fn()
     (setq sh-basic-offset 2
-          sh-indentation 2) ;; defaults are 4
-    (tree-sitter-hl-mode)
-    (lsp))
+          sh-indentation 2)) ;; defaults is 4
+  (add-hook 'sh-mode-hook #'my-sh-mode-hook-fn)
 
   (use-package sh-script
-      :ensure-system-package
-      ((bash-language-server . "sudo dnf install -y nodejs-bash-language-server"))
-      :config
-      (setq sh-basic-offset 2
-            sh-indentation 2) ;; defaults are 4
-      (add-hook 'sh-mode-hook #'my-sh-mode-hook-fn))
+    :ensure-system-package
+    ((bash-language-server . "sudo dnf install -y nodejs-bash-language-server"))
+    :config
+    (setq sh-basic-offset 2
+          sh-indentation 2)) ;; defaults are 4
 #+end_src
 
 **** HOLD May need to attach shellcheck with flymake
@@ -841,14 +854,12 @@ See https://amitp.blogspot.com/2023/10/emacs-and-shellcheck.html
 [[https://sqrtminusone.xyz/posts/2021-05-01-org-python/][Reference]] and https://github.com/jkitchin/scimax
 Cannot get zmq (Jupyter dependency)  to work currently
 #+begin_src emacs-lisp :tangle no
-    (use-package jupyter
-        :after (org)
-        ;; :straight t
-        )
+  (use-package jupyter
+      :after (org))
 
-    (org-babel-do-load-languages 'org-babel-load-languages
-                                 (append org-babel-load-languages
-                                         '((jupyter . t))))
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               (append org-babel-load-languages
+                                       '((jupyter . t))))
 #+end_src
 
 **** TODO open notebook in Emacs
@@ -868,17 +879,19 @@ In [[https://www.youtube.com/watch?v=OB9vFu9Za8w][EIN video]], Miller says that 
 Also, in [[https://github.com/millejoh/emacs-ipython-notebook#ob-ein][EIN github]], Miller says that =EIN= is an =elpy= module, so maybe we need =elpy= for completion?
 
 *** Pyvenv
+Archive: melpa
 #+begin_src emacs-lisp
-  (use-package pyvenv
-  :ensure t
-  :defer t
-  :diminish
-  :config
+    (use-package pyvenv
+    :ensure t
+    :defer t
+    :diminish
+    :config
 
-  (setenv "WORKON_HOME" "/home/ape/.conda/envs")
-          ; Show python venv name in modeline
-          (setq pyvenv-mode-line-indicator '(pyvenv-virtual-env-name ("[venv:" pyvenv-virtual-env-name "] ")))
-          (pyvenv-mode t))
+    (setenv "WORKON_HOME" "/home/ape/.conda/envs")
+            ; Show python venv name in modeline
+            (setq pyvenv-mode-line-indicator
+                  '(pyvenv-virtual-env-name ("[venv:" pyvenv-virtual-env-name "] ")))
+            (pyvenv-mode t))
 #+end_src
 
 After package installation, you should have =M-x pyvenv-workon= command with a list of your virtual environments.
@@ -904,38 +917,28 @@ After changing venv all installed packages from venv should be visible for LSP s
 #+end_src
 
 **** python-mode
-#+begin_src emacs-lisp 
-  (use-package python-mode
-    :ensure nil ; don't install, use the pre-installed version
-
-    :custom
-    (python-shell-completion-native-enable 1)
-    (python-shell-interpreter "ipython")
-    (python-shell-interpreter-args "-i --simple-prompt")
-    ; this command doesn't work BUT without, python-mode "won't load".
-    :bind (:map python-mode-map ("C-RET" . python-shell-send-statement))
-    )
+#+begin_src emacs-lisp
+  ;; Python-mode
+  (with-eval-after-load 'python-mode
+    (setq python-shell-completion-native-enable 1)
+    (setq python-shell-interpreter "ipython") ;;only if I have ipython
+    (setq python-shell-interpreter-args "-i --simple-prompt")
+    (define-key python-mode-map (kbd "C-RET") 'python-shell-send-statement))
 #+end_src
 
 *** Hook
-#+begin_src emacs-lisp  
+#+begin_src emacs-lisp
   (defun my-python-mode-hook-fn ()
-    (lsp)
-    (tree-sitter-hl-mode 1)
-    (jmn-display-lines-for-long-files)
-    (require 'dap-python)
-    ;; (local-set-key (kbd "<tab>") #'company-indent-or-complete-common)
     )
 
   (add-hook 'python-mode-hook #'my-python-mode-hook-fn)
-
 #+end_src
 
 ** C/C++
 *** Compilation Buffer
-Have the =*Compilation*= buffer scroll with the output.
+
 #+begin_src emacs-lisp
-  (setq compilation-scroll-output t)
+  (setq compilation-scroll-output t) ;;*Compilation* buffer scroll with the output.
 #+end_src
 
 The following keeps the compilation buffer if there are warnings or errors, and buries it otherwise (after 1 second). [[https://stackoverflow.com/questions/11043004/emacs-compile-buffer-auto-close][source]]
@@ -965,10 +968,8 @@ The following keeps the compilation buffer if there are warnings or errors, and 
     (setq-default c-basic-offset 2)
 
     (defun my-c-c++-mode-hook-fn ()
-      (lsp)                ; turn on
-      (local-set-key (kbd "C-<tab>") #'lsp-format-buffer) ;tab comp
-      ;(smartparens-mode 1) no longer have it?
-      (tree-sitter-hl-mode 1))
+      ;; (local-set-key (kbd "C-<tab>") #'lsp-format-buffer) ;tab comp
+      )
 
     (add-hook #'c-mode-hook #'my-c-c++-mode-hook-fn)
     (add-hook #'c++-mode-hook #'my-c-c++-mode-hook-fn)
@@ -979,16 +980,17 @@ The following keeps the compilation buffer if there are warnings or errors, and 
 (add-to-list 'auto-mode-alist '("\\.m$" . octave-mode))
 #+end_src
 
-** Markdown
+** TODO Markdown
+Hook doesn't look right, but I am guessing I tested it when added
 #+begin_src emacs-lisp
-  (add-hook 'markdown-mode-hook (lambda ()
-                                  (lsp-mode)
-                                  (flyspell-mode)))
+  (use-package markdown-mode
+    :hook (markdown-mode-hook . (lambda ()
+                                  (flyspell-mode))))
 #+end_src
 
 * Org-Mode
 ** Mode setup
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
   (defun jmn/org-mode-setup ()
     (org-indent-mode)
     (variable-pitch-mode 1)
@@ -1002,45 +1004,42 @@ The following keeps the compilation buffer if there are warnings or errors, and 
 
 ** Fonts
 #+begin_src emacs-lisp
-           (defun jmn/org-font-setup ()
+  (defun jmn/org-font-setup ()
+    ;; Replace list hyphen with dot
+    (font-lock-add-keywords 'org-mode
+                            '(("^ *\\([-]\\) "
+                               (0 (prog1 () (compose-region (match-beginning 1)
+                                                            (match-end 1) "•"))))))
+    ;; Set faces for heading levels
+    (dolist (face '((org-level-1 . 1.2)
+                    (org-level-2 . 1.1)
+                    (org-level-3 . 1.1)
+                    (org-level-4 . 1.1)
+                    (org-level-5 . 1.1)
+                    (org-level-6 . 1.1)
+                    (org-level-7 . 1.1)
+                    (org-level-8 . 1.1)
+                    ))
+      (set-face-attribute (car face) nil :font "Cantarell"
+                          :weight 'regular :height (cdr face)))
 
-             ;; Replace list hyphen with dot
-             (font-lock-add-keywords 'org-mode
-                                '(("^ *\\([-]\\) "
-                                 (0 (prog1 () (compose-region (match-beginning 1)
-                                                              (match-end 1) "•"))))))
-
-             ;; Set faces for heading levels
-             (dolist (face '((org-level-1 . 1.2)
-                             (org-level-2 . 1.1)
-                             (org-level-3 . 1.1)
-                             (org-level-4 . 1.1)
-                             (org-level-5 . 1.1)
-                             (org-level-6 . 1.1)
-                             (org-level-7 . 1.1)
-                             (org-level-8 . 1.1)
-                             ))
-               (set-face-attribute (car face) nil :font "Cantarell"
-                                   :weight 'regular :height (cdr face)))
-
-             ;; Ensure that anything that should be fixed-pitch in Org files appears that way
-             (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
-             (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
-             (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
-             (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-             (set-face-attribute 'org-special-keyword nil
-                                 :inherit '(font-lock-comment-face fixed-pitch))
-             (set-face-attribute 'org-meta-line nil
-                                 :inherit '(font-lock-comment-face fixed-pitch))
-             (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
+    ;; Ensure that anything that should be fixed-pitch in Org files appears that way
+    (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+    (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-special-keyword nil
+                        :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-meta-line nil
+                        :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 #+end_src
 
 ** Start
 #+begin_src emacs-lisp
-  (use-package org
-    :commands (org-capture org-agenda)
-    :hook (org-mode . jmn/org-mode-setup)
-    :config
+  (add-hook 'org-mode-hook  'jmn/org-mode-setup)
+
+  (with-eval-after-load 'org
     (jmn/org-font-setup)
     (setq org-ellipsis " ▾"
           org-hide-emphasis-markers t
@@ -1061,11 +1060,12 @@ The following keeps the compilation buffer if there are warnings or errors, and 
           org-agenda-tags-column
           (alist-get (system-name) '(("xps" . -85)
                                      ("dsk" . -90))
-                     'auto nil 'string=))) ;; should all be auto?e
+                     'auto nil 'string=)))
 #+end_src
 
 ** Bullets
-#+begin_src emacs-lisp 
+Archive: melpa
+#+begin_src emacs-lisp
   (use-package org-bullets
     :hook (org-mode . org-bullets-mode)
     :custom
@@ -1073,15 +1073,15 @@ The following keeps the compilation buffer if there are warnings or errors, and 
 #+end_src
 
 ** Center column
-#+begin_src emacs-lisp 
-(defun efs/org-mode-visual-fill ()
-  (setq visual-fill-column-width 100
-        visual-fill-column-center-text t)
-  (visual-fill-column-mode 1))
+Archive: melpa
+#+begin_src emacs-lisp
+  (defun jmn/org-mode-visual-fill ()
+    (setq visual-fill-column-width 100
+          visual-fill-column-center-text t)
+    (visual-fill-column-mode 1))
 
-(use-package visual-fill-column
-  :hook (org-mode . efs/org-mode-visual-fill))
-
+  (use-package visual-fill-column
+    :hook (org-mode . jmn/org-mode-visual-fill))
 #+end_src
 
 ** Org-babel
@@ -1089,7 +1089,6 @@ Either start a source block with  =<[template]= or =C-c C-,= to select from org-
 
 Notes:
 Use # -*- org-src-preserve-indentation: t; -*- when doing tangle/detangle with python
-
 #+begin_src emacs-lisp
   (org-babel-do-load-languages 'org-babel-load-languages
                                (append org-babel-load-languages
@@ -1102,8 +1101,7 @@ Use # -*- org-src-preserve-indentation: t; -*- when doing tangle/detangle with p
   (setq org-confirm-babel-evaluate nil)
 
   (with-eval-after-load 'org
-    ;; This is needed as of Org 9.2
-    (require 'org-tempo)
+    (require 'org-tempo);; This is needed as of Org 9.2
     (add-to-list 'org-structure-template-alist '("la" . "src latex"))
     (add-to-list 'org-structure-template-alist '("m" . "src makefile"))
     (add-to-list 'org-structure-template-alist '("js" . "src js"))
@@ -1132,11 +1130,12 @@ Note: I had to install texlive dependencies for latex framents to work. I found 
 Create a function to align the size of displayed latex framents with overall org-mode font size.
 
 #+begin_src emacs-lisp
-    (defun update-org-latex-fragments ()
-      (org-latex-preview '(64))
-      (plist-put org-format-latex-options :scale (+ jmn-latex-scale  (* 0.3 text-scale-mode-amount)))
-      (org-latex-preview '(16)))
-    (add-hook 'text-scale-mode-hook 'update-org-latex-fragments)
+  (defun update-org-latex-fragments ()
+    (org-latex-preview '(64))
+    (plist-put org-format-latex-options :scale
+               (+ jmn-latex-scale  (* 0.3 text-scale-mode-amount)))
+    (org-latex-preview '(16)))
+  (add-hook 'text-scale-mode-hook 'update-org-latex-fragments)
 #+end_src
 
 ** Keybindings
@@ -1177,7 +1176,7 @@ reference this list.
 
   (defun jmn-export-to-html-on-save()
     (interactive)
-     (add-to-list 'jmn-org-files-to-html-on-save (buffer-file-name)))
+    (add-to-list 'jmn-org-files-to-html-on-save (buffer-file-name)))
 #+end_src
 
 **** Make the local eval "safe"
@@ -1187,7 +1186,7 @@ The following removes the prompts when loading the buffer with the local variabl
 
   (if (version<= "29" emacs-version)
       (with-eval-after-load 'org
-      (add-to-list 'org-safe-remote-resources  "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")))
+        (add-to-list 'org-safe-remote-resources  "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")))
 #+end_src
 
 * Agenda and GTD
@@ -1293,12 +1292,13 @@ File holding habits must be added to =org-agenda-files= above
 - habits must have the =:STYLE: habit= property
 #+begin_src emacs-lisp
   ;; org habit;;
-  (require 'org-habit)
   (add-to-list 'org-modules 'org-habit)
-  (setq org-habit-graph-column
-        (alist-get (system-name) '(("xps" . 56)
-                                   ("dsk" . 52))
-                                 50 nil 'string=)) ;; default is 40
+  ;;(require 'org-habit)
+  (with-eval-after-load 'org-habit
+    (setq org-habit-graph-column
+          (alist-get (system-name) '(("xps" . 56)
+                                     ("dsk" . 52))
+                     50 nil 'string=))) ;; default is 40
 #+end_src
 
 ** Capture Templates
@@ -1398,11 +1398,42 @@ https://github.com/jethrokuan/.emacs.d/blob/master/init.el
                :after (func-ignore #'org-agenda-redo-all))
   ;; ;; (advice-add 'org-capture-finalize
   ;; ;;             :after (func-ignore #'org-agenda-redo-all))
-
-
 #+end_src
 
 * Terminals
+** term-mode
+- Slower than vterm at printing large amounts of information.
+- For more than one terminal, you must M-x rename-uniquely the terminal.
+- C-c prefix for term commands
+
+Line-mode vs char-mode *selection shows on the modeline*:
+C-c C-k -> char-mode
+C-c C-j  -> line-mode
+*** Keybindings
+Just some changes to make it feel more like the other modes.
+ - I don't really use the =M-p= nor the =M-n=, but they could be nice.
+#+begin_src emacs-lisp
+  (with-eval-after-load 'term
+    (define-key term-raw-map (kbd "C-o") 'other-window)
+    (define-key term-raw-map (kbd "M-o") 'previous-multiframe-window)
+
+    ;; access prev commandsin line mode, though line and char-mode rings are separate
+    (define-key term-raw-map (kbd "M-p") 'term-send-up)
+    (define-key term-raw-map (kbd "M-n") 'term-send-down)
+
+    ;; add "C-x" as escape character and use it for keybindings
+    (let (term-escape-char)
+      (term-set-escape-char ?\C-x))
+    (define-key term-raw-map (kbd "C-x C-k") ' kill-current-buffer))
+#+end_src
+
+*** Better term-mode colors
+Archive: melpa
+#+begin_src emacs-lisp
+(use-package eterm-256color
+  :hook (term-mode . eterm-256color-mode))
+#+end_src
+
 ** vterm
 Faster terminal due to being compiled. Default is a better mode than term-mode; it's like a Char-mode but with ability to access function list with M-x.  [[https://github.com/akermu/emacs-libvterm][vterm Documentation]]
 - For more than one terminal, you must M-x rename-uniquely the terminal.
@@ -1424,59 +1455,25 @@ Faster terminal due to being compiled. Default is a better mode than term-mode; 
 
   (use-package vterm-toggle
     :after vterm
+    :defer t
     :config
     (setq vterm-toggle-fullscreen-p nil)
+    (global-set-key (kbd "C-`") 'vterm-toggle)
     (add-to-list 'display-buffer-alist
-                 '((lambda(bufname _) (with-current-buffer bufname (equal major-mode 'vterm-mode)))
+                 '((lambda(bufname _) (with-current-buffer
+                                          bufname (equal major-mode 'vterm-mode)))
                    (display-buffer-reuse-window display-buffer-at-bottom)
                    ;;(display-buffer-reuse-window display-buffer-in-direction)
                    ;;display-buffer-in-direction/direction/dedicated is added in emacs27
                    ;;(direction . bottom)
                    ;;(dedicated . t) ;dedicated is supported in emacs27
                    (reusable-frames . visible)
-                   (window-height . 0.3)))
-    )
-
-  ;; (global-unset-key (kbd "C-t"))`
-  (global-set-key (kbd "C-`") 'vterm-toggle)
-
-#+end_src
-
-** term-mode
-- Slower than vterm at printing large amounts of information. 
-- For more than one terminal, you must M-x rename-uniquely the terminal.
-- C-c prefix for term commands
-
-Line-mode vs char-mode *selection shows on the modeline*:
-C-c C-k -> char-mode
-C-c C-j  -> line-mode
-*** Better term-mode colors
-#+begin_src emacs-lisp
-(use-package eterm-256color
-  :hook (term-mode . eterm-256color-mode))
-#+end_src
-
-*** Keybindings
-Just some changes to make it feel more like the other modes.
- - I don't really use the =M-p= nor the =M-n=, but they could be nice.
-#+begin_src emacs-lisp
-  (with-eval-after-load 'term
-    (define-key term-raw-map (kbd "C-o") 'other-window)
-     (define-key term-raw-map (kbd "M-o") 'previous-multiframe-window)
-
-     ;; access prev commandsin line mode, though line and char-mode rings are separate
-     (define-key term-raw-map (kbd "M-p") 'term-send-up)
-     (define-key term-raw-map (kbd "M-n") 'term-send-down)
-
-     ;; add "C-x" as escape character and use it for keybindings
-     (let (term-escape-char)
-                               (term-set-escape-char ?\C-x))
-     (define-key term-raw-map (kbd "C-x C-k") ' kill-current-buffer))
+                   (window-height . 0.3))))
 #+end_src
 
 * Theme
 ** Setup and helpers
-
+Helpful functions
 #+begin_src emacs-lisp
 (setq custom-safe-themes t) ;; don't ask if theme is safe
 #+end_src
@@ -1626,9 +1623,9 @@ Just some changes to make it feel more like the other modes.
 ** Default and time switches
 #+begin_src emacs-lisp
   ;; gruvbox goat
-  ;; (jmn-load-gruvbox-dark-hard)
-  (jmn-load-gruvbox-light-medium)
-  (transparency 100)
+  (jmn-load-gruvbox-dark-hard)
+  ;; (jmn-load-gruvbox-light-medium)
+  ;; (transparency 100)
 #+end_src
 
 * Hacky Fixes
