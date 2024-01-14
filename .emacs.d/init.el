@@ -8,32 +8,36 @@
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 
-;; Initialize package sources
-(require 'package)
+;; Vanilla setup or using packages
+(setq jmn-vanilla nil)
+(setq jmn-vanilla t)
+(setq jmn-term (not (display-graphic-p (selected-frame))))
 
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("elpa" . "https://elpa.gnu.org/packages/")))
+(if jmn-vanilla
+    (defmacro use-package (&rest _))
+  (progn
+    (require 'package)
+    (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                             ("elpa" . "https://elpa.gnu.org/packages/")))
+    (package-initialize)
 
-(package-initialize)
+    (unless package-archive-contents
+      (package-refresh-contents))
 
-(unless package-archive-contents
-  (package-refresh-contents))
+    (unless (package-installed-p 'use-package)
+      (package-install 'use-package));; Initialize use-package on non-Linux platforms
 
-;;;; use-package ;;;;
-(if 'nil
-    (progn
-     ;; Initialize use-package on non-Linux platforms
-     (unless (package-installed-p 'use-package)
-       (package-install 'use-package))
-     (require 'use-package)
-     (setq use-package-always-ensure t) ; no need for :ensure t for each package.
-     (setq use-package-verbose t) ; log configure/loading messages in *Messages*
-     )
-  (defmacro use-package (&rest _))) ;; uncomment to ignore all use-package commands
+    (require 'use-package)
+    (setq use-package-always-ensure t) ; no need for :ensure t for each package.
+    (setq use-package-verbose t)) ; log configure/loading messages in *Messages*
+  ) ;; define use-package macro to do nothing
 
+;; allows us to make sure environment packages are installed
 (use-package use-package-ensure-system-package
   :ensure t)
 
+;; prompt will remind us to update your packages.
+;; Alternitiley we can =M-x auto-package-update-now= to update right now.
 (use-package auto-package-update
   :custom
   (auto-package-update-interval 90)
@@ -45,7 +49,6 @@
   (auto-package-update-at-time "09:00"))
 
 ;;;; Basic ;;;;
-(toggle-debug-on-error)                         ; start debugger on elisp error
 (setq inhibit-startup-message t)		; inhibit startup message
 (tool-bar-mode -1)		         	; remove toolbar
 (menu-bar-mode -1)				; Disable the menu bar
@@ -119,8 +122,7 @@
 (use-package undo-tree
   :config
   (global-undo-tree-mode 1)
-  (setq undo-tree-auto-save-history nil) ;; don't save ~undo-tree~ file
-  )
+  (setq undo-tree-auto-save-history nil)) ;; don't save ~undo-tree~ file
 
 ;;;; Modeline ;;;;
 (use-package all-the-icons
@@ -152,7 +154,7 @@
                           (bookmarks . 5)
                           (projects . 5)
                           (agenda . 5)
-                          ;;(registers . 5)
+                          (registers . 5)
                           ))
 
   (setcdr (assoc 'projects dashboard-item-shortcuts) "j")
@@ -168,6 +170,58 @@
   (define-key dashboard-mode-map (kbd "p")  'dashboard-previous-line))
 
 (add-hook 'dashboard-mode-hook 'my-dashboard-hook)
+
+;; general improvements
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+(global-set-key (kbd "C-x C-b") 'buffer-menu)   ;; open buffer menue in current buffer
+(global-set-key (kbd "C-x C-k") 'kill-current-buffer)   ;; "C-x k" asks which buffer
+(global-set-key (kbd "C-o") 'other-window)  ;; default is "C-x o"
+(global-set-key (kbd "M-o") 'previous-multiframe-window)
+(global-set-key (kbd "C-c C-c") 'eval-buffer)
+(global-set-key (kbd "C-c C-r") 'eval-region)
+
+;; make font bigger/smaller.
+(global-set-key (kbd "C-=") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
+(global-set-key (kbd "C-0") 'text-scale-adjust)
+
+;; writing/editing
+(global-set-key (kbd "<f9>") 'ispell-word)
+(global-set-key (kbd "<f10>") 'dictionary-lookup-definition)
+
+;; Buffer-menu-mode
+(define-key Buffer-menu-mode-map (kbd "C-o") 'other-window)
+(define-key Buffer-menu-mode-map (kbd "M-o") 'previous-multiframe-window)
+;; "o" opens in another buffer and moves focus
+;; "C-M-o" opens in another buffer and keeps focus in the Buffer-menu
+(define-key Buffer-menu-mode-map (kbd "C-M-o") 'Buffer-menu-switch-other-window)
+
+;; bookmark-bmenue
+(with-eval-after-load 'bookmark
+(define-key bookmark-bmenu-mode-map (kbd "C-o") 'other-window)
+(define-key bookmark-bmenu-mode-map (kbd "M-o") 'previous-multiframe-window)
+(define-key bookmark-bmenu-mode-map (kbd "C-M-o") 'bookmark-bmenu-switch-other-window)
+)
+
+;; compilation-mode
+(add-hook 'compilation-mode-hook (lambda () (define-key compilation-mode-map (kbd "C-o") 'other-window)))
+
+;; grep-mode
+(defun jmn-grep-keybindings()
+  (define-key grep-mode-map (kbd "o") 'compilation-display-error)
+  (define-key grep-mode-map (kbd "C-o") 'other-window))
+
+(add-hook 'grep-mode-hook #'jmn-grep-keybindings)
+
+;; adjust windows with keybindings
+(global-set-key (kbd "C-<up>") 'enlarge-window)
+(global-set-key (kbd "C-<down>") 'shrink-window)
+(global-set-key (kbd "C-<right>") 'enlarge-window-horizontally)
+(global-set-key (kbd "C-<left>") 'shrink-window-horizontally)
+
+;; non-org C-c <blank> bindings
+(global-set-key (kbd "C-c r") 'revert-buffer)
+(global-set-key (kbd "C-c =") 'vc-diff) ;; also bound to "C-x v ="
 
 ;;;; Dired ;;;;
 (add-hook 'dired-mode 'dired-hide-details-mode) ;; '(' to toggle details
@@ -227,7 +281,7 @@
 
 (use-package goto-last-change
   :ensure t
-  :bind ("C-;" . goto-last-change))
+  :bind ("C-c g" . goto-last-change))
 
 (use-package ivy
   :delight ivy-mode
@@ -237,7 +291,7 @@
   (setq ivy-initial-inputs-alist nil))
 
 (use-package ivy-rich
-  :after ivy
+  :after counsel
   :init
   (ivy-rich-mode 1))
 
@@ -273,59 +327,6 @@
   :delight which-key-mode
   :config(which-key-mode)
   (setq which-key-idle-delay 0.8))
-
-;; general improvements
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-(global-set-key (kbd "C-x C-b") 'buffer-menu)   ;; open buffer menue in current buffer
-(global-set-key (kbd "C-x C-k") 'kill-current-buffer)   ;; "C-x k" asks which buffer
-(global-set-key (kbd "C-o") 'other-window)  ;; default is "C-x o"
-(global-set-key (kbd "M-o") 'previous-multiframe-window)
-(global-set-key (kbd "C-c C-c") 'eval-buffer)
-(global-set-key (kbd "C-c C-r") 'eval-region)
-
-;; make font bigger/smaller.
-(global-set-key (kbd "C-=") 'text-scale-increase)
-(global-set-key (kbd "C--") 'text-scale-decrease)
-(global-set-key (kbd "C-0") 'text-scale-adjust)
-
-;; writing/editing
-(global-set-key (kbd "<f9>") 'ispell-word)
-(global-set-key (kbd "<f10>") 'dictionary-lookup-definition)
-
-;; Buffer-menu-mode
-(define-key Buffer-menu-mode-map (kbd "C-o") 'other-window)
-(define-key Buffer-menu-mode-map (kbd "M-o") 'previous-multiframe-window)
-;; "o" opens in another buffer and moves focus
-;; "C-M-o" opens in another buffer and keeps focus in the Buffer-menu
-(define-key Buffer-menu-mode-map (kbd "C-M-o") 'Buffer-menu-switch-other-window)
-
-;; bookmark-bmenue
-(with-eval-after-load 'bookmark
-(define-key bookmark-bmenu-mode-map (kbd "C-o") 'other-window)
-(define-key bookmark-bmenu-mode-map (kbd "M-o") 'previous-multiframe-window)
-(define-key bookmark-bmenu-mode-map (kbd "C-M-o") 'bookmark-bmenu-switch-other-window)
-)
-;; compilation-mode
-
-(with-eval-after-load 'compilation
-  (define-key compilation-mode-map (kbd "C-o") 'other-window))
-
-;; grep-mode
-(defun jmn-grep-keybindings()
-  (define-key grep-mode-map (kbd "o") 'compilation-display-error)
-  (define-key grep-mode-map (kbd "C-o") 'other-window))
-
-(add-hook 'grep-mode-hook #'jmn-grep-keybindings)
-
-;; adjust windows with keybindings
-(global-set-key (kbd "C-<up>") 'enlarge-window)
-(global-set-key (kbd "C-<down>") 'shrink-window)
-(global-set-key (kbd "C-<right>") 'enlarge-window-horizontally)
-(global-set-key (kbd "C-<left>") 'shrink-window-horizontally)
-
-;; non-org C-c <blank> bindings
-(global-set-key (kbd "C-c r") 'revert-buffer)
-(global-set-key (kbd "C-c =") 'vc-diff) ;; also bound to "C-x v ="
 
 (defun jmn-set-font-height(value)
   (interactive "nFont height (default is 100): ")
@@ -370,7 +371,9 @@
 (show-paren-mode    1) ; Highlight parentheses pairs.
 
 (use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode))
+  ;; :hook ((prog-mode . rainbow-delimiters-mode)
+  ;; 	 (org-mode (lambda () (rainbow-delimiters-mode 0))))
+  )
 
 (use-package magit
   :commands (magit-status)
@@ -385,8 +388,7 @@
   (company-minimum-prefix-length 1)
   (company-idle-delay 0.5)
   ;; (global-set-key (kbd "C-<tab>") 'company-complete)
-)
-(global-company-mode 1)
+  :config (global-company-mode 1))
 
 (use-package company-box
   :hook (company-mode . company-box-mode))
@@ -402,10 +404,7 @@
   :defer t
   :bind (("C-c t" . treemacs ))
   :config
-  (setq treemacs-width 30)
-  ;; :hook (treemacs-mode . (lambda ()
-  ;;                          (setq-local mode-line-format nil)))
-  )
+  (setq treemacs-width 30))
 
 (use-package lsp-mode
   :delight lsp-mode
@@ -456,6 +455,8 @@
 
 (use-package cmake-mode
   :defer t
+  :ensure-system-package
+  ((cmake . "sudo dnf install -y cmake"))
   :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'"))
 
 (use-package cmake-font-lock
@@ -470,16 +471,16 @@
 
 (use-package yasnippet
   :delight( yas-minor-mode)
-  :after lsp)
+  :after lsp
+  :config
+  (yas-global-mode 1))
 
 (use-package yasnippet-snippets
   :after yas-minor-mode) ; load basic snippets from melpa
 
-(yas-global-mode 1)
-
 ;; free up C-; for goto-last change
-(with-eval-after-load 'flyspell
-    (define-key flyspell-mode-map (kbd "C-;") nil))
+;; (with-eval-after-load 'flyspell
+;;     (define-key flyspell-mode-map (kbd "C-;") nil))
 
 (use-package evil-nerd-commenter
 :bind ("M-;". evilnc-comment-or-uncomment-lines))
@@ -537,8 +538,8 @@
                             (require 'lsp-pyright)
                             (lsp))))
 
-;; Python-mode
-(with-eval-after-load 'python-mode
+;;;; Python-mode ;;;;
+(with-eval-after-load 'python
   (setq python-shell-completion-native-enable 1)
   (setq python-shell-interpreter "ipython") ;;only if I have ipython
   (setq python-shell-interpreter-args "-i --simple-prompt")
@@ -584,10 +585,10 @@
                                 (flyspell-mode))))
 
 (defun jmn/org-mode-setup ()
-  (org-indent-mode)
+  (unless jmn-term
+    (org-indent-mode))
   (variable-pitch-mode 1)
   (visual-line-mode 1)
-  (rainbow-delimiters-mode 0)
   ;; fix issue where it matches > with partentheses -- may break blocks with <>
   (modify-syntax-entry ?< ".")
   (modify-syntax-entry ?> ".")
@@ -627,31 +628,33 @@
 
 (with-eval-after-load 'org
   (jmn/org-font-setup)
-  (setq org-ellipsis " ▾"
-        org-hide-emphasis-markers t
-        org-src-fontify-natively t
-        org-fontify-quote-and-verse-blocks t
-        org-src-tab-acts-natively t
-        org-edit-src-content-indentation 2 ;; I undo this somewhere 4tangling
-        org-hide-block-startup nil
-        org-src-preserve-indentation nil
-        org-startup-folded 'content
-        org-cycle-separator-lines 2
-        org-capture-bookmark nil
-        org-list-indent-offset 1
-        org-image-actual-width nil    ;; fix to allow picture resizing
-        org-return-follows-link t     ;; keep for sure ;@work
-        org-use-speed-commands t      ;; excellent
-        org-export-babel-evaluate nil ;; don't run src blocks on export
-        org-agenda-tags-column
-        (alist-get (system-name) '(("xps" . -85)
-                                   ("dsk" . -90))
-                   'auto nil 'string=)))
+  (unless jmn-term
+    (setq org-ellipsis " ▾"))
+  (setq org-hide-emphasis-markers t
+	org-src-fontify-natively t
+	org-fontify-quote-and-verse-blocks t
+	org-src-tab-acts-natively t
+	org-edit-src-content-indentation 2 ;; I undo this somewhere 4tangling
+	org-hide-block-startup nil
+	org-src-preserve-indentation nil
+	org-startup-folded 'content
+	org-cycle-separator-lines 2
+	org-capture-bookmark nil
+	org-list-indent-offset 1
+	org-image-actual-width nil    ;; fix to allow picture resizing
+	org-return-follows-link t
+	org-use-speed-commands t
+	org-export-babel-evaluate nil ;; don't run src blocks on export
+	org-agenda-tags-column (alist-get
+				(system-name) '(("xps" . -85)
+						("dsk" . -90))
+				'auto nil 'string=)))
 
-(use-package org-bullets
-  :hook (org-mode . org-bullets-mode)
-  :custom
-  (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+(unless jmn-term
+  (use-package org-bullets
+    :hook (org-mode . org-bullets-mode)
+    :custom
+    (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●"))))
 
 (defun jmn/org-mode-visual-fill ()
   (setq visual-fill-column-width 100
@@ -720,7 +723,7 @@ f"))
 
 (add-to-list 'safe-local-variable-values '(eval jmn-export-to-html-on-save))
 
-(if (version<= "29" emacs-version)
+(if (and (version<= "29" emacs-version) (not jmn-vanilla))
     (with-eval-after-load 'org
       (add-to-list 'org-safe-remote-resources  "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")))
 
@@ -734,7 +737,7 @@ f"))
 (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|"
                                     "DONE(d)" "IGNORE(i)")))
 
-(require 'find-lisp)
+(require 'find-lisp) ;; may not be needed
 (setq org-directory "~/Documents/gtd/")
 
 (setq org-agenda-files (find-lisp-find-files org-directory "\.org$"))
@@ -913,9 +916,16 @@ f"))
   :hook (term-mode . eterm-256color-mode))
 
 (use-package vterm
-  :commands vterm
+  :ensure-system-package ((cmake . "sudo dnf install -y cmake")
+                          (libtool . "sudo dnf install -y libtool" )) ;; compilation
   :defer t
   :bind (:map vterm-mode-map ("C-o" . other-window))
+  :init (let ((package "cmake"))
+           (unless (executable-find package)
+             (async-shell-command (concat "sudo dnf install -y " package))))
+         (let ((package "libtool"))
+           (unless (executable-find package)
+             (async-shell-command (concat "sudo dnf install -y " package))))
   :config
   ;;(setq term-prompt-regexp "^[^$]*[$] *");; match your custom shell
   ;;(setq vterm-shell "zsh");; Set this to customize the shell to launch
@@ -1033,10 +1043,13 @@ f"))
   (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
                             (org-block . "#ebdbb2")))) ;; default "#f9f5d7"
 
-;; gruvbox goat
-(jmn-load-gruvbox-dark-hard)
-;; (jmn-load-gruvbox-light-medium)
-;; (transparency 100)
+(if (not jmn-vanilla)
+    (progn
+      (jmn-load-gruvbox-dark-hard) ;; gruvbox goat
+      ;; (jmn-load-gruvbox-light-medium)
+      ;; (transparency 96)
+      )
+  (print "no theme"))
 
 (setq image-types '(svg png gif tiff jpeg xpm xbm pbm))
 
@@ -1055,7 +1068,7 @@ f"))
       (global-set-key (kbd "<f11>") 'toggle-full-screen-with-transparency)))
 
 (defun on-after-init ()
-  (unless (display-graphic-p (selected-frame))
+  (if jmn-term
     (set-face-background 'default "unspecified-bg" (selected-frame)))
   (set-face-background 'line-number
                        (face-attribute 'default :background)))
