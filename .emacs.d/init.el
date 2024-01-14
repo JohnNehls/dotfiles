@@ -214,7 +214,7 @@
 (global-set-key (kbd "C-c =") 'vc-diff) ;; also bound to "C-x v ="
 
 ;;;; Dired ;;;;
-(add-hook 'dired-mode-mode 'dired-hide-details-mode) ;; '(' to toggle details
+(add-hook 'dired-mode-mode 'dired-hide-details-mode) ;; hide default -- '(' to toggle
 (with-eval-after-load 'dired
   (setq dired-listing-switches "-agho --group-directories-first" )
   (setq find-ls-option '("-print0 | xargs -0 ls -agho" . ""))
@@ -1063,14 +1063,21 @@ f"))
   ;;set font
   (when (member "Consolas" (font-family-list))
     (set-frame-font "Consolas" t t))
+
   ;; set shell --also gives emacs access to gnu coreutils (diff, ls, etc.)
   (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
   (add-hook 'term-mode-hook 'ansi-color-for-comint-mode-on)
   (setq explicit-shell-file-name "c:/Program Files/Git/bin/bash.exe")
   (setq shell-file-name explicit-shell-file-name)
   (add-to-list 'exec-path "c:/Program Files/Git/bin")
+
   ;; likey no octave, so read only matlab files
-  (add-hook 'octave-mode-hook 'read-only-mode)))
+  (add-hook 'octave-mode-hook 'read-only-mode)
+
+  ;; external ls for directories first support (dired)
+  (setq ls-lisp-use-insert-directory-program t)  ;; use external ls
+  (setq inserft-directory-program "c:/Program Files/Git/user/bin/ls.exe") ;; ls loc
+  ))
 
 (if jmn-term
     (add-hook 'window-setup-hook
