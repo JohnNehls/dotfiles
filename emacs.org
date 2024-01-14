@@ -288,7 +288,7 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
 - M-x du  shows the size of the files in the buffer (toggle for human readable)
 #+begin_src emacs-lisp
   ;;;; Dired ;;;;
-  (add-hook 'dired-mode 'dired-hide-details-mode) ;; '(' to toggle details
+  (add-hook 'dired-mode-mode 'dired-hide-details-mode) ;; '(' to toggle details
   (with-eval-after-load 'dired
     (setq dired-listing-switches "-agho --group-directories-first" )
     (setq find-ls-option '("-print0 | xargs -0 ls -agho" . ""))
@@ -1663,6 +1663,7 @@ Major changes for windows. Small changes also exist in the rest of the config.
     ;; likey no octave, so read only matlab files
     (add-hook 'octave-mode-hook 'read-only-mode)))
 #+end_src
+
 * Hacky Fixes
 ** Corrects error: File mode specification error: (error Invalid image type ‘svg’) (not used)
 #+begin_src emacs-lisp :tangle no

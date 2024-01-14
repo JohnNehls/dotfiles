@@ -214,7 +214,7 @@
 (global-set-key (kbd "C-c =") 'vc-diff) ;; also bound to "C-x v ="
 
 ;;;; Dired ;;;;
-(add-hook 'dired-mode 'dired-hide-details-mode) ;; '(' to toggle details
+(add-hook 'dired-mode-mode 'dired-hide-details-mode) ;; '(' to toggle details
 (with-eval-after-load 'dired
   (setq dired-listing-switches "-agho --group-directories-first" )
   (setq find-ls-option '("-print0 | xargs -0 ls -agho" . ""))
