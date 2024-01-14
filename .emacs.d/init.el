@@ -9,12 +9,11 @@
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 
 ;; Vanilla setup or using packages
-(setq jmn-vanilla nil)
 (setq jmn-vanilla t)
 (setq jmn-term (not (display-graphic-p (selected-frame))))
 
 (if jmn-vanilla
-    (defmacro use-package (&rest _))
+    (defmacro use-package (&rest _))  ;; define use-package macro to do nothing
   (progn
     (require 'package)
     (setq package-archives '(("melpa" . "https://melpa.org/packages/")
@@ -30,23 +29,13 @@
     (require 'use-package)
     (setq use-package-always-ensure t) ; no need for :ensure t for each package.
     (setq use-package-verbose t)) ; log configure/loading messages in *Messages*
-  ) ;; define use-package macro to do nothing
+  )
 
 ;; allows us to make sure environment packages are installed
 (use-package use-package-ensure-system-package
   :ensure t)
 
-;; prompt will remind us to update your packages.
-;; Alternitiley we can =M-x auto-package-update-now= to update right now.
-(use-package auto-package-update
-  :custom
-  (auto-package-update-interval 90)
-  (auto-package-update-prompt-before-update t)
-  :config
-  (setq auto-package-update-delete-old-versions t)
-  (setq auto-package-update-hide-results t)
-  (auto-package-update-maybe)
-  (auto-package-update-at-time "09:00"))
+;; update your packages with=M-x auto-package-update-now= to update right now.
 
 ;;;; Basic ;;;;
 (setq inhibit-startup-message t)		; inhibit startup message
@@ -111,8 +100,7 @@
 (setq pixel-scroll-precision-mode     1) ;; pixel based scrolling
 
 (use-package fast-scroll
-  :ensure t
-  :demand t
+  :defer 2
   :config
   (add-hook 'fast-scroll-start-hook (lambda () (flycheck-mode -1)))
   (add-hook 'fast-scroll-end-hook (lambda () (flycheck-mode 1)))
@@ -120,25 +108,27 @@
   (fast-scroll-mode 1))
 
 (use-package undo-tree
+  :defer 2
   :config
   (global-undo-tree-mode 1)
   (setq undo-tree-auto-save-history nil)) ;; don't save ~undo-tree~ file
 
 ;;;; Modeline ;;;;
 (use-package all-the-icons
-:init
-(when (and (not (member "all-the-icons" (font-family-list))) ;; autoinstall fonts
-           (window-system))
-  (all-the-icons-install-fonts t)))
+  :defer 1
+  :init
+  (when (and (not (member "all-the-icons" (font-family-list))) ;; autoinstall fonts
+	     (window-system))
+    (all-the-icons-install-fonts t)))
 
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
   :custom ((doom-modeline-height 10)
-           (doom-modeline-vcs-max-length 20))) ;; default is 12
+	   (doom-modeline-vcs-max-length 20))) ;; default is 12
 
 ;;;; Cleanup whitespace ;;;;
 (use-package ws-butler
-    :defer t
+    :defer 4
     :hook ((text-mode . ws-butler-mode)
            (prog-mode . ws-butler-mode)))
 
@@ -284,7 +274,8 @@
   :bind ("C-c g" . goto-last-change))
 
 (use-package ivy
-  :delight ivy-mode
+  :after counsel
+  :defer t
   :config
   (ivy-mode 1)
   ;; remove ^ on the inputbuffer
@@ -305,6 +296,7 @@
   (ivy-prescient-mode 1))
 
 (use-package counsel
+  :defer t
   :bind (("M-x" . counsel-M-x)      ; displays ivy-rich info in minibuffer
          ("C-x C-f" . counsel-find-file)
          :map minibuffer-local-map
@@ -312,7 +304,8 @@
          ))
 
 (use-package helpful
-:commands (helpful-callable helpful-variavle helpful-command helpful-key)
+  :defer 3
+  :commands (helpful-callable helpful-variavle helpful-command helpful-key)
   :custom
   (counsel-describe-function-function #'helpful-callable)
   (counsel-describe-variable-function #'helpful-variable)
@@ -323,7 +316,7 @@
   ([remap describe-key] . helpful-key))
 
 (use-package which-key
-  :defer 0
+  :defer 1
   :delight which-key-mode
   :config(which-key-mode)
   (setq which-key-idle-delay 0.8))
@@ -371,6 +364,7 @@
 (show-paren-mode    1) ; Highlight parentheses pairs.
 
 (use-package rainbow-delimiters
+  :defer t
   ;; :hook ((prog-mode . rainbow-delimiters-mode)
   ;; 	 (org-mode (lambda () (rainbow-delimiters-mode 0))))
   )
@@ -391,10 +385,10 @@
   :config (global-company-mode 1))
 
 (use-package company-box
+  :after company
   :hook (company-mode . company-box-mode))
 
 (use-package company-prescient
-  :defer 2
   :after company
   :config
   (company-prescient-mode +1))
@@ -492,24 +486,28 @@
          (c++-mode . tree-sitter-hl-mode)))
 
 (use-package ripgrep
+  :defer 2
   :ensure-system-package
   ((rg . "sudo dnf install -y ripgrep")))
 
-(use-package yaml-mode)
+(use-package yaml-mode
+  :defer t)
 
-(use-package dockerfile-mode)
+(use-package dockerfile-mode
+  :defer t)
 
 (defun my-sh-mode-hook-fn()
   (setq sh-basic-offset 2
-        sh-indentation 2)) ;; defaults is 4
+	sh-indentation 2)) ;; defaults is 4
 (add-hook 'sh-mode-hook #'my-sh-mode-hook-fn)
 
 (use-package sh-script
+  :defer t
   :ensure-system-package
   ((bash-language-server . "sudo dnf install -y nodejs-bash-language-server"))
   :config
   (setq sh-basic-offset 2
-        sh-indentation 2)) ;; defaults are 4
+	sh-indentation 2)) ;; defaults are 4
 
 (use-package ein
   :commands (ein:notebooklist-open)
@@ -581,8 +579,9 @@
 (add-to-list 'auto-mode-alist '("\\.m$" . octave-mode))
 
 (use-package markdown-mode
+  :defer t
   :hook (markdown-mode-hook . (lambda ()
-                                (flyspell-mode))))
+				(flyspell-mode))))
 
 (defun jmn/org-mode-setup ()
   (unless jmn-term
@@ -595,26 +594,31 @@
   )
 
 (defun jmn/org-font-setup ()
-  ;; Replace list hyphen with dot
-  (font-lock-add-keywords 'org-mode
-                          '(("^ *\\([-]\\) "
-                             (0 (prog1 () (compose-region (match-beginning 1)
-                                                          (match-end 1) "•"))))))
+  (unless jmn-term ;; Replace list hyphen with dot
+    (font-lock-add-keywords
+     'org-mode '(("^ *\\([-]\\) "
+                  (0 (prog1 () (compose-region (match-beginning 1)
+                                               (match-end 1) "•")))))))
+
   ;; Set faces for heading levels
-  (dolist (face '((org-level-1 . 1.2)
-                  (org-level-2 . 1.1)
-                  (org-level-3 . 1.1)
-                  (org-level-4 . 1.1)
-                  (org-level-5 . 1.1)
-                  (org-level-6 . 1.1)
-                  (org-level-7 . 1.1)
-                  (org-level-8 . 1.1)
-                  ))
-    (set-face-attribute (car face) nil :font "Cantarell"
-                        :weight 'regular :height (cdr face)))
+  (let ((jmn-org-hfont-alist '((gnu/linux . "Cantarell")
+                              (windows-nt . unspecified))))
+    (dolist (face '((org-level-1 . 1.2)
+                    (org-level-2 . 1.1)
+                    (org-level-3 . 1.1)
+                    (org-level-4 . 1.1)
+                    (org-level-5 . 1.1)
+                    (org-level-6 . 1.1)
+                    (org-level-7 . 1.1)
+                    (org-level-8 . 1.1)
+                    ))
+      (set-face-attribute (car face) nil
+                          :font (alist-get system-type jmn-org-hfont-alist)
+                          :weight 'regular :height (cdr face))))
 
   ;; Ensure that anything that should be fixed-pitch in Org files appears that way
-  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+  ;; (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch) ;;warning
+  (set-face-attribute 'org-block nil :foreground 'unspecified' :inherit 'fixed-pitch)
   (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
   (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
   (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
@@ -628,7 +632,7 @@
 
 (with-eval-after-load 'org
   (jmn/org-font-setup)
-  (unless jmn-term
+  (unless (or jmn-term jmn-vanilla)
     (setq org-ellipsis " ▾"))
   (setq org-hide-emphasis-markers t
 	org-src-fontify-natively t
@@ -705,7 +709,8 @@ f"))
 (global-set-key (kbd "C-c c") #'org-capture)
 (global-set-key (kbd "C-c a") (lambda (&optional args) (interactive "P") (org-agenda args " ")))
 
-(use-package htmlize)
+(use-package htmlize
+  :defer t)
 
 ;; initialize if not already
 (if (not (bound-and-true-p jmn-org-files-to-html-on-save))
@@ -735,7 +740,7 @@ f"))
 
 ;; SOMEDAY itmes are ommitted from GTD interface on purpose
 (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|"
-                                    "DONE(d)" "IGNORE(i)")))
+				    "DONE(d)" "IGNORE(i)")))
 
 (require 'find-lisp) ;; may not be needed
 (setq org-directory "~/Documents/gtd/")
@@ -745,64 +750,65 @@ f"))
 ;; level/maxlevel = order in hierarchy
 (setq org-refile-targets
       '(("projects.org" :maxlevel . 2)
-        ("someday.org" :maxlevel . 1)
-        ("whip.org" :level . 0)
-        ("next.org" :level . 0)))
+	("someday.org" :maxlevel . 1)
+	("whip.org" :level . 0)
+	("next.org" :level . 0)))
 
 ;; https://github.com/syl20bnr/spacemacs/issues/3094
 (setq org-refile-use-outline-path 'file org-outline-path-complete-in-steps nil)
 (setq org-refile-allow-creating-parent-nodes 'confirm)
 
 (setq org-agenda-prefix-format '((agenda . " %i %-10:c%t [%e]% s ")
-                                 (todo . " %i %-10:c [%-4e] ")
-                                 (tags . " %i %-12:c")))
+				 (todo . " %i %-10:c [%-4e] ")
+				 (tags . " %i %-12:c")))
 
 (setq org-deadline-warning-days 30)
 
-(setq org-agenda-start-with-log-mode t) ;; allows us to see closed in calendar
-(setq org-log-done 'time) ;; creates CLOSED time tag
-(setq org-log-into-drawer t) ;; creates a LOGBOOK drawer for notes
+(setq org-agenda-start-with-log-mode t)  ;; allows us to see closed in calendar
+(setq org-log-done 'time)  ;; creates CLOSED time tag
+(setq org-log-into-drawer t)  ;; creates a LOGBOOK drawer for notes
+(setq org-agenda-use-time-grid nil)  ;; no grid at top of agenda
 
 (setq org-agenda-custom-commands
       '(("d" "Dashboard"
-         ((agenda ""
-                  ((org-deadline-warning-days 30)))
-          (todo "NEXT"
-                ((org-agenda-overriding-header "Next Un-Scheduled Tasks")))
-          (todo "TODO"
-                ((org-agenda-overriding-header "Active Un-Scheduled Tasks")))))
+	 ((agenda ""
+		  ((org-deadline-warning-days 30)))
+	  (todo "NEXT"
+		((org-agenda-overriding-header "Next Un-Scheduled Tasks")))
+	  (todo "TODO"
+		((org-agenda-overriding-header "Active Un-Scheduled Tasks")))))
 
-        (" " "Agenda"
-         ((agenda ""
-                  ((org-agenda-span 'day)
-                   (org-deadline-warning-days 365)))
+	(" " "Agenda"
+	 ((agenda ""
+		  ((org-agenda-span 'day)
+		   (org-deadline-warning-days 365)))
 
-          (todo "TODO"
-                ((org-agenda-overriding-header "To Refile")
-                 (org-agenda-files (list (concat org-directory "inbox.org")))))
+	  (todo "TODO"
+		((org-agenda-overriding-header "To Refile")
+		 (org-agenda-files (list (concat org-directory "inbox.org")))))
 
-          (todo "NEXT"
-                ((org-agenda-overriding-header "In Progress")
-                 (org-agenda-files (list (concat org-directory "projects.org")
-                                         (concat org-directory "next.org")
-                                         (concat org-directory "inbox.org")))))
+	  (todo "NEXT"
+		((org-agenda-overriding-header "In Progress")
+		 (org-agenda-files (list (concat org-directory "projects.org")
+					 (concat org-directory "next.org")
+					 (concat org-directory "inbox.org")))))
 
-          (todo "TODO"
-                ((org-agenda-overriding-header "Projects")
-                 (org-agenda-files (list (concat org-directory  "projects.org")))))
+	  (todo "TODO"
+		((org-agenda-overriding-header "Projects")
+		 (org-agenda-files (list (concat org-directory  "projects.org")))))
 
-          (todo "TODO"
-                ((org-agenda-overriding-header "One-off Tasks")
-                 (org-agenda-files (list (concat org-directory  "next.org"))))
-                (org-agenda-skip-function '(org-agenda-skip-entry-if
-                                            'deadline 'scheduled)))
+	  (todo "TODO"
+		((org-agenda-overriding-header "One-off Tasks")
+		 (org-agenda-files (list (concat org-directory  "next.org"))))
+		(org-agenda-skip-function '(org-agenda-skip-entry-if
+					    'deadline 'scheduled)))
 
-          (todo "HOLD"
-                    ((org-agenda-overriding-header "HOLD")
-                     (org-agenda-files (list (concat org-directory "projects.org")
-                                             (concat org-directory "next.org")
-                                             (concat org-directory "inbox.org")))))
-          ))))
+	  (todo "HOLD"
+		    ((org-agenda-overriding-header "HOLD")
+		     (org-agenda-files (list (concat org-directory "projects.org")
+					     (concat org-directory "next.org")
+					     (concat org-directory "inbox.org")))))
+	  ))))
 
 (defun jmn-someday() "Quick access to someday.org (no links in agenda)"
        (interactive)
@@ -954,7 +960,8 @@ f"))
   (interactive)
   (disable-theme (car custom-enabled-themes)))
 
-(use-package gruvbox-theme)
+(use-package gruvbox-theme
+  :defer t)
 
 (defun jmn-set-gruv-org-faces (props)
   "Function used by all gruvbox themes for setting or faces"
@@ -971,12 +978,12 @@ f"))
     (set-face-background 'org-block-end-line (face-background `default))
 
     (setq org-todo-keyword-faces
-          `(("NEXT" . ,(face-foreground font-lock-function-name-face))
-            ("HOLD" . ,(face-foreground font-lock-builtin-face))
-            ("DONE" . ,(alist-get 'done-color props))))
+	  `(("NEXT" . ,(face-foreground font-lock-function-name-face))
+	    ("HOLD" . ,(face-foreground font-lock-builtin-face))
+	    ("DONE" . ,(alist-get 'done-color props))))
 
     (if (alist-get 'org-block props)
-        (set-face-background 'org-block (alist-get 'org-block props)))))
+	(set-face-background 'org-block (alist-get 'org-block props)))))
 
 
 (defun jmn-load-gruvbox-dark-medium ()
@@ -985,7 +992,7 @@ f"))
   (disable-theme (car custom-enabled-themes))
   (load-theme 'gruvbox-dark-medium t)
   (set-face-background 'line-number
-                       (face-attribute 'default :background))
+		       (face-attribute 'default :background))
 
   ;; (set-face-foreground 'default "gray75") ;; default "#ebdbb2"
   (set-face-foreground 'default "moccasin") ;; default "#ebdbb2"
@@ -1005,17 +1012,17 @@ f"))
   (set-face-background 'mode-line-active   "gray35")
 
   (set-face-background 'line-number
-                       (face-attribute 'default :background))
+		       (face-attribute 'default :background))
   (set-face-background 'fringe
-                       (face-attribute 'default :background))
+		       (face-attribute 'default :background))
 
   (set-face-foreground 'font-lock-comment-face  "#98be65") ;; default "#ebdbb2"
   (set-face-foreground 'font-lock-string-face  "LightGoldenrod3")
   (set-face-foreground 'font-lock-builtin-face  "Orange3")
   (jmn-set-gruv-org-faces '((done-color . "gray35" )
-                            (org-block-begin-line . "gray14")
-                            (org-block-end-line . "gray14")
-                            (org-block . "gray7"))))
+			    (org-block-begin-line . "gray14")
+			    (org-block-end-line . "gray14")
+			    (org-block . "gray7"))))
 
 (defun jmn-load-gruvbox-light-medium()
   "Theme for light time"
@@ -1032,7 +1039,7 @@ f"))
   (load-theme 'gruvbox-light-hard t)
 
   (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
-                            (org-block . "#fbf1c7")))) ;; default "#f9f5d7"
+			    (org-block . "#fbf1c7")))) ;; default "#f9f5d7"
 
   (defun jmn-load-gruvbox-light-soft()
   "Theme for very light time"
@@ -1041,36 +1048,30 @@ f"))
   (load-theme 'gruvbox-light-soft t)
 
   (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
-                            (org-block . "#ebdbb2")))) ;; default "#f9f5d7"
+			    (org-block . "#ebdbb2")))) ;; default "#f9f5d7"
 
 (if (not jmn-vanilla)
     (progn
-      (jmn-load-gruvbox-dark-hard) ;; gruvbox goat
+      (jmn-load-gruvbox-dark-hard)
       ;; (jmn-load-gruvbox-light-medium)
       ;; (transparency 96)
       )
   (print "no theme"))
 
-(setq image-types '(svg png gif tiff jpeg xpm xbm pbm))
+(cond
+ ((eq system-type 'windows-nt)
+  ;;set font
+  (when (member "Consolas" (font-family-list))
+    (set-frame-font "Consolas" t t))
+  ;; set shell --also gives emacs access to gnu coreutils (diff, ls, etc.)
+  (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
+  (add-hook 'term-mode-hook 'ansi-color-for-comint-mode-on)
+  (setq explicit-shell-file-name "c:/Program Files/Git/bin/bash.exe")
+  (setq shell-file-name explicit-shell-file-name)
+  (add-to-list 'exec-path "c:/Program Files/Git/bin")
+  ;; likey no octave, so read only matlab files
+  (add-hook 'octave-mode-hook 'read-only-mode)))
 
-(if (version<= "29" emacs-version)
-    (progn
-      (defun toggle-full-screen-with-transparency ()
-        "Toggle full screen and adjust frame transparency."
-        (interactive)
-        (let ((current-alpha (frame-parameter nil 'alpha-background)))
-          (transparency 100)
-          (toggle-frame-fullscreen)
-          (sit-for 0.7)
-          (transparency current-alpha)
-          ))
-      (global-unset-key (kbd "<f11>"))
-      (global-set-key (kbd "<f11>") 'toggle-full-screen-with-transparency)))
-
-(defun on-after-init ()
-  (if jmn-term
-    (set-face-background 'default "unspecified-bg" (selected-frame)))
-  (set-face-background 'line-number
-                       (face-attribute 'default :background)))
-
-(add-hook 'window-setup-hook 'on-after-init)
+(if jmn-term
+    (add-hook 'window-setup-hook
+	      (lambda ()(set-face-background 'default "unspecified-bg" (selected-frame)))))
