@@ -1,7 +1,16 @@
+;; location of this org file, used to automaitically tangle to init.el
+(setq jmn-config-location "~/dotfiles/emacs.org")
+
+;; Location of org files: projects, inbox, next,  whip, journal, and habits
+(setq org-directory "~/Documents/gtd/")
+
+;; Systems which should download packages
+(setq jmn-connected-systems '("lat" "dsk" "xps"))
+
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun efs/org-babel-tangle-config ()
   (when (string-equal (buffer-file-name)
-                      (expand-file-name "~/dotfiles/emacs.org"))
+                      (expand-file-name jmn-config-location))
     ;; Dynamic scoping to the rescue
     (let ((org-confirm-babel-evaluate nil))
       (org-babel-tangle))))
@@ -9,7 +18,11 @@
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 
 ;; Vanilla setup or using packages
-(setq jmn-vanilla t)
+(if (member system-name jmn-connected-systems)
+    (setq jmn-vanilla nil)
+  (setq jmn-vanilla t))
+
+;; flag indicating if emacs is being run within a terminal
 (setq jmn-term (not (display-graphic-p (selected-frame))))
 
 (if jmn-vanilla
@@ -67,12 +80,22 @@
       '( ("." . "~/.emacs.d/filebackups")))
 
 (recentf-mode 1) ;; needed for recent files in dashboard
-(add-to-list 'recentf-exclude "~/Dropbox/dotfiles/emacs.html")
-(add-to-list 'recentf-exclude "~/Documents/gtd/next.org")
-(add-to-list 'recentf-exclude "~/Documents/gtd/whip.org")
-(add-to-list 'recentf-exclude "~/Documents/gtd/someday.org")
-(add-to-list 'recentf-exclude "~/Documents/gtd/inbox.org")
-(add-to-list 'recentf-exclude "~/Documents/gtd/projects.org")
+(setq recentf-max-menu-items 25) ;; max number of entries
+(run-at-time nil (* 5 60) 'recentf-save-list) ;; save recent files periodically
+
+;; Exclude the following files from the recents list
+(add-to-list 'recentf-exclude (concat org-directory "next.org"))
+(add-to-list 'recentf-exclude (concat org-directory "whip.org"))
+(add-to-list 'recentf-exclude (concat org-directory "someday.org"))
+(add-to-list 'recentf-exclude (concat org-directory "inbox.org"))
+(add-to-list 'recentf-exclude (concat org-directory "project.org"))
+(add-to-list 'recentf-exclude
+             (concat (file-name-directory jmn-config-location) "emacs.html"))
+
+;; if in vanilla, display recent files on startup
+(if jmn-vanilla
+    (add-hook 'after-init-hook (lambda ()
+                                 (recentf-open-files))))
 
 (defun transparency (value)
   "Sets the transparency of the frame window. 0=transparent/100=opaque"
@@ -174,6 +197,17 @@
 (global-set-key (kbd "C-=") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 (global-set-key (kbd "C-0") 'text-scale-adjust)
+
+;; f1 is a leader key for help
+;; f2 is a leader key for 2 columns
+;; f3 is kmacro-start-macro-or-insert-counter -- start recording a macro
+;; f4 ends the macro recording
+;; f5-f10 are clear by default
+;; f11 is toggle full screen
+;; f12 is clear by default
+
+;; See recentfiles
+(global-set-key (kbd "<f5>") 'recentf-open-files)
 
 ;; writing/editing
 (global-set-key (kbd "<f9>") 'ispell-word)
@@ -730,6 +764,10 @@ f"))
   (interactive)
   (add-to-list 'jmn-org-files-to-html-on-save (buffer-file-name)))
 
+;; Setup this emacs.org file to html on save without using the top evaluate
+;; this is done to remove issues when init.el is loading the first time
+(jmn-export-to-html-on-save)
+
 (add-to-list 'safe-local-variable-values '(eval jmn-export-to-html-on-save))
 
 (if (and (version<= "29" emacs-version) (not jmn-vanilla))
@@ -747,8 +785,6 @@ f"))
 				    "DONE(d)" "IGNORE(i)")))
 
 (require 'find-lisp) ;; may not be needed
-(setq org-directory "~/Documents/gtd/")
-
 (setq org-agenda-files (find-lisp-find-files org-directory "\.org$"))
 
 ;; level/maxlevel = order in hierarchy

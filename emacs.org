@@ -5,6 +5,19 @@
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 #+OPTIONS: toc:3 num:nil
 
+* System Dependent Variables
+Hopefully only need to change these to get setup on a new machine.
+#+begin_src emacs-lisp
+  ;; location of this org file, used to automaitically tangle to init.el
+  (setq jmn-config-location "~/dotfiles/emacs.org")
+
+  ;; Location of org files: projects, inbox, next,  whip, journal, and habits
+  (setq org-directory "~/Documents/gtd/")
+
+  ;; Systems which should download packages
+  (setq jmn-connected-systems '("lat" "dsk" "xps"))
+#+end_src
+
 * Setup
 ** Auto-tangle
 This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-config= gets executed each time such a buffer gets saved.  This function checks to see if the file being saved is the Emacs.org file you're looking at right now, and if so, automatically exports the configuration here to the associated output files.
@@ -12,7 +25,7 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
   ;; Automatically tangle our Emacs.org config file when we save it
   (defun efs/org-babel-tangle-config ()
     (when (string-equal (buffer-file-name)
-                        (expand-file-name "~/dotfiles/emacs.org"))
+                        (expand-file-name jmn-config-location))
       ;; Dynamic scoping to the rescue
       (let ((org-confirm-babel-evaluate nil))
         (org-babel-tangle))))
@@ -25,7 +38,11 @@ Archives: elpa is default, melpa is community.
 Use-package is macro that is used like a package manager. [[https://github.com/jwiegley/use-package][Use-Package Documentation]]
 #+begin_src emacs-lisp
   ;; Vanilla setup or using packages
-  (setq jmn-vanilla t)
+  (if (member system-name jmn-connected-systems)
+      (setq jmn-vanilla nil)
+    (setq jmn-vanilla t))
+
+  ;; flag indicating if emacs is being run within a terminal
   (setq jmn-term (not (display-graphic-p (selected-frame))))
 
   (if jmn-vanilla
@@ -95,13 +112,23 @@ Save backups in =.emacs.d=.
 *** Recentf
 Recentf is needed for recent files on the dashboard.
 #+begin_src emacs-lisp
-(recentf-mode 1) ;; needed for recent files in dashboard
-(add-to-list 'recentf-exclude "~/Dropbox/dotfiles/emacs.html")
-(add-to-list 'recentf-exclude "~/Documents/gtd/next.org")
-(add-to-list 'recentf-exclude "~/Documents/gtd/whip.org")
-(add-to-list 'recentf-exclude "~/Documents/gtd/someday.org")
-(add-to-list 'recentf-exclude "~/Documents/gtd/inbox.org")
-(add-to-list 'recentf-exclude "~/Documents/gtd/projects.org")
+  (recentf-mode 1) ;; needed for recent files in dashboard
+  (setq recentf-max-menu-items 25) ;; max number of entries
+  (run-at-time nil (* 5 60) 'recentf-save-list) ;; save recent files periodically
+
+  ;; Exclude the following files from the recents list
+  (add-to-list 'recentf-exclude (concat org-directory "next.org"))
+  (add-to-list 'recentf-exclude (concat org-directory "whip.org"))
+  (add-to-list 'recentf-exclude (concat org-directory "someday.org"))
+  (add-to-list 'recentf-exclude (concat org-directory "inbox.org"))
+  (add-to-list 'recentf-exclude (concat org-directory "project.org"))
+  (add-to-list 'recentf-exclude
+               (concat (file-name-directory jmn-config-location) "emacs.html"))
+
+  ;; if in vanilla, display recent files on startup
+  (if jmn-vanilla
+      (add-hook 'after-init-hook (lambda ()
+                                   (recentf-open-files))))
 #+end_src
 
 *** Transparency
@@ -241,6 +268,17 @@ Dash board for initial startup of emacs. [[https://github.com/emacs-dashboard/em
   (global-set-key (kbd "C-=") 'text-scale-increase)
   (global-set-key (kbd "C--") 'text-scale-decrease)
   (global-set-key (kbd "C-0") 'text-scale-adjust)
+
+  ;; f1 is a leader key for help
+  ;; f2 is a leader key for 2 columns
+  ;; f3 is kmacro-start-macro-or-insert-counter -- start recording a macro
+  ;; f4 ends the macro recording
+  ;; f5-f10 are clear by default
+  ;; f11 is toggle full screen
+  ;; f12 is clear by default
+
+  ;; See recentfiles
+  (global-set-key (kbd "<f5>") 'recentf-open-files)
 
   ;; writing/editing
   (global-set-key (kbd "<f9>") 'ispell-word)
@@ -1229,8 +1267,6 @@ Following the tutorial [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode
 				      "DONE(d)" "IGNORE(i)")))
 
   (require 'find-lisp) ;; may not be needed
-  (setq org-directory "~/Documents/gtd/")
-
   (setq org-agenda-files (find-lisp-find-files org-directory "\.org$"))
 
   ;; level/maxlevel = order in hierarchy
