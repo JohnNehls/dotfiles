@@ -496,6 +496,9 @@
 (use-package dockerfile-mode
   :defer t)
 
+(if jmn-vanilla (progn (setq tab-always-indent 'complete) ;;complete if indented
+                       (add-to-list 'completion-styles 'initials t)))
+
 (defun my-sh-mode-hook-fn()
   (setq sh-basic-offset 2
 	sh-indentation 2)) ;; defaults is 4

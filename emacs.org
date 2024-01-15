@@ -808,6 +808,21 @@ Note: not used or tangled
   (add-hook 'shell-mode-hook 'compilation-shell-minor-mode)
 #+end_src
 
+** Vanilla Dev Tools
+*** Tab completion
+Gives of tab completion in:
+- [X] python-mode
+- [X] emacs-lisp-mode
+
+With this setup, TAB - which is usually bound to indent-for-tab-command - first tries to adjust the indentation according to the mode's settings, but if the indentation is already correct, completion is triggered. This is usually the desired behavior, and IMHO works better than third-party plugins like smart-tab. [[https://stackoverflow.com/questions/7022898/emacs-autocompletion-in-emacs-lisp-mode][reference]]
+
+_I believe this is replacing what company-mode does for us._
+#+begin_src emacs-lisp
+  (if jmn-vanilla (progn (setq tab-always-indent 'complete) ;;complete if indented
+                         (add-to-list 'completion-styles 'initials t)))
+#+end_src
+
+As of 28.1 there is =tab-first-completion=. Could add a setup for it above which depends on Emacs version.
 * Languages
 ** Emacs-lisp
 Use =C-c '= to view elisp babel blocks in their own file (to get completion).
