@@ -926,9 +926,10 @@ After changing venv all installed packages from venv should be visible for LSP s
   ;;;; Python-mode ;;;;
   (with-eval-after-load 'python
     (setq python-shell-completion-native-enable 1)
-    (setq python-shell-interpreter "ipython") ;;only if I have ipython
-    (setq python-shell-interpreter-args "-i --simple-prompt")
-    (define-key python-mode-map (kbd "C-RET") 'python-shell-send-statement))
+    (define-key python-mode-map (kbd "C-RET") 'python-shell-send-statement)
+    (if (executable-find "ipython")
+        (progn (setq python-shell-interpreter "ipython") ;;only if I have ipython
+               (setq python-shell-interpreter-args "-i --simple-prompt"))))
 #+end_src
 
 *** Hook
