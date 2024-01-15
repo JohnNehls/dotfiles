@@ -12,7 +12,7 @@ Hopefully only need to change these to get setup on a new machine.
   (setq jmn-config-location "~/dotfiles/emacs.org")
 
   ;; Location of org files: projects, inbox, next,  whip, journal, and habits
-  (setq org-directory "~/Documents/gtd/")
+  (setq jmn-gtd-directory "~/Documents/gtd/")
 
   ;; Systems which should download packages
   (setq jmn-connected-systems '("lat" "dsk" "xps"))
@@ -117,11 +117,11 @@ Recentf is needed for recent files on the dashboard.
   (run-at-time nil (* 5 60) 'recentf-save-list) ;; save recent files periodically
 
   ;; Exclude the following files from the recents list
-  (add-to-list 'recentf-exclude (concat org-directory "next.org"))
-  (add-to-list 'recentf-exclude (concat org-directory "whip.org"))
-  (add-to-list 'recentf-exclude (concat org-directory "someday.org"))
-  (add-to-list 'recentf-exclude (concat org-directory "inbox.org"))
-  (add-to-list 'recentf-exclude (concat org-directory "project.org"))
+  (add-to-list 'recentf-exclude (concat jmn-gtd-directory "next.org"))
+  (add-to-list 'recentf-exclude (concat jmn-gtd-directory "whip.org"))
+  (add-to-list 'recentf-exclude (concat jmn-gtd-directory "someday.org"))
+  (add-to-list 'recentf-exclude (concat jmn-gtd-directory "inbox.org"))
+  (add-to-list 'recentf-exclude (concat jmn-gtd-directory "project.org"))
   (add-to-list 'recentf-exclude
                (concat (file-name-directory jmn-config-location) "emacs.html"))
 
@@ -1270,7 +1270,7 @@ Following the tutorial [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode
 				      "DONE(d)" "IGNORE(i)")))
 
   (require 'find-lisp) ;; may not be needed
-  (setq org-agenda-files (find-lisp-find-files org-directory "\.org$"))
+  (setq org-agenda-files (find-lisp-find-files jmn-gtd-directory "\.org$"))
 
   ;; level/maxlevel = order in hierarchy
   (setq org-refile-targets
@@ -1310,34 +1310,34 @@ Following the tutorial [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode
 
 	    (todo "TODO"
 		  ((org-agenda-overriding-header "To Refile")
-		   (org-agenda-files (list (concat org-directory "inbox.org")))))
+		   (org-agenda-files (list (concat jmn-gtd-directory "inbox.org")))))
 
 	    (todo "NEXT"
 		  ((org-agenda-overriding-header "In Progress")
-		   (org-agenda-files (list (concat org-directory "projects.org")
-					   (concat org-directory "next.org")
-					   (concat org-directory "inbox.org")))))
+		   (org-agenda-files (list (concat jmn-gtd-directory "projects.org")
+					   (concat jmn-gtd-directory "next.org")
+					   (concat jmn-gtd-directory "inbox.org")))))
 
 	    (todo "TODO"
 		  ((org-agenda-overriding-header "Projects")
-		   (org-agenda-files (list (concat org-directory  "projects.org")))))
+		   (org-agenda-files (list (concat jmn-gtd-directory  "projects.org")))))
 
 	    (todo "TODO"
 		  ((org-agenda-overriding-header "One-off Tasks")
-		   (org-agenda-files (list (concat org-directory  "next.org"))))
+		   (org-agenda-files (list (concat jmn-gtd-directory  "next.org"))))
 		  (org-agenda-skip-function '(org-agenda-skip-entry-if
 					      'deadline 'scheduled)))
 
 	    (todo "HOLD"
 		      ((org-agenda-overriding-header "HOLD")
-		       (org-agenda-files (list (concat org-directory "projects.org")
-					       (concat org-directory "next.org")
-					       (concat org-directory "inbox.org")))))
+		       (org-agenda-files (list (concat jmn-gtd-directory "projects.org")
+					       (concat jmn-gtd-directory "next.org")
+					       (concat jmn-gtd-directory "inbox.org")))))
 	    ))))
 
   (defun jmn-someday() "Quick access to someday.org (no links in agenda)"
 	 (interactive)
-	 (find-file (concat org-directory "someday.org")))
+	 (find-file (concat jmn-gtd-directory "someday.org")))
 
   (setq org-agenda-todo-ignore-scheduled 'all) ;; cant get it to work for deadlines
 #+end_src
@@ -1366,23 +1366,23 @@ File holding habits must be added to =org-agenda-files= above
 #+begin_src emacs-lisp
   (setq org-capture-templates
         `(("t" "Todo [inbox]" entry
-           (file ,(concat org-directory "inbox.org"))
+           (file ,(concat jmn-gtd-directory "inbox.org"))
            "* TODO %i%?" :empty-lines 1)
 
           ("T" "Todo Today [inbox]" entry
-             (file ,(concat org-directory "inbox.org"))
+             (file ,(concat jmn-gtd-directory "inbox.org"))
              "* TODO %?\nDEADLINE: %t" :empty-lines 1)
 
           ("l" "Linked Todo [inbox]" entry
-           (file ,(concat org-directory "inbox.org"))
+           (file ,(concat jmn-gtd-directory "inbox.org"))
            "* TODO %i%? \n %a" :empty-lines 1)
 
           ("s" "Schedule" entry
-           (file+headline ,(concat org-directory "whip.org")  "Whip")
+           (file+headline ,(concat jmn-gtd-directory "whip.org")  "Whip")
            "* %i%? \n %U %^t" :empty-lines 1)
 
           ("j" "Journal" entry
-           (file+datetree ,(concat org-directory "journal.org"))
+           (file+datetree ,(concat jmn-gtd-directory "journal.org"))
            "* %?\nEntered on %U\n  %i\n  %a"  :empty-lines 1)))
 #+end_src
 
@@ -1715,7 +1715,8 @@ Major changes for windows. Small changes also exist in the rest of the config.
     (add-hook 'term-mode-hook 'ansi-color-for-comint-mode-on)
     (setq explicit-shell-file-name "c:/Program Files/Git/bin/bash.exe")
     (setq shell-file-name explicit-shell-file-name)
-    (add-to-list 'exec-path "c:/Program Files/Git/bin")
+    (add-to-list 'exec-path "c:/Program Files/Git/bin") ;; bash
+    (add-to-list 'exec-path "c:/Program Files/Git/usr/bin") ;; coreutils-- diff, ls, etc
 
     ;; likey no octave, so read only matlab files
     (add-hook 'octave-mode-hook 'read-only-mode)
