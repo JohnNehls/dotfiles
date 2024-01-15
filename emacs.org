@@ -1236,12 +1236,15 @@ reference this list.
 The following removes the prompts when loading the buffer with the local variable
 #+begin_src emacs-lisp
   (add-to-list 'safe-local-variable-values '(eval jmn-export-to-html-on-save))
+#+end_src
 
+*** Make Read The Org setup file safe
+Make the setup file safe for non-vanilla machines.
+#+begin_src emacs-lisp
   (if (and (version<= "29" emacs-version) (not jmn-vanilla))
       (with-eval-after-load 'org
         (add-to-list 'org-safe-remote-resources  "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")))
 #+end_src
-
 * Agenda and GTD
 ** General
 Following the tutorial [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode-gtd.html][here]].

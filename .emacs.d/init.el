@@ -764,10 +764,6 @@ f"))
   (interactive)
   (add-to-list 'jmn-org-files-to-html-on-save (buffer-file-name)))
 
-;; Setup this emacs.org file to html on save without using the top evaluate
-;; this is done to remove issues when init.el is loading the first time
-(jmn-export-to-html-on-save)
-
 (add-to-list 'safe-local-variable-values '(eval jmn-export-to-html-on-save))
 
 (if (and (version<= "29" emacs-version) (not jmn-vanilla))
