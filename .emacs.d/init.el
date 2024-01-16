@@ -1,11 +1,11 @@
 ;; location of this org file, used to automaitically tangle to init.el
-(setq jmn-config-location "~/dotfiles/emacs.org")
+(defconst jmn-config-location "~/dotfiles/emacs.org")
 
 ;; Location of org files: projects, inbox, next,  whip, journal, and habits
-(setq jmn-gtd-directory "~/Documents/gtd/")
+(defconst jmn-gtd-directory "~/Documents/gtd/")
 
 ;; Systems which should download packages. Others get the "vanilla" configuration.
-(setq jmn-connected-systems '("lat" "dsk" "xps"))
+(defconst jmn-connected-systems '("lat" "dsk" "xps"))
 
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun efs/org-babel-tangle-config ()
@@ -20,11 +20,11 @@
 
 ;; Vanilla setup or using packages
 (if (member system-name jmn-connected-systems)
-    (setq jmn-vanilla nil)
-  (setq jmn-vanilla t))
+    (defconst jmn-vanilla nil)
+  (defconst jmn-vanilla t))
 
 ;; flag indicating if emacs is being run within a terminal
-(setq jmn-term (not (display-graphic-p (selected-frame))))
+(defconst jmn-term (not (display-graphic-p (selected-frame))))
 
 (if jmn-vanilla
     (defmacro use-package (&rest _))  ;; define use-package macro to do nothing
@@ -64,6 +64,8 @@
 (setq Buffer-menu-name-width 35)		; give name more room
 (setq-default indicate-empty-lines t)		; indicate long lines
 (defalias 'yes-or-no-p 'y-or-n-p)               ; Make  =yes or no= prompts shorter
+(column-number-mode 1)                          ; show column number in modeline
+(winner-mode 1)                                 ; redo and undo window changes
 
 ;; The following helps syncing
 (global-auto-revert-mode 1)			; refresh buffer if changed on disk
