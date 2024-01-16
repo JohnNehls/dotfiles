@@ -4,7 +4,7 @@
 ;; Location of org files: projects, inbox, next,  whip, journal, and habits
 (setq jmn-gtd-directory "~/Documents/gtd/")
 
-;; Systems which should download packages
+;; Systems which should download packages. Others get the "vanilla" configuration.
 (setq jmn-connected-systems '("lat" "dsk" "xps"))
 
 ;; Automatically tangle our Emacs.org config file when we save it
@@ -15,7 +15,8 @@
     (let ((org-confirm-babel-evaluate nil))
       (org-babel-tangle))))
 
-(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+(add-hook 'org-mode-hook
+          (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 
 ;; Vanilla setup or using packages
 (if (member system-name jmn-connected-systems)
@@ -62,11 +63,13 @@
 (add-hook 'text-mode-hook 'flyspell-mode)	; enable spellcheck on text mode
 (setq Buffer-menu-name-width 35)		; give name more room
 (setq-default indicate-empty-lines t)		; indicate long lines
+(defalias 'yes-or-no-p 'y-or-n-p)               ; Make  =yes or no= prompts shorter
 
 ;; The following helps syncing
 (global-auto-revert-mode 1)			; refresh buffer if changed on disk
 (setq auto-revert-use-notify nil)		; don't notify?
 (setq auto-revert-verbose nil)			;
+(if jmn-vanilla (global-visual-line-mode 1))    ; word wrap for vanilla
 
 ;; Set scratch buffer to be in org-mode and modify initial message
 (setq initial-major-mode 'org-mode)
@@ -84,18 +87,21 @@
 (run-at-time nil (* 5 60) 'recentf-save-list) ;; save recent files periodically
 
 ;; Exclude the following files from the recents list
+(add-to-list 'recentf-exclude (concat jmn-gtd-directory "inbox.org"))
 (add-to-list 'recentf-exclude (concat jmn-gtd-directory "next.org"))
 (add-to-list 'recentf-exclude (concat jmn-gtd-directory "whip.org"))
 (add-to-list 'recentf-exclude (concat jmn-gtd-directory "someday.org"))
-(add-to-list 'recentf-exclude (concat jmn-gtd-directory "inbox.org"))
-(add-to-list 'recentf-exclude (concat jmn-gtd-directory "project.org"))
+(add-to-list 'recentf-exclude (concat jmn-gtd-directory "journal.org"))
+(add-to-list 'recentf-exclude (concat jmn-gtd-directory "habits.org"))
 (add-to-list 'recentf-exclude
              (concat (file-name-directory jmn-config-location) "emacs.html"))
 
-;; if in vanilla, display recent files on startup
 (if jmn-vanilla
-    (add-hook 'after-init-hook (lambda ()
-                                 (recentf-open-files))))
+    (progn
+      ;; display recent files on startup
+      (add-hook 'after-init-hook (lambda () (recentf-open-files)))
+      ;; make display recent files the dashboard command
+      (global-set-key (kbd "C-c d") 'recentf-open-files)))
 
 (defun transparency (value)
   "Sets the transparency of the frame window. 0=transparent/100=opaque"
@@ -103,8 +109,6 @@
   (if (version<= "29" emacs-version)
       (set-frame-parameter nil 'alpha-background value)
     (set-frame-parameter (selected-frame) 'alpha value)))
-
-(defalias 'yes-or-no-p 'y-or-n-p)
 
 ;;;; Scrolling ;;;;
 ;; Fully redraw the display before it processes queued input events.
@@ -167,8 +171,7 @@
                           (bookmarks . 5)
                           (projects . 5)
                           (agenda . 5)
-                          (registers . 5)
-                          ))
+                          (registers . 5)))
 
   (setcdr (assoc 'projects dashboard-item-shortcuts) "j")
   (setq dashboard-set-heading-icons t)
@@ -228,7 +231,8 @@
 )
 
 ;; compilation-mode
-(add-hook 'compilation-mode-hook (lambda () (define-key compilation-mode-map (kbd "C-o") 'other-window)))
+(add-hook 'compilation-mode-hook
+          (lambda ()(define-key compilation-mode-map (kbd "C-o") 'other-window)))
 
 ;; grep-mode
 (defun jmn-grep-keybindings()
@@ -483,8 +487,7 @@
 
 (use-package cmake-mode
   :defer t
-  :ensure-system-package
-  ((cmake . "sudo dnf install -y cmake"))
+  :ensure-system-package ((cmake . "sudo dnf install -y cmake"))
   :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'"))
 
 (use-package cmake-font-lock
@@ -494,8 +497,7 @@
 
 (use-package cmake-project
   :hook ((c++-mode . cmake-project-mode )
-         (c-mode . cmake-project-mode))
-  )
+         (c-mode . cmake-project-mode)))
 
 (use-package yasnippet
   :delight( yas-minor-mode)
@@ -545,14 +547,6 @@
   :config
   (setq sh-basic-offset 2
 	sh-indentation 2)) ;; defaults are 4
-
-(use-package ein
-  :commands (ein:notebooklist-open)
-  ;; :config
-  ;; (require 'ein-loaddefs)
-  ;; (require 'ein)
-  ;; (define-key ein:notebook-mode-map (kbd "<C-tab>") 'my-function)
-  )
 
 (use-package pyvenv
 :ensure t
@@ -748,6 +742,7 @@ f"))
 (global-set-key (kbd "C-c a") (lambda (&optional args) (interactive "P") (org-agenda args " ")))
 
 (use-package htmlize
+  :ensure t
   :defer t)
 
 ;; initialize if not already
