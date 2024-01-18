@@ -1,11 +1,11 @@
-;; location of this org file, used to automaitically tangle to init.el
-(defconst jmn-config-location "~/dotfiles/emacs.org")
+(defconst jmn-config-location "~/dotfiles/emacs.org"
+  "Location of literate org file used to automaitically tangle to init.el")
 
-;; Location of org files: projects, inbox, next,  whip, journal, and habits
-(defconst jmn-gtd-directory "~/Documents/gtd/")
+(defconst jmn-gtd-directory "~/Documents/gtd/"
+  "Location of gtd org files: projects, inbox, next,  whip, journal, and habits")
 
-;; Systems which should download packages. Others get the "vanilla" configuration.
-(defconst jmn-connected-systems '("lat" "dsk" "xps"))
+(defconst jmn-connected-systems '("lat" "dsk" "xps")
+  "Systems which should download packages. Others get the 'vanilla' configuration.")
 
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun efs/org-babel-tangle-config ()
@@ -18,13 +18,13 @@
 (add-hook 'org-mode-hook
           (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 
-;; Vanilla setup or using packages
 (if (member system-name jmn-connected-systems)
-    (defconst jmn-vanilla nil)
-  (defconst jmn-vanilla t))
+    (defconst jmn-vanilla nil "Indicating if we are vanilla or using packages")
+  (defconst jmn-vanilla t "Indicating if we are vanilla or using packages"))
 
-;; flag indicating if emacs is being run within a terminal
-(defconst jmn-term (not (display-graphic-p (selected-frame))))
+;; flag
+(defconst jmn-term (not (display-graphic-p (selected-frame)))
+  "Indicating if emacs is being run within a terminal or not")
 
 (if jmn-vanilla
     (defmacro use-package (&rest _))  ;; define use-package macro to do nothing
@@ -53,25 +53,29 @@
 
 ;;;; Basic ;;;;
 (setq inhibit-startup-message t)		; inhibit startup message
-(tool-bar-mode -1)		         	; remove toolbar
+(tool-bar-mode -1)                            ; remove toolbar
 (menu-bar-mode -1)				; Disable the menu bar
-(scroll-bar-mode -1)			        ; remove side scrollbar
+(scroll-bar-mode -1)                          ; remove side scrollbar
 (tooltip-mode -1)				; Disable tooltips
 (set-fringe-mode 10)				; Give some breathing room
-(setq visible-bell t)			   	; Set up the visible bell
+(setq visible-bell t)                         ; Set up the visible bell
 (save-place-mode 1)				; Open file where last visited
-(add-hook 'text-mode-hook 'flyspell-mode)	; enable spellcheck on text mode
 (setq Buffer-menu-name-width 35)		; give name more room
 (setq-default indicate-empty-lines t)		; indicate long lines
 (defalias 'yes-or-no-p 'y-or-n-p)               ; Make  =yes or no= prompts shorter
 (column-number-mode 1)                          ; show column number in modeline
 (winner-mode 1)                                 ; redo and undo window changes
 
-;; The following helps syncing
+;; hooks
+(if jmn-vanilla
+    (add-hook 'before-save-hook 'whitespace-cleanup)); non-vanilla uses ws-butler
+(unless (eq system-type 'windows-nt)
+  (add-hook 'text-mode-hook 'flyspell-mode))	; enable spellcheck on text mode
+
+;; The following help syncing
 (global-auto-revert-mode 1)			; refresh buffer if changed on disk
 (setq auto-revert-use-notify nil)		; don't notify?
 (setq auto-revert-verbose nil)			;
-(if jmn-vanilla (global-visual-line-mode 1))    ; word wrap for vanilla
 
 ;; Set scratch buffer to be in org-mode and modify initial message
 (setq initial-major-mode 'org-mode)
@@ -89,6 +93,7 @@
 (run-at-time nil (* 5 60) 'recentf-save-list) ;; save recent files periodically
 
 ;; Exclude the following files from the recents list
+(add-to-list 'recentf-exclude "~/.emacs.d/recentf")
 (add-to-list 'recentf-exclude (concat jmn-gtd-directory "inbox.org"))
 (add-to-list 'recentf-exclude (concat jmn-gtd-directory "next.org"))
 (add-to-list 'recentf-exclude (concat jmn-gtd-directory "whip.org"))
@@ -147,13 +152,13 @@
   :defer 1
   :init
   (when (and (not (member "all-the-icons" (font-family-list))) ;; autoinstall fonts
-	     (window-system))
+             (window-system))
     (all-the-icons-install-fonts t)))
 
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
   :custom ((doom-modeline-height 10)
-	   (doom-modeline-vcs-max-length 20))) ;; default is 12
+           (doom-modeline-vcs-max-length 20))) ;; default is 12
 
 ;;;; Cleanup whitespace ;;;;
 (use-package ws-butler
@@ -227,14 +232,16 @@
 
 ;; bookmark-bmenue
 (with-eval-after-load 'bookmark
-(define-key bookmark-bmenu-mode-map (kbd "C-o") 'other-window)
-(define-key bookmark-bmenu-mode-map (kbd "M-o") 'previous-multiframe-window)
-(define-key bookmark-bmenu-mode-map (kbd "C-M-o") 'bookmark-bmenu-switch-other-window)
-)
+  (define-key bookmark-bmenu-mode-map (kbd "C-o") 'other-window)
+  (define-key bookmark-bmenu-mode-map (kbd "M-o") 'previous-multiframe-window)
+  (define-key bookmark-bmenu-mode-map (kbd "C-M-o") 'bookmark-bmenu-switch-other-window))
 
-;; compilation-mode
-(add-hook 'compilation-mode-hook
-          (lambda ()(define-key compilation-mode-map (kbd "C-o") 'other-window)))
+;; compilation-modes
+(defun jmn-compilation-keybindings()
+  (define-key compilation-mode-map (kbd "C-o") 'other-window)
+  (define-key compilation-mode-map (kbd "C-M-o") 'compilation-display-error))
+
+(add-hook 'compilation-mode-hook 'jmn-compilation-keybindings)
 
 ;; grep-mode
 (defun jmn-grep-keybindings()
@@ -396,17 +403,18 @@
   :hook (prog-mode . (lambda () (dtrt-indent-mode 1))))
 
 ;;Prog-mode
-(add-hook 'prog-mode-hook 'hl-line-mode)
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
-(add-hook 'prog-mode-hook #'flyspell-prog-mode) ;; flyspell-comments
-(add-hook 'prog-mode-hook #'hs-minor-mode) ;; hide show, use C-c @ prefix
+(add-hook 'prog-mode-hook 'visual-line-mode)
+(add-hook 'prog-mode-hook 'hs-minor-mode) ;; hide show, use C-c @ prefix
+(unless (eq system-type 'windows-nt)
+    (add-hook 'prog-mode-hook 'flyspell-prog-mode)) ;; flyspell-comments
 
 (show-paren-mode    1) ; Highlight parentheses pairs.
 
 (use-package rainbow-delimiters
   :defer t
   ;; :hook ((prog-mode . rainbow-delimiters-mode)
-  ;; 	 (org-mode (lambda () (rainbow-delimiters-mode 0))))
+  ;;   (org-mode (lambda () (rainbow-delimiters-mode 0))))
   )
 
 (use-package magit
@@ -537,9 +545,30 @@
 (if jmn-vanilla (progn (setq tab-always-indent 'complete) ;;complete if indented
                        (add-to-list 'completion-styles 'initials t)))
 
+(if jmn-vanilla
+    (global-set-key (kbd "C-x g") (lambda () (interactive)
+                                    (vc-dir (file-name-directory (buffer-file-name))))))
+
+(defun jmn-vc-commit ()
+    "My command to show the vc-diff along with the commit input"
+    (interactive)
+    (vc-next-action (buffer-file-name))
+    (previous-multiframe-window)
+    (vc-diff)
+    (previous-multiframe-window)
+    (switch-to-buffer"*vc-log*")
+    ;; (set-window-text-height (selected-window) 4)
+    ;; (kill-buffer "*log-edit-files*")
+    )
+
+(with-eval-after-load 'vc-dir
+  (define-key vc-dir-mode-map (kbd "C-o") 'other-window)
+  (define-key vc-dir-mode-map (kbd "C-M-o") 'vc-dir-display-file)
+  (define-key vc-dir-mode-map (kbd "c") 'jmn-vc-commit))
+
 (defun my-sh-mode-hook-fn()
   (setq sh-basic-offset 2
-	sh-indentation 2)) ;; defaults is 4
+        sh-indentation 2)) ;; defaults is 4
 (add-hook 'sh-mode-hook #'my-sh-mode-hook-fn)
 
 (use-package sh-script
@@ -548,7 +577,7 @@
   ((bash-language-server . "sudo dnf install -y nodejs-bash-language-server"))
   :config
   (setq sh-basic-offset 2
-	sh-indentation 2)) ;; defaults are 4
+        sh-indentation 2)) ;; defaults are 4
 
 (use-package pyvenv
 :ensure t
@@ -615,7 +644,7 @@
 (use-package markdown-mode
   :defer t
   :hook (markdown-mode-hook . (lambda ()
-				(flyspell-mode))))
+                                (flyspell-mode))))
 
 (defun jmn/org-mode-setup ()
   (unless jmn-term
@@ -669,24 +698,24 @@
   (unless (or jmn-term jmn-vanilla)
     (setq org-ellipsis " ▾"))
   (setq org-hide-emphasis-markers t
-	org-src-fontify-natively t
-	org-fontify-quote-and-verse-blocks t
-	org-src-tab-acts-natively t
-	org-edit-src-content-indentation 2 ;; I undo this somewhere 4tangling
-	org-hide-block-startup nil
-	org-src-preserve-indentation nil
-	org-startup-folded 'content
-	org-cycle-separator-lines 2
-	org-capture-bookmark nil
-	org-list-indent-offset 1
-	org-image-actual-width nil    ;; fix to allow picture resizing
-	org-return-follows-link t
-	org-use-speed-commands t
-	org-export-babel-evaluate nil ;; don't run src blocks on export
-	org-agenda-tags-column (alist-get
-				(system-name) '(("xps" . -85)
-						("dsk" . -90))
-				'auto nil 'string=)))
+        org-src-fontify-natively t
+        org-fontify-quote-and-verse-blocks t
+        org-src-tab-acts-natively t
+        org-edit-src-content-indentation 2 ;; I undo this somewhere 4tangling
+        org-hide-block-startup nil
+        org-src-preserve-indentation nil
+        org-startup-folded 'content
+        org-cycle-separator-lines 2
+        org-capture-bookmark nil
+        org-list-indent-offset 1
+        org-image-actual-width nil    ;; fix to allow picture resizing
+        org-return-follows-link t
+        org-use-speed-commands t
+        org-export-babel-evaluate nil ;; don't run src blocks on export
+        org-agenda-tags-column (alist-get
+                                (system-name) '(("xps" . -85)
+                                                ("dsk" . -90))
+                                'auto nil 'string=)))
 
 (unless jmn-term
   (use-package org-bullets
@@ -775,7 +804,7 @@ f"))
 
 ;; SOMEDAY itmes are ommitted from GTD interface on purpose
 (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|"
-				    "DONE(d)" "IGNORE(i)")))
+                                    "DONE(d)" "IGNORE(i)")))
 
 (require 'find-lisp) ;; may not be needed
 (setq org-agenda-files (find-lisp-find-files jmn-gtd-directory "\.org$"))
@@ -783,17 +812,17 @@ f"))
 ;; level/maxlevel = order in hierarchy
 (setq org-refile-targets
       '(("projects.org" :maxlevel . 2)
-	("someday.org" :maxlevel . 1)
-	("whip.org" :level . 0)
-	("next.org" :level . 0)))
+        ("someday.org" :maxlevel . 1)
+        ("whip.org" :level . 0)
+        ("next.org" :level . 0)))
 
 ;; https://github.com/syl20bnr/spacemacs/issues/3094
 (setq org-refile-use-outline-path 'file org-outline-path-complete-in-steps nil)
 (setq org-refile-allow-creating-parent-nodes 'confirm)
 
 (setq org-agenda-prefix-format '((agenda . " %i %-10:c%t [%e]% s ")
-				 (todo . " %i %-10:c [%-4e] ")
-				 (tags . " %i %-12:c")))
+                                 (todo . " %i %-10:c [%-4e] ")
+                                 (tags . " %i %-12:c")))
 
 (setq org-deadline-warning-days 30)
 
@@ -804,44 +833,44 @@ f"))
 
 (setq org-agenda-custom-commands
       '(("d" "Dashboard"
-	 ((agenda ""
-		  ((org-deadline-warning-days 30)))
-	  (todo "NEXT"
-		((org-agenda-overriding-header "Next Un-Scheduled Tasks")))
-	  (todo "TODO"
-		((org-agenda-overriding-header "Active Un-Scheduled Tasks")))))
+         ((agenda ""
+                  ((org-deadline-warning-days 30)))
+          (todo "NEXT"
+                ((org-agenda-overriding-header "Next Un-Scheduled Tasks")))
+          (todo "TODO"
+                ((org-agenda-overriding-header "Active Un-Scheduled Tasks")))))
 
-	(" " "Agenda"
-	 ((agenda ""
-		  ((org-agenda-span 'day)
-		   (org-deadline-warning-days 365)))
+        (" " "Agenda"
+         ((agenda ""
+                  ((org-agenda-span 'day)
+                   (org-deadline-warning-days 365)))
 
-	  (todo "TODO"
-		((org-agenda-overriding-header "To Refile")
-		 (org-agenda-files (list (concat jmn-gtd-directory "inbox.org")))))
+          (todo "TODO"
+                ((org-agenda-overriding-header "To Refile")
+                 (org-agenda-files (list (concat jmn-gtd-directory "inbox.org")))))
 
-	  (todo "NEXT"
-		((org-agenda-overriding-header "In Progress")
-		 (org-agenda-files (list (concat jmn-gtd-directory "projects.org")
-					 (concat jmn-gtd-directory "next.org")
-					 (concat jmn-gtd-directory "inbox.org")))))
+          (todo "NEXT"
+                ((org-agenda-overriding-header "In Progress")
+                 (org-agenda-files (list (concat jmn-gtd-directory "projects.org")
+                                         (concat jmn-gtd-directory "next.org")
+                                         (concat jmn-gtd-directory "inbox.org")))))
 
-	  (todo "TODO"
-		((org-agenda-overriding-header "Projects")
-		 (org-agenda-files (list (concat jmn-gtd-directory  "projects.org")))))
+          (todo "TODO"
+                ((org-agenda-overriding-header "Projects")
+                 (org-agenda-files (list (concat jmn-gtd-directory  "projects.org")))))
 
-	  (todo "TODO"
-		((org-agenda-overriding-header "One-off Tasks")
-		 (org-agenda-files (list (concat jmn-gtd-directory  "next.org"))))
-		(org-agenda-skip-function '(org-agenda-skip-entry-if
-					    'deadline 'scheduled)))
+          (todo "TODO"
+                ((org-agenda-overriding-header "One-off Tasks")
+                 (org-agenda-files (list (concat jmn-gtd-directory  "next.org"))))
+                (org-agenda-skip-function '(org-agenda-skip-entry-if
+                                            'deadline 'scheduled)))
 
-	  (todo "HOLD"
-		    ((org-agenda-overriding-header "HOLD")
-		     (org-agenda-files (list (concat jmn-gtd-directory "projects.org")
-					     (concat jmn-gtd-directory "next.org")
-					     (concat jmn-gtd-directory "inbox.org")))))
-	  ))))
+          (todo "HOLD"
+                    ((org-agenda-overriding-header "HOLD")
+                     (org-agenda-files (list (concat jmn-gtd-directory "projects.org")
+                                             (concat jmn-gtd-directory "next.org")
+                                             (concat jmn-gtd-directory "inbox.org")))))
+          ))))
 
 (defun jmn-someday() "Quick access to someday.org (no links in agenda)"
        (interactive)
@@ -1011,12 +1040,12 @@ f"))
     (set-face-background 'org-block-end-line (face-background `default))
 
     (setq org-todo-keyword-faces
-	  `(("NEXT" . ,(face-foreground font-lock-function-name-face))
-	    ("HOLD" . ,(face-foreground font-lock-builtin-face))
-	    ("DONE" . ,(alist-get 'done-color props))))
+          `(("NEXT" . ,(face-foreground font-lock-function-name-face))
+            ("HOLD" . ,(face-foreground font-lock-builtin-face))
+            ("DONE" . ,(alist-get 'done-color props))))
 
     (if (alist-get 'org-block props)
-	(set-face-background 'org-block (alist-get 'org-block props)))))
+        (set-face-background 'org-block (alist-get 'org-block props)))))
 
 
 (defun jmn-load-gruvbox-dark-medium ()
@@ -1025,7 +1054,7 @@ f"))
   (disable-theme (car custom-enabled-themes))
   (load-theme 'gruvbox-dark-medium t)
   (set-face-background 'line-number
-		       (face-attribute 'default :background))
+                       (face-attribute 'default :background))
 
   ;; (set-face-foreground 'default "gray75") ;; default "#ebdbb2"
   (set-face-foreground 'default "moccasin") ;; default "#ebdbb2"
@@ -1045,17 +1074,17 @@ f"))
   (set-face-background 'mode-line-active   "gray35")
 
   (set-face-background 'line-number
-		       (face-attribute 'default :background))
+                       (face-attribute 'default :background))
   (set-face-background 'fringe
-		       (face-attribute 'default :background))
+                       (face-attribute 'default :background))
 
   (set-face-foreground 'font-lock-comment-face  "#98be65") ;; default "#ebdbb2"
   (set-face-foreground 'font-lock-string-face  "LightGoldenrod3")
   (set-face-foreground 'font-lock-builtin-face  "Orange3")
   (jmn-set-gruv-org-faces '((done-color . "gray35" )
-			    (org-block-begin-line . "gray14")
-			    (org-block-end-line . "gray14")
-			    (org-block . "gray7"))))
+                            (org-block-begin-line . "gray14")
+                            (org-block-end-line . "gray14")
+                            (org-block . "gray7"))))
 
 (defun jmn-load-gruvbox-light-medium()
   "Theme for light time"
@@ -1072,7 +1101,7 @@ f"))
   (load-theme 'gruvbox-light-hard t)
 
   (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
-			    (org-block . "#fbf1c7")))) ;; default "#f9f5d7"
+                            (org-block . "#fbf1c7")))) ;; default "#f9f5d7"
 
   (defun jmn-load-gruvbox-light-soft()
   "Theme for very light time"
@@ -1081,15 +1110,21 @@ f"))
   (load-theme 'gruvbox-light-soft t)
 
   (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
-			    (org-block . "#ebdbb2")))) ;; default "#f9f5d7"
+                            (org-block . "#ebdbb2")))) ;; default "#f9f5d7"
 
 (if (not jmn-vanilla)
     (progn
       (jmn-load-gruvbox-dark-hard)
       ;; (jmn-load-gruvbox-light-medium)
+      ;; (global-hl-line-mode)   ; works great everywhere in gruvbox
       ;; (transparency 96)
       )
-  (print "no theme"))
+  (if (eq system-type 'gnu/linux)
+      (progn
+        (load-theme 'wombat)
+        ;; (transparency 96)
+        (with-eval-after-load 'org
+          (set-face-background 'org-block "gray8")))))
 
 (cond
  ((eq system-type 'windows-nt)
@@ -1097,22 +1132,25 @@ f"))
   (when (member "Consolas" (font-family-list))
     (set-frame-font "Consolas" t t))
 
-  ;; set shell --also gives emacs access to gnu coreutils (diff, ls, etc.)
-  (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
-  (add-hook 'term-mode-hook 'ansi-color-for-comint-mode-on)
-  (setq explicit-shell-file-name "c:/Program Files/Git/bin/bash.exe")
+  (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on) ;; needed?
+  (add-hook 'term-mode-hook 'ansi-color-for-comint-mode-on)  ;; needed?
+  ;; (setq explicit-shell-file-name "c:/Program Files/Git/bin/bash.exe") ;; gitbash
+
+  (setq explicit-shell-file-name "c:/Program Files/Emacs/libexec/emacs/27.2/x86_64-w64-ming32/cmdproxy.exe") ;; Emacs recommended
   (setq shell-file-name explicit-shell-file-name)
+
+  ;; give emacs access to gnu coreutils, though should already be in =path=
   (add-to-list 'exec-path "c:/Program Files/Git/bin") ;; bash
   (add-to-list 'exec-path "c:/Program Files/Git/usr/bin") ;; coreutils-- diff, ls, etc
 
   ;; likey no octave, so read only matlab files
   (add-hook 'octave-mode-hook 'read-only-mode)
 
-  ;; external ls for directories first support (dired)
+  ;; external ls for directories first support (dired) -- may not be needed with above
   (setq ls-lisp-use-insert-directory-program t)  ;; use external ls
   (setq inserft-directory-program "c:/Program Files/Git/user/bin/ls.exe") ;; ls loc
   ))
 
 (if jmn-term
     (add-hook 'window-setup-hook
-	      (lambda ()(set-face-background 'default "unspecified-bg" (selected-frame)))))
+              (lambda ()(set-face-background 'default "unspecified-bg" (selected-frame)))))
