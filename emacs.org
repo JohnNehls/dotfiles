@@ -15,7 +15,7 @@ Hopefully only need to change these to get setup on a new machine.
     "Location of gtd org files: projects, inbox, next,  whip, journal, and habits")
 
   (defconst jmn-connected-systems '("lat" "dsk" "xps")
-    "Systems which should download packages. Others get the 'vanilla' configuration.")
+    "Systems which should download packages. Others get the 'pure' configuration.")
 #+end_src
 
 * Setup
@@ -39,14 +39,14 @@ Archives: elpa is default, melpa is community.
 Use-package is macro that is used like a package manager. [[https://github.com/jwiegley/use-package][Use-Package Documentation]]
 #+begin_src emacs-lisp
   (if (member system-name jmn-connected-systems)
-      (defconst jmn-vanilla nil "Indicating if we are vanilla or using packages")
-    (defconst jmn-vanilla t "Indicating if we are vanilla or using packages"))
+      (defconst jmn-pure nil "Indicating if we are pure or using packages")
+    (defconst jmn-pure t "Indicating if we are pure or using packages"))
 
   ;; flag
   (defconst jmn-term (not (display-graphic-p (selected-frame)))
     "Indicating if emacs is being run within a terminal or not")
 
-  (if jmn-vanilla
+  (if jmn-pure
       (defmacro use-package (&rest _))  ;; define use-package macro to do nothing
     (progn
       (require 'package)
@@ -92,8 +92,8 @@ Use-package is macro that is used like a package manager. [[https://github.com/j
   (winner-mode 1)                                 ; redo and undo window changes
 
   ;; hooks
-  (if jmn-vanilla
-      (add-hook 'before-save-hook 'whitespace-cleanup)); non-vanilla uses ws-butler
+  (if jmn-pure
+      (add-hook 'before-save-hook 'whitespace-cleanup)); non-pure uses ws-butler
   (unless (eq system-type 'windows-nt)
     (add-hook 'text-mode-hook 'flyspell-mode))	; enable spellcheck on text mode
 
@@ -136,7 +136,7 @@ Recentf is needed for recent files on the dashboard.
   (add-to-list 'recentf-exclude
                (concat (file-name-directory jmn-config-location) "emacs.html"))
 
-  (if jmn-vanilla
+  (if jmn-pure
       (progn
         ;; display recent files on startup
         (add-hook 'after-init-hook (lambda () (recentf-open-files)))
@@ -841,7 +841,7 @@ Note: not used or tangled
   (add-hook 'shell-mode-hook 'compilation-shell-minor-mode)
 #+end_src
 
-** Vanilla Dev Tools
+** Pure Dev Tools
 *** Tab completion
 Gives of tab completion in:
 - [X] python-mode
@@ -852,14 +852,14 @@ With this setup, TAB - which is usually bound to indent-for-tab-command - first 
 
 _I believe this is replacing what company-mode does for us._
 #+begin_src emacs-lisp
-  (if jmn-vanilla (progn (setq tab-always-indent 'complete) ;;complete if indented
+  (if jmn-pure (progn (setq tab-always-indent 'complete) ;;complete if indented
                          (add-to-list 'completion-styles 'initials t)))
 #+end_src
 
 As of 28.1 there is =tab-first-completion=. Could add a setup for it above which depends on Emacs version.
 *** vc-mode
 #+begin_src emacs-lisp
-  (if jmn-vanilla
+  (if jmn-pure
       (global-set-key (kbd "C-x g") (lambda () (interactive)
                                       (vc-dir (file-name-directory (buffer-file-name))))))
 
@@ -1111,7 +1111,7 @@ Hook doesn't look right, but I am guessing I tested it when added
 
   (with-eval-after-load 'org
     (jmn/org-font-setup)
-    (unless (or jmn-term jmn-vanilla)
+    (unless (or jmn-term jmn-pure)
       (setq org-ellipsis " ▾"))
     (setq org-hide-emphasis-markers t
           org-src-fontify-natively t
@@ -1260,9 +1260,9 @@ The following removes the prompts when loading the buffer with the local variabl
 #+end_src
 
 *** Make Read The Org setup file safe
-Make the setup file safe for non-vanilla machines.
+Make the setup file safe for non-pure machines.
 #+begin_src emacs-lisp
-  (if (and (version<= "29" emacs-version) (not jmn-vanilla))
+  (if (and (version<= "29" emacs-version) (not jmn-pure))
       (with-eval-after-load 'org
         (add-to-list 'org-safe-remote-resources  "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")))
 #+end_src
@@ -1710,7 +1710,7 @@ Helpful functions
 
 ** Default and time switches
 #+begin_src emacs-lisp
-  (if (not jmn-vanilla)
+  (if (not jmn-pure)
       (progn
         (jmn-load-gruvbox-dark-hard)
         ;; (jmn-load-gruvbox-light-medium)

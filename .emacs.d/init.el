@@ -5,7 +5,7 @@
   "Location of gtd org files: projects, inbox, next,  whip, journal, and habits")
 
 (defconst jmn-connected-systems '("lat" "dsk" "xps")
-  "Systems which should download packages. Others get the 'vanilla' configuration.")
+  "Systems which should download packages. Others get the 'pure' configuration.")
 
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun efs/org-babel-tangle-config ()
@@ -19,14 +19,14 @@
           (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 
 (if (member system-name jmn-connected-systems)
-    (defconst jmn-vanilla nil "Indicating if we are vanilla or using packages")
-  (defconst jmn-vanilla t "Indicating if we are vanilla or using packages"))
+    (defconst jmn-pure nil "Indicating if we are pure or using packages")
+  (defconst jmn-pure t "Indicating if we are pure or using packages"))
 
 ;; flag
 (defconst jmn-term (not (display-graphic-p (selected-frame)))
   "Indicating if emacs is being run within a terminal or not")
 
-(if jmn-vanilla
+(if jmn-pure
     (defmacro use-package (&rest _))  ;; define use-package macro to do nothing
   (progn
     (require 'package)
@@ -67,8 +67,8 @@
 (winner-mode 1)                                 ; redo and undo window changes
 
 ;; hooks
-(if jmn-vanilla
-    (add-hook 'before-save-hook 'whitespace-cleanup)); non-vanilla uses ws-butler
+(if jmn-pure
+    (add-hook 'before-save-hook 'whitespace-cleanup)); non-pure uses ws-butler
 (unless (eq system-type 'windows-nt)
   (add-hook 'text-mode-hook 'flyspell-mode))	; enable spellcheck on text mode
 
@@ -103,7 +103,7 @@
 (add-to-list 'recentf-exclude
              (concat (file-name-directory jmn-config-location) "emacs.html"))
 
-(if jmn-vanilla
+(if jmn-pure
     (progn
       ;; display recent files on startup
       (add-hook 'after-init-hook (lambda () (recentf-open-files)))
@@ -542,10 +542,10 @@
 (use-package dockerfile-mode
   :defer t)
 
-(if jmn-vanilla (progn (setq tab-always-indent 'complete) ;;complete if indented
+(if jmn-pure (progn (setq tab-always-indent 'complete) ;;complete if indented
                        (add-to-list 'completion-styles 'initials t)))
 
-(if jmn-vanilla
+(if jmn-pure
     (global-set-key (kbd "C-x g") (lambda () (interactive)
                                     (vc-dir (file-name-directory (buffer-file-name))))))
 
@@ -695,7 +695,7 @@
 
 (with-eval-after-load 'org
   (jmn/org-font-setup)
-  (unless (or jmn-term jmn-vanilla)
+  (unless (or jmn-term jmn-pure)
     (setq org-ellipsis " ▾"))
   (setq org-hide-emphasis-markers t
         org-src-fontify-natively t
@@ -792,7 +792,7 @@ f"))
 
 (add-to-list 'safe-local-variable-values '(eval jmn-export-to-html-on-save))
 
-(if (and (version<= "29" emacs-version) (not jmn-vanilla))
+(if (and (version<= "29" emacs-version) (not jmn-pure))
     (with-eval-after-load 'org
       (add-to-list 'org-safe-remote-resources  "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")))
 
@@ -1112,7 +1112,7 @@ f"))
   (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
                             (org-block . "#ebdbb2")))) ;; default "#f9f5d7"
 
-(if (not jmn-vanilla)
+(if (not jmn-pure)
     (progn
       (jmn-load-gruvbox-dark-hard)
       ;; (jmn-load-gruvbox-light-medium)
