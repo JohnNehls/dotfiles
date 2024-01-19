@@ -219,7 +219,7 @@ To ensure scrolling is fast in Emacs, disable  non-essential things while the wi
 *** Auto-clean white space
 Archive: melpa
 #+begin_src emacs-lisp
-  ;;;; Cleanup whitespace ;;;;
+  ;;;; Cleanup whitespace only on lines I touched ;;;;
   (use-package ws-butler
       :defer 4
       :hook ((text-mode . ws-butler-mode)
@@ -481,7 +481,6 @@ Archive: elpa, melpa
 #+begin_src emacs-lisp
   (use-package which-key
     :defer 1
-    :delight which-key-mode
     :config(which-key-mode)
     (setq which-key-idle-delay 0.8))
 #+end_src
@@ -619,17 +618,14 @@ Could not get the configs to work with lazy loading.
 #+end_src
 
 ** Company-Mode
-Currently company-mode gets called with lsp-mode by default. /my understanding/: company-mode provides the auto-complete box that lsp provides information to.
+Currently =company-mode= gets called by =lsp-mode= by default, providing the auto-complete box that =lsp= presents it's suggestions in.
 
-Issue: company mode not working in org-mode. Correct completion keys are not clear.
 #+begin_src emacs-lisp
   (use-package company
     :ensure t
     :custom
     (company-minimum-prefix-length 1)
-    (company-idle-delay 0.5)
-    ;; (global-set-key (kbd "C-<tab>") 'company-complete)
-    :config (global-company-mode 1))
+    (company-idle-delay 0.5))
 #+end_src
 
 *** company-box-mode
@@ -665,7 +661,6 @@ Help in sorting the completion results.
 Provides language backend to company-mode.
 #+begin_src emacs-lisp
   (use-package lsp-mode
-    :delight lsp-mode
     :commands (lsp)
     :hook ((sh-mode . lsp-mode)
            (python-mode . lsp-mode)
@@ -773,7 +768,6 @@ Archive: melpa
 Archive: elpa, melpa
 #+begin_src emacs-lisp
   (use-package yasnippet
-    :delight( yas-minor-mode)
     :after lsp
     :config
     (yas-global-mode 1))
@@ -852,8 +846,14 @@ With this setup, TAB - which is usually bound to indent-for-tab-command - first 
 
 _I believe this is replacing what company-mode does for us._
 #+begin_src emacs-lisp
-  (if jmn-pure (progn (setq tab-always-indent 'complete) ;;complete if indented
-                         (add-to-list 'completion-styles 'initials t)))
+  (defun jmn-tab-complete-mode ()
+    "My tab complete config"
+    (setq tab-always-indent 'complete) ;;complete if indented
+    (add-to-list 'completion-styles 'initials t))
+
+  ;; turning it on everywhere and only turning company mode on for prog-mode
+  ;;;; if this stayes it will just be moved up to under the 'General Emacs'
+  (jmn-tab-complete-mode)
 #+end_src
 
 As of 28.1 there is =tab-first-completion=. Could add a setup for it above which depends on Emacs version.

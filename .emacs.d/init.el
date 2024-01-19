@@ -160,7 +160,7 @@
   :custom ((doom-modeline-height 10)
            (doom-modeline-vcs-max-length 20))) ;; default is 12
 
-;;;; Cleanup whitespace ;;;;
+;;;; Cleanup whitespace only on lines I touched ;;;;
 (use-package ws-butler
     :defer 4
     :hook ((text-mode . ws-butler-mode)
@@ -364,7 +364,6 @@
 
 (use-package which-key
   :defer 1
-  :delight which-key-mode
   :config(which-key-mode)
   (setq which-key-idle-delay 0.8))
 
@@ -428,9 +427,7 @@
   :ensure t
   :custom
   (company-minimum-prefix-length 1)
-  (company-idle-delay 0.5)
-  ;; (global-set-key (kbd "C-<tab>") 'company-complete)
-  :config (global-company-mode 1))
+  (company-idle-delay 0.5))
 
 (use-package company-box
   :after company
@@ -449,7 +446,6 @@
   (setq treemacs-width 30))
 
 (use-package lsp-mode
-  :delight lsp-mode
   :commands (lsp)
   :hook ((sh-mode . lsp-mode)
          (python-mode . lsp-mode)
@@ -510,7 +506,6 @@
          (c-mode . cmake-project-mode)))
 
 (use-package yasnippet
-  :delight( yas-minor-mode)
   :after lsp
   :config
   (yas-global-mode 1))
@@ -542,8 +537,14 @@
 (use-package dockerfile-mode
   :defer t)
 
-(if jmn-pure (progn (setq tab-always-indent 'complete) ;;complete if indented
-                       (add-to-list 'completion-styles 'initials t)))
+(defun jmn-tab-complete-mode ()
+  "My tab complete config"
+  (setq tab-always-indent 'complete) ;;complete if indented
+  (add-to-list 'completion-styles 'initials t))
+
+;; turning it on everywhere and only turning company mode on for prog-mode
+;;;; if this stayes it will just be moved up to under the 'General Emacs'
+(jmn-tab-complete-mode)
 
 (if jmn-pure
     (global-set-key (kbd "C-x g") (lambda () (interactive)
