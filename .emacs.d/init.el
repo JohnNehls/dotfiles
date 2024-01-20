@@ -1023,8 +1023,7 @@ f"))
   (interactive)
   (disable-theme (car custom-enabled-themes)))
 
-(use-package gruvbox-theme
-  :defer t)
+(use-package gruvbox-theme)
 
 (defun jmn-set-gruv-org-faces (props)
   "Function used by all gruvbox themes for setting or faces"
@@ -1117,7 +1116,7 @@ f"))
     (progn
       (jmn-load-gruvbox-dark-hard)
       ;; (jmn-load-gruvbox-light-medium)
-      ;; (global-hl-line-mode)   ; works great everywhere in gruvbox
+      ;; (global-hl-line-mode)   ; works great everywhere in gruvbox and dark+
       ;; (transparency 96)
       )
   (if (eq system-type 'gnu/linux)

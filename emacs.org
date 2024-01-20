@@ -1054,6 +1054,9 @@ Hook doesn't look right, but I am guessing I tested it when added
 #+end_src
 
 * Org-Mode
+Notes on completion: use =C-c C-l= to insert a path link and get completion.
+- alternatively company-mode will complete in the buffer, but will get in the way in the org-blocks.
+
 ** Mode setup
 #+begin_src emacs-lisp
   (defun jmn/org-mode-setup ()
@@ -1134,7 +1137,7 @@ Hook doesn't look right, but I am guessing I tested it when added
                                   'auto nil 'string=)))
 #+end_src
 
-** TODO Bullets
+** Bullets
 Archive: melpa
 #+begin_src emacs-lisp
   (unless jmn-term
@@ -1570,8 +1573,7 @@ Helpful functions
 ** Themes
 *** Gruvbox
 #+begin_src emacs-lisp
-    (use-package gruvbox-theme
-      :defer t)
+    (use-package gruvbox-theme)
 
     (defun jmn-set-gruv-org-faces (props)
       "Function used by all gruvbox themes for setting or faces"
@@ -1666,8 +1668,7 @@ Helpful functions
 - The modeline, when un-selected, has the same background as files, making it hard to delineation between vertically split windows.
 #+begin_src emacs-lisp :tangle no
   (use-package doom-themes
-    :defer t
-    )
+    :defer t  )
 
   (defun jmn-load-dark+()
     "Theme for very light time"
@@ -1677,35 +1678,12 @@ Helpful functions
     (set-face-background 'line-number
                          (face-attribute 'default :background))
     ;; default does not change filename settings when modified
-    (set-face-foreground 'doom-modeline-buffer-modified "red"))
-#+end_src
-
-*** Doom-one (not used)
-#+begin_src emacs-lisp :tangle no
-  (use-package doom-themes:
-    :defer t)
-
-  (defun jmn-load-doom-one()
-      "doom-one for dark time"
-      (interactive)
-      (disable-theme (car custom-enabled-themes))
-      (load-theme 'doom-one)
-      (with-eval-after-load 'org
-        (set-face-foreground 'org-priority (face-foreground font-lock-builtin-face))
+    (set-face-foreground 'doom-modeline-buffer-modified "red")
+    (with-eval-after-load 'org
+             ;; (set-face-foreground 'org-priority (face-foreground font-lock-builtin-face))
         (setq org-todo-keyword-faces
-              `(("NEXT" .  ,(face-foreground font-lock-type-face))
-                ("HOLD" . ,(face-foreground font-lock-variable-name-face))))))
-
-
-    (defun jmn-load-doom-one-light()
-      "doom-one for light time"
-      (interactive)
-      (disable-theme (car custom-enabled-themes))
-      (load-theme 'doom-one-light)
-      (with-eval-after-load 'org
-        (setq org-todo-keyword-faces
-              `(("NEXT" .  ,(face-foreground font-lock-type-face))
-                ("HOLD" . ,(face-foreground font-lock-variable-name-face))))))
+              `(("NEXT" .  ,(face-foreground font-lock-function-name-face))
+                ("HOLD" . "dark orange")))))
 #+end_src
 
 ** Default and time switches
@@ -1714,7 +1692,7 @@ Helpful functions
       (progn
         (jmn-load-gruvbox-dark-hard)
         ;; (jmn-load-gruvbox-light-medium)
-        ;; (global-hl-line-mode)   ; works great everywhere in gruvbox
+        ;; (global-hl-line-mode)   ; works great everywhere in gruvbox and dark+
         ;; (transparency 96)
         )
     (if (eq system-type 'gnu/linux)
