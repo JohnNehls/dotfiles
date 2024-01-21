@@ -16,6 +16,9 @@ Hopefully only need to change these to get setup on a new machine.
 
   (defconst jmn-connected-systems '("lat" "dsk" "xps")
     "Systems which should download packages. Others get the 'pure' configuration.")
+
+  (defconst jmn-dark-mode nil
+    "Do we want Emacs in a dark mode? Note: no dark config for windows as of now")
 #+end_src
 
 * Setup
@@ -607,10 +610,11 @@ Git-gutter+ allows for git commands
     :defer t)
 #+end_src
 
-** Highlight-indent-guide (not used)
-Could not get the configs to work with lazy loading.
-#+begin_src emacs-lisp :tangle no
+** Highlight-indent-guide
+I am undecided on if this is worth keeping.
+#+begin_src emacs-lisp
   (use-package highlight-indent-guides
+    :defer 2
     :hook prog-mode
     :config
     (setq highlight-indent-guides-method 'character)
@@ -653,7 +657,6 @@ Help in sorting the completion results.
       :bind (("C-c t" . treemacs ))
       :config
       (setq treemacs-width 30))
-
 #+end_src
 
 ** LSP and DAP
@@ -776,7 +779,7 @@ Archive: elpa, melpa
     :after yas-minor-mode) ; load basic snippets from melpa
 #+end_src
 
-** Flyspell
+** TODO Flyspell
 =C-,=    flyspell-goto-next-error
 =C-.=    flyspell-auto-correct-word
 #+begin_src emacs-lisp
@@ -1518,7 +1521,7 @@ Faster terminal due to being compiled. Default is a better mode than term-mode; 
 - For more than one terminal, you must M-x rename-uniquely the terminal.
 - C-c prefix for term commands
 - C-c C-c = send C-c to the terminal (kill running command)
-*** Extra installs needed
+*Extra installs needed:*
 For some reason :ensure-system-package did not work here so it is done explicitly in the :init
 Need to install: cmake, libtool
 
@@ -1570,7 +1573,7 @@ Helpful functions
     (disable-theme (car custom-enabled-themes)))
 #+end_src
 
-** Themes
+** Theme Packages
 *** Gruvbox
 #+begin_src emacs-lisp
     (use-package gruvbox-theme)
@@ -1686,21 +1689,32 @@ Helpful functions
                 ("HOLD" . "dark orange")))))
 #+end_src
 
+** Pure Themes
+#+begin_src emacs-lisp
+  (defun jmn-load-pure-dark-theme()
+    (load-theme 'wombat)
+    (with-eval-after-load 'org
+      (set-face-background 'org-block "gray8")))
+
+  (defun jmn-load-pure-light-theme()
+    (with-eval-after-load 'org
+      (set-face-background 'org-block "gray93")))
+#+end_src
+
 ** Default and time switches
 #+begin_src emacs-lisp
-  (if (not jmn-pure)
-      (progn
-        (jmn-load-gruvbox-dark-hard)
-        ;; (jmn-load-gruvbox-light-medium)
-        ;; (global-hl-line-mode)   ; works great everywhere in gruvbox and dark+
-        ;; (transparency 96)
-        )
-    (if (eq system-type 'gnu/linux)
-        (progn
-          (load-theme 'wombat)
-          ;; (transparency 96)
-          (with-eval-after-load 'org
-            (set-face-background 'org-block "gray8")))))
+    (if jmn-pure
+        (if jmn-dark-mode
+            (if (eq system-type 'gnu/linux)  ;; pure dark linux
+                (jmn-load-pure-dark-theme)
+              (progn ;; pure dark windows
+                (print "No dark-mode for windows- setting light mode")
+                (jmn-load-pure-light-theme)))
+          (jmn-load-pure-light-theme))  ;; pure light
+
+      (if jmn-dark-mode  ;; non-pure and dark
+          (jmn-load-gruvbox-dark-hard)
+        (jmn-load-gruvbox-light-medium)))  ;; non-pure and light
 #+end_src
 
 * Windows Core setup

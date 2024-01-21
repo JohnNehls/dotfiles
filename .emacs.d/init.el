@@ -7,6 +7,9 @@
 (defconst jmn-connected-systems '("lat" "dsk" "xps")
   "Systems which should download packages. Others get the 'pure' configuration.")
 
+(defconst jmn-dark-mode nil
+  "Do we want Emacs in a dark mode? Note: no dark config for windows as of now")
+
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun efs/org-babel-tangle-config ()
   (when (string-equal (buffer-file-name)
@@ -422,6 +425,13 @@
   ;; ;display Magit status buffer in the same buffer rather than splitting it.
   ;; (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
   )
+
+(use-package highlight-indent-guides
+  :defer 2
+  :hook prog-mode
+  :config
+  (setq highlight-indent-guides-method 'character)
+  (setq highlight-indent-guides-auto-character-face-perc 50))
 
 (use-package company
   :ensure t
@@ -1112,19 +1122,27 @@ f"))
   (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
                             (org-block . "#ebdbb2")))) ;; default "#f9f5d7"
 
-(if (not jmn-pure)
-    (progn
+(defun jmn-load-pure-dark-theme()
+  (load-theme 'wombat)
+  (with-eval-after-load 'org
+    (set-face-background 'org-block "gray8")))
+
+(defun jmn-load-pure-light-theme()
+  (with-eval-after-load 'org
+    (set-face-background 'org-block "gray93")))
+
+(if jmn-pure
+    (if jmn-dark-mode
+        (if (eq system-type 'gnu/linux)  ;; pure dark linux
+            (jmn-load-pure-dark-theme)
+          (progn ;; pure dark windows
+            (print "No dark-mode for windows- setting light mode")
+            (jmn-load-pure-light-theme)))
+      (jmn-load-pure-light-theme))  ;; pure light
+
+  (if jmn-dark-mode  ;; non-pure and dark
       (jmn-load-gruvbox-dark-hard)
-      ;; (jmn-load-gruvbox-light-medium)
-      ;; (global-hl-line-mode)   ; works great everywhere in gruvbox and dark+
-      ;; (transparency 96)
-      )
-  (if (eq system-type 'gnu/linux)
-      (progn
-        (load-theme 'wombat)
-        ;; (transparency 96)
-        (with-eval-after-load 'org
-          (set-face-background 'org-block "gray8")))))
+    (jmn-load-gruvbox-light-medium)))  ;; non-pure and light
 
 (cond
  ((eq system-type 'windows-nt)
