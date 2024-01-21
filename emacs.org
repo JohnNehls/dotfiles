@@ -17,7 +17,7 @@ Hopefully only need to change these to get setup on a new machine.
   (defconst jmn-connected-systems '("lat" "dsk" "xps")
     "Systems which should download packages. Others get the 'pure' configuration.")
 
-  (defconst jmn-dark-mode nil
+  (defconst jmn-dark-mode t
     "Do we want Emacs in a dark mode? Note: no dark config for windows as of now")
 #+end_src
 
@@ -1273,18 +1273,27 @@ Make the setup file safe for non-pure machines.
         (add-to-list 'org-safe-remote-resources  "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")))
 #+end_src
 * Agenda and GTD
-** General
-Following the tutorial [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode-gtd.html][here]].
-
+** Keybindings
 - =C-c C-s=      :   scheduled timestamp
 - =C-c C-d=      :   deadline timestamp
 - =C-c C-w=      :   refile actionable/project items from inbox to appropriate area.
 - =C-x C-s=      :   org-save-all-org-buffers
 - =C-c C-x e=  :   org-set-effort
-- =TAB=               :   open  agenda item in other window
+- =o=               :   open  agenda item in other window --after my change
 - =+=, =-= ,  =,=         :   increase, decrease, and set priority
-=Shift-right=  :  advance the todo state
+- =Shift-right=  :  advance the todo state
+- =S-<down>=   :         org-agenda-priority-down
+- =S-<left>=   :      org-agenda-do-date-earlier
+- =S-<right>= :       org-agenda-do-date-later
+- =S-<up>=         :      org-agenda-priority-up
 
+#+begin_src emacs-lisp
+  (with-eval-after-load 'org-agenda
+    (define-key org-agenda-keymap (kbd "o") 'org-agenda-goto)) ;; more like dired
+#+end_src
+
+** General
+Following the tutorial [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode-gtd.html][here]].
 #+begin_src emacs-lisp
   ;; Org Agenda
   (setq org-agenda-window-setup 'other-window) ;; other good option: reorganize-frame

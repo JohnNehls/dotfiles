@@ -7,7 +7,7 @@
 (defconst jmn-connected-systems '("lat" "dsk" "xps")
   "Systems which should download packages. Others get the 'pure' configuration.")
 
-(defconst jmn-dark-mode nil
+(defconst jmn-dark-mode t
   "Do we want Emacs in a dark mode? Note: no dark config for windows as of now")
 
 ;; Automatically tangle our Emacs.org config file when we save it
@@ -806,6 +806,9 @@ f"))
 (if (and (version<= "29" emacs-version) (not jmn-pure))
     (with-eval-after-load 'org
       (add-to-list 'org-safe-remote-resources  "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")))
+
+(with-eval-after-load 'org-agenda
+  (define-key org-agenda-keymap (kbd "o") 'org-agenda-goto)) ;; more like dired
 
 ;; Org Agenda
 (setq org-agenda-window-setup 'other-window) ;; other good option: reorganize-frame
