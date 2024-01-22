@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2024-01-21 Sun 19:04 -->
+<!-- 2024-01-22 Mon 18:43 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Emacs Configuration</title>
@@ -23,199 +23,199 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org13405ba">System Dependent Variables</a></li>
-<li><a href="#org94e893d">Setup</a>
+<li><a href="#org8fa346e">System Dependent Variables</a></li>
+<li><a href="#orgbad389c">Setup</a>
 <ul>
-<li><a href="#orgbc05ba6">Auto-tangle</a></li>
-<li><a href="#org6b87134">Packages and Management</a></li>
+<li><a href="#org3c7db6a">Auto-tangle</a></li>
+<li><a href="#orgd4849a2">Packages and Management</a></li>
 </ul>
 </li>
-<li><a href="#orgc02decc">General Emacs</a>
+<li><a href="#orgf5df99b">General Emacs</a>
 <ul>
-<li><a href="#orge131dce">UI Configurations</a>
+<li><a href="#org182eaab">UI Configurations</a>
 <ul>
-<li><a href="#org5de2993">Basic</a></li>
-<li><a href="#orgb96847e">Backup files</a></li>
-<li><a href="#org0caf4ad">Recentf</a></li>
-<li><a href="#orgf3d21db">Transparency</a></li>
-<li><a href="#org9427eee">Scrolling</a></li>
-<li><a href="#orgecdc1fb">Undo-tree</a></li>
-<li><a href="#orgf64a61e">Modeline</a></li>
-<li><a href="#org6e94eab">Auto-clean white space</a></li>
-<li><a href="#org77b93ff">Dashboard</a></li>
+<li><a href="#org82dbb57">Basic</a></li>
+<li><a href="#orgb230a9c">Backup files</a></li>
+<li><a href="#orgb136ed8">Recentf</a></li>
+<li><a href="#orga8e5206">Transparency</a></li>
+<li><a href="#org71f2835">Scrolling</a></li>
+<li><a href="#org0e80652">Undo-tree</a></li>
+<li><a href="#org9ae1a42">Modeline</a></li>
+<li><a href="#orgccfe5f2">Auto-clean white space</a></li>
+<li><a href="#org9c7cb12">Dashboard</a></li>
 </ul>
 </li>
-<li><a href="#orgfd435b8">Keybindings</a></li>
-<li><a href="#org2d8c97e">Dired</a></li>
-<li><a href="#org5e087ac">Proced</a></li>
-<li><a href="#org07a4ec5">Native Compilation</a></li>
-<li><a href="#org02cec88"><span class="todo TODO">TODO</span> Goto last change</a></li>
-<li><a href="#orgbf5ae39">Input Buffer, Directory Search</a>
+<li><a href="#org4d9b6d9">Keybindings</a></li>
+<li><a href="#org120d275">Dired</a></li>
+<li><a href="#org1534efe">Proced</a></li>
+<li><a href="#org332c6ea">Native Compilation</a></li>
+<li><a href="#org8203d91"><span class="todo TODO">TODO</span> Goto last change</a></li>
+<li><a href="#orge5b0cf8">Input Buffer, Directory Search</a>
 <ul>
-<li><a href="#orgf042ec5">Ivy, Ivy-Rich, and Counsel</a></li>
-<li><a href="#orgd6eea24">Ivy-Rich</a></li>
-<li><a href="#orgeb37a2d">Ivy-prescient</a></li>
-<li><a href="#org0fdd1ac">Counsel</a></li>
+<li><a href="#orgeae02d5">Ivy, Ivy-Rich, and Counsel</a></li>
+<li><a href="#orgcaf8c3d">Ivy-Rich</a></li>
+<li><a href="#orgedee1de">Ivy-prescient</a></li>
+<li><a href="#org107cb02">Counsel</a></li>
 </ul>
 </li>
-<li><a href="#org3731c52">Helpful and Which-key</a>
+<li><a href="#orge4f401e">Helpful and Which-key</a>
 <ul>
-<li><a href="#orgbac7ae8">Helpful</a></li>
-<li><a href="#org9b78755">Which-key</a></li>
+<li><a href="#org5a72c3b">Helpful</a></li>
+<li><a href="#org4c822c0">Which-key</a></li>
 </ul>
 </li>
-<li><a href="#org39ae969">Font size</a></li>
-<li><a href="#org61c89a5">General Helper Function</a>
+<li><a href="#orgd384be4">Font size</a></li>
+<li><a href="#orgfe5fcec">General Helper Function</a>
 <ul>
-<li><a href="#orge1c35a6">jmn-load-init</a></li>
-<li><a href="#org6c3b782">jmn-vscode-current-buffer-file-at-point</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#org920c2ab">General Development</a>
-<ul>
-<li><a href="#org6d05b40">Indentation</a></li>
-<li><a href="#orgc39b777">Prog-mode</a></li>
-<li><a href="#org78590d8">Parens/delimiters</a>
-<ul>
-<li><a href="#orge599d03"><span class="todo TODO">TODO</span> Rainbow Delimiters</a></li>
-<li><a href="#orgfad1aaf">Smartparens NOT USED</a></li>
-</ul>
-</li>
-<li><a href="#org2a7f0e1">Magit</a></li>
-<li><a href="#org03de0b5">Git-Gutter (not used)</a></li>
-<li><a href="#org346a53f">Highlight-indent-guide</a></li>
-<li><a href="#orgad6797f">Company-Mode</a>
-<ul>
-<li><a href="#org3e5a169">company-box-mode</a></li>
-<li><a href="#org4d197c2">company-prescient</a></li>
-</ul>
-</li>
-<li><a href="#org7ccf00a">Treemacs</a></li>
-<li><a href="#orge165e66">LSP and DAP</a>
-<ul>
-<li><a href="#org9ef7a64">lsp-mode</a></li>
-<li><a href="#orgc1cf188">lsp-ui</a></li>
-<li><a href="#org3d3a6eb">lsp-ivy</a></li>
-<li><a href="#org50b50df">lsp-treemacs</a></li>
-<li><a href="#orgd5b6d18">Dap Debugging</a></li>
-</ul>
-</li>
-<li><a href="#orgb6b09ea">Flycheck</a></li>
-<li><a href="#org4c28022">CMake</a>
-<ul>
-<li><a href="#orge9e3b29">CMake-mode</a></li>
-<li><a href="#org8fe8f87">CMake project</a></li>
-</ul>
-</li>
-<li><a href="#org6911fd5">Yasnippet</a></li>
-<li><a href="#org90a65a5"><span class="todo TODO">TODO</span> Flyspell</a></li>
-<li><a href="#orgfbf257f">Evil nerd commenter</a></li>
-<li><a href="#orge487412">Tree Sitter Highlighting</a></li>
-<li><a href="#org98f88a9">Ripgrep</a></li>
-<li><a href="#orgb4fc6ae">YAML</a></li>
-<li><a href="#org8249782">Docker</a></li>
-<li><a href="#org614044f"><span class="todo TODO">TODO</span> Compilation mode in async output</a></li>
-<li><a href="#orgd00c687">Pure Dev Tools</a>
-<ul>
-<li><a href="#org5c9dd85">Tab completion</a></li>
-<li><a href="#org41973a7">vc-mode</a></li>
+<li><a href="#orgd675b0f">jmn-load-init</a></li>
+<li><a href="#orgdcae28b">jmn-vscode-current-buffer-file-at-point</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org3e4ccf5">Languages</a>
+<li><a href="#org763cdeb">General Development</a>
 <ul>
-<li><a href="#org15b3aba">Emacs-lisp</a></li>
-<li><a href="#orge37a8f8">Bash</a></li>
-<li><a href="#orge9fd3db">Python</a>
+<li><a href="#org2fe59e7">Indentation</a></li>
+<li><a href="#org8c612d1">Prog-mode</a></li>
+<li><a href="#org01efd52">Parens/delimiters</a>
 <ul>
-<li><a href="#org07c4c3d"><span class="todo TODO">TODO</span> Jupyter Notebooks</a></li>
-<li><a href="#orge62d4a5">Pyvenv</a></li>
-<li><a href="#org47a466a">Python-mode</a></li>
-<li><a href="#orga112668">Hook</a></li>
+<li><a href="#org8c9992e"><span class="todo TODO">TODO</span> Rainbow Delimiters</a></li>
+<li><a href="#org647ead2">Smartparens NOT USED</a></li>
 </ul>
 </li>
-<li><a href="#org254a18d">C/C++</a>
+<li><a href="#org86ae057">Magit</a></li>
+<li><a href="#org651ed74">Git-Gutter (not used)</a></li>
+<li><a href="#org52ad77a">Highlight-indent-guide</a></li>
+<li><a href="#org1c9f22e">Company-Mode</a>
 <ul>
-<li><a href="#orgf466f1e">Compilation Buffer</a></li>
-<li><a href="#org9b70249">Hook</a></li>
+<li><a href="#org18f0d83">company-box-mode</a></li>
+<li><a href="#org8802051">company-prescient</a></li>
 </ul>
 </li>
-<li><a href="#orgf23dc23">Octave</a></li>
-<li><a href="#org7e04fa0"><span class="todo TODO">TODO</span> Markdown</a></li>
+<li><a href="#orga7743cf">Treemacs</a></li>
+<li><a href="#org51eddd3">LSP and DAP</a>
+<ul>
+<li><a href="#org9951c9b">lsp-mode</a></li>
+<li><a href="#orga549573">lsp-ui</a></li>
+<li><a href="#org1c47a7e">lsp-ivy</a></li>
+<li><a href="#org4450bb7">lsp-treemacs</a></li>
+<li><a href="#org6feb2df">Dap Debugging</a></li>
 </ul>
 </li>
-<li><a href="#orgf3afea7">Org-Mode</a>
+<li><a href="#orge35abee">Flycheck</a></li>
+<li><a href="#org84cd4e1">CMake</a>
 <ul>
-<li><a href="#org511320d">Mode setup</a></li>
-<li><a href="#orgc088baa">Fonts</a></li>
-<li><a href="#org1ec7cb0">Start</a></li>
-<li><a href="#org2614a23">Bullets</a></li>
-<li><a href="#org396c16f">Center column and line wrapping</a></li>
-<li><a href="#org8bf05a0">Org-babel</a></li>
-<li><a href="#orgd20605b">Inline latex</a></li>
-<li><a href="#orgcf6c0a4">Keybindings</a></li>
-<li><a href="#org7713ad0">HTML</a>
+<li><a href="#orgf8e54bb">CMake-mode</a></li>
+<li><a href="#orge613442">CMake project</a></li>
+</ul>
+</li>
+<li><a href="#org8ec0894">Yasnippet</a></li>
+<li><a href="#orgedd0d6b"><span class="todo TODO">TODO</span> Flyspell</a></li>
+<li><a href="#orgbed63ae">Evil nerd commenter</a></li>
+<li><a href="#org68a80ff">Tree Sitter Highlighting</a></li>
+<li><a href="#org8ca7f83">Ripgrep</a></li>
+<li><a href="#org6d7df4d">YAML</a></li>
+<li><a href="#org50cf68e">Docker</a></li>
+<li><a href="#org3685c92"><span class="todo TODO">TODO</span> Compilation mode in async output</a></li>
+<li><a href="#org2cf5899">Pure Dev Tools</a>
 <ul>
-<li><a href="#orgf92f080">htmlize</a></li>
-<li><a href="#org3eba82b">Save to HTML on save</a></li>
-<li><a href="#orga34ae0a">Make Read The Org setup file safe</a></li>
+<li><a href="#org932d293">Tab completion</a></li>
+<li><a href="#orga8eeaea">vc-mode</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgd666e1b">Agenda and GTD</a>
+<li><a href="#org9d1c94e">Languages</a>
 <ul>
-<li><a href="#org169add5">Keybindings</a></li>
-<li><a href="#org9f74387">General</a></li>
-<li><a href="#orgf79b46e">Habits</a></li>
-<li><a href="#org5c99660">Capture Templates</a></li>
-<li><a href="#org4723909">Archive</a></li>
-<li><a href="#orgf9f7a53">Process Inbox Item</a></li>
-<li><a href="#orgaa05467">Advice</a></li>
+<li><a href="#orgcbe8e00">Emacs-lisp</a></li>
+<li><a href="#orga559400">Bash</a></li>
+<li><a href="#org46b6440">Python</a>
+<ul>
+<li><a href="#org2ad5d8a"><span class="todo TODO">TODO</span> Jupyter Notebooks</a></li>
+<li><a href="#orgea45705">Pyvenv</a></li>
+<li><a href="#org7a96127">Python-mode</a></li>
+<li><a href="#orgd032d83">Hook</a></li>
 </ul>
 </li>
-<li><a href="#org88e8b4b">Terminals</a>
+<li><a href="#org3c9a26f">C/C++</a>
 <ul>
-<li><a href="#org6493194">term-mode</a>
-<ul>
-<li><a href="#orga49c24d">Keybindings</a></li>
-<li><a href="#orga7237ee">Better term-mode colors</a></li>
+<li><a href="#orga1d840c">Compilation Buffer</a></li>
+<li><a href="#org41d25f4">Hook</a></li>
 </ul>
 </li>
-<li><a href="#org0f6482e">vterm</a></li>
+<li><a href="#org25e7ba3">Octave</a></li>
+<li><a href="#org17b4722">Markdown</a></li>
 </ul>
 </li>
-<li><a href="#orgbe81fcb">Theme</a>
+<li><a href="#org2920a6c">Org-Mode</a>
 <ul>
-<li><a href="#org4d6f224">Setup and helpers</a></li>
-<li><a href="#org9dc7318">Theme Packages</a>
+<li><a href="#org0fe9d0a">Mode setup</a></li>
+<li><a href="#org28f65b6">Fonts</a></li>
+<li><a href="#org6966e62">Start</a></li>
+<li><a href="#orgb6288fb">Bullets</a></li>
+<li><a href="#org978378b">Center column and line wrapping</a></li>
+<li><a href="#org964fd7d">Org-babel</a></li>
+<li><a href="#org25838aa">Inline latex</a></li>
+<li><a href="#org88910b2">Keybindings</a></li>
+<li><a href="#orgc53414d">HTML</a>
 <ul>
-<li><a href="#org0981883">Gruvbox</a></li>
-<li><a href="#orgac684c0">Dark+ (not used)</a></li>
+<li><a href="#orgbc17262">htmlize</a></li>
+<li><a href="#orga123a51">Save to HTML on save</a></li>
+<li><a href="#org9c4fff4">Make Read The Org setup file safe</a></li>
 </ul>
 </li>
-<li><a href="#orgc3b1168">Pure Themes</a></li>
-<li><a href="#org58f2a91">Default and time switches</a></li>
 </ul>
 </li>
-<li><a href="#orgdb915c9">Windows Core setup</a></li>
-<li><a href="#org183f579">Hacky Fixes</a>
+<li><a href="#org1a7583d">Agenda and GTD</a>
 <ul>
-<li><a href="#orgb38fe49">Corrects error: File mode specification error: (error Invalid image type ‘svg’) (not used)</a></li>
-<li><a href="#orgaff19d9">Keep transparency when toggling to full-screen in Emacs 29+ (not used)</a></li>
-<li><a href="#orgbea78fa">Transparency in term (<code>emacs -nw</code>)</a></li>
+<li><a href="#org9c20a70">Keybindings</a></li>
+<li><a href="#org35a4323">General</a></li>
+<li><a href="#org67ca099">Habits</a></li>
+<li><a href="#orgd0f68a9">Capture Templates</a></li>
+<li><a href="#org0cfd451">Archive</a></li>
+<li><a href="#org7bfe5d5">Process Inbox Item</a></li>
+<li><a href="#org8e8c69f">Advice</a></li>
+</ul>
+</li>
+<li><a href="#org5985303">Terminals</a>
+<ul>
+<li><a href="#orgcb94a57">term-mode</a>
+<ul>
+<li><a href="#orge98eac6">Keybindings</a></li>
+<li><a href="#org6014aad">Better term-mode colors</a></li>
+</ul>
+</li>
+<li><a href="#org9bcb5a3">vterm</a></li>
+</ul>
+</li>
+<li><a href="#org18dfa6d">Theme</a>
+<ul>
+<li><a href="#org59618ba">Setup and helpers</a></li>
+<li><a href="#org36c2afa">Theme Packages</a>
+<ul>
+<li><a href="#orga53d9c8">Gruvbox</a></li>
+<li><a href="#org90efbcf">Dark+ (not used)</a></li>
+</ul>
+</li>
+<li><a href="#org5cd0af8">Pure Themes</a></li>
+<li><a href="#org12b1790">Default and time switches</a></li>
+</ul>
+</li>
+<li><a href="#org8733b57">Windows Core setup</a></li>
+<li><a href="#org7f44d35">Hacky Fixes</a>
+<ul>
+<li><a href="#orgbab72e5">Corrects error: File mode specification error: (error Invalid image type ‘svg’) (not used)</a></li>
+<li><a href="#orgaf4a3da">Keep transparency when toggling to full-screen in Emacs 29+ (not used)</a></li>
+<li><a href="#org21bb7b2">Transparency in term (<code>emacs -nw</code>)</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org13405ba" class="outline-2">
-<h2 id="org13405ba">System Dependent Variables</h2>
-<div class="outline-text-2" id="text-org13405ba">
+<div id="outline-container-org8fa346e" class="outline-2">
+<h2 id="org8fa346e">System Dependent Variables</h2>
+<div class="outline-text-2" id="text-org8fa346e">
 <p>
 Hopefully only need to change these to get setup on a new machine.
 </p>
@@ -236,13 +236,13 @@ Hopefully only need to change these to get setup on a new machine.
 </div>
 </div>
 
-<div id="outline-container-org94e893d" class="outline-2">
-<h2 id="org94e893d">Setup</h2>
-<div class="outline-text-2" id="text-org94e893d">
+<div id="outline-container-orgbad389c" class="outline-2">
+<h2 id="orgbad389c">Setup</h2>
+<div class="outline-text-2" id="text-orgbad389c">
 </div>
-<div id="outline-container-orgbc05ba6" class="outline-3">
-<h3 id="orgbc05ba6">Auto-tangle</h3>
-<div class="outline-text-3" id="text-orgbc05ba6">
+<div id="outline-container-org3c7db6a" class="outline-3">
+<h3 id="org3c7db6a">Auto-tangle</h3>
+<div class="outline-text-3" id="text-org3c7db6a">
 <p>
 This snippet adds a hook to <code>org-mode</code> buffers so that <code>efs/org-babel-tangle-config</code> gets executed each time such a buffer gets saved.  This function checks to see if the file being saved is the Emacs.org file you're looking at right now, and if so, automatically exports the configuration here to the associated output files.
 </p>
@@ -262,9 +262,9 @@ This snippet adds a hook to <code>org-mode</code> buffers so that <code>efs/org-
 </div>
 </div>
 
-<div id="outline-container-org6b87134" class="outline-3">
-<h3 id="org6b87134">Packages and Management</h3>
-<div class="outline-text-3" id="text-org6b87134">
+<div id="outline-container-orgd4849a2" class="outline-3">
+<h3 id="orgd4849a2">Packages and Management</h3>
+<div class="outline-text-3" id="text-orgd4849a2">
 <p>
 Archives: elpa is default, melpa is community.
 Use-package is macro that is used like a package manager. <a href="https://github.com/jwiegley/use-package">Use-Package Documentation</a>
@@ -308,17 +308,17 @@ Use-package is macro that is used like a package manager. <a href="https://githu
 </div>
 </div>
 
-<div id="outline-container-orgc02decc" class="outline-2">
-<h2 id="orgc02decc">General Emacs</h2>
-<div class="outline-text-2" id="text-orgc02decc">
+<div id="outline-container-orgf5df99b" class="outline-2">
+<h2 id="orgf5df99b">General Emacs</h2>
+<div class="outline-text-2" id="text-orgf5df99b">
 </div>
-<div id="outline-container-orge131dce" class="outline-3">
-<h3 id="orge131dce">UI Configurations</h3>
-<div class="outline-text-3" id="text-orge131dce">
+<div id="outline-container-org182eaab" class="outline-3">
+<h3 id="org182eaab">UI Configurations</h3>
+<div class="outline-text-3" id="text-org182eaab">
 </div>
-<div id="outline-container-org5de2993" class="outline-4">
-<h4 id="org5de2993">Basic</h4>
-<div class="outline-text-4" id="text-org5de2993">
+<div id="outline-container-org82dbb57" class="outline-4">
+<h4 id="org82dbb57">Basic</h4>
+<div class="outline-text-4" id="text-org82dbb57">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #98be65;">;;;; </span><span style="color: #98be65;">Basic ;;;;</span>
 (<span style="color: #fb4933;">setq</span> inhibit-startup-message t)                <span style="color: #98be65;">; </span><span style="color: #98be65;">inhibit startup message</span>
@@ -358,9 +358,9 @@ Use-package is macro that is used like a package manager. <a href="https://githu
 </div>
 </div>
 
-<div id="outline-container-orgb96847e" class="outline-4">
-<h4 id="orgb96847e">Backup files</h4>
-<div class="outline-text-4" id="text-orgb96847e">
+<div id="outline-container-orgb230a9c" class="outline-4">
+<h4 id="orgb230a9c">Backup files</h4>
+<div class="outline-text-4" id="text-orgb230a9c">
 <p>
 Save backups in <code>.emacs.d</code>.
 </p>
@@ -372,9 +372,9 @@ Save backups in <code>.emacs.d</code>.
 </div>
 </div>
 
-<div id="outline-container-org0caf4ad" class="outline-4">
-<h4 id="org0caf4ad">Recentf</h4>
-<div class="outline-text-4" id="text-org0caf4ad">
+<div id="outline-container-orgb136ed8" class="outline-4">
+<h4 id="orgb136ed8">Recentf</h4>
+<div class="outline-text-4" id="text-orgb136ed8">
 <p>
 Recentf is needed for recent files on the dashboard.
 </p>
@@ -405,9 +405,9 @@ Recentf is needed for recent files on the dashboard.
 </div>
 </div>
 
-<div id="outline-container-orgf3d21db" class="outline-4">
-<h4 id="orgf3d21db">Transparency</h4>
-<div class="outline-text-4" id="text-orgf3d21db">
+<div id="outline-container-orga8e5206" class="outline-4">
+<h4 id="orga8e5206">Transparency</h4>
+<div class="outline-text-4" id="text-orga8e5206">
 <p>
 Set transparency
 </p>
@@ -423,9 +423,9 @@ Set transparency
 </div>
 </div>
 
-<div id="outline-container-org9427eee" class="outline-4">
-<h4 id="org9427eee">Scrolling</h4>
-<div class="outline-text-4" id="text-org9427eee">
+<div id="outline-container-org71f2835" class="outline-4">
+<h4 id="org71f2835">Scrolling</h4>
+<div class="outline-text-4" id="text-org71f2835">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #98be65;">;;;; </span><span style="color: #98be65;">Scrolling ;;;;</span>
 <span style="color: #98be65;">;; </span><span style="color: #98be65;">Fully redraw the display before it processes queued input events.</span>
@@ -447,8 +447,8 @@ Set transparency
 </div>
 
 <ul class="org-ul">
-<li><a id="org8cd92f6"></a>Fast Scroll<br />
-<div class="outline-text-5" id="text-org8cd92f6">
+<li><a id="org258c205"></a>Fast Scroll<br />
+<div class="outline-text-5" id="text-org258c205">
 <p>
 To ensure scrolling is fast in Emacs, disable  non-essential things while the window is being scrolled:
 </p>
@@ -467,9 +467,9 @@ To ensure scrolling is fast in Emacs, disable  non-essential things while the wi
 </ul>
 </div>
 
-<div id="outline-container-orgecdc1fb" class="outline-4">
-<h4 id="orgecdc1fb">Undo-tree</h4>
-<div class="outline-text-4" id="text-orgecdc1fb">
+<div id="outline-container-org0e80652" class="outline-4">
+<h4 id="org0e80652">Undo-tree</h4>
+<div class="outline-text-4" id="text-org0e80652">
 <ul class="org-ul">
 <li><code>C-x u</code> visualizes undo history as a tree for easy navigation</li>
 <li><code>C-_</code> undo</li>
@@ -487,9 +487,9 @@ Archive: elpa</li>
 </div>
 </div>
 
-<div id="outline-container-orgf64a61e" class="outline-4">
-<h4 id="orgf64a61e">Modeline</h4>
-<div class="outline-text-4" id="text-orgf64a61e">
+<div id="outline-container-org9ae1a42" class="outline-4">
+<h4 id="org9ae1a42">Modeline</h4>
+<div class="outline-text-4" id="text-org9ae1a42">
 <p>
 <b>NOTE</b>: The first time you load your configuration on a new machine, you’ll need to run <code>M-x all-the-icons-install-fonts</code> so that mode line icons display correctly. (Fixed?)
 </p>
@@ -511,9 +511,9 @@ Archive: elpa</li>
 </div>
 </div>
 
-<div id="outline-container-org6e94eab" class="outline-4">
-<h4 id="org6e94eab">Auto-clean white space</h4>
-<div class="outline-text-4" id="text-org6e94eab">
+<div id="outline-container-orgccfe5f2" class="outline-4">
+<h4 id="orgccfe5f2">Auto-clean white space</h4>
+<div class="outline-text-4" id="text-orgccfe5f2">
 <p>
 Archive: melpa
 </p>
@@ -528,9 +528,9 @@ Archive: melpa
 </div>
 </div>
 
-<div id="outline-container-org77b93ff" class="outline-4">
-<h4 id="org77b93ff">Dashboard</h4>
-<div class="outline-text-4" id="text-org77b93ff">
+<div id="outline-container-org9c7cb12" class="outline-4">
+<h4 id="org9c7cb12">Dashboard</h4>
+<div class="outline-text-4" id="text-org9c7cb12">
 <p>
 Dash board for initial startup of emacs. <a href="https://github.com/emacs-dashboard/emacs-dashboard">github link</a>
 </p>
@@ -572,9 +572,9 @@ Dash board for initial startup of emacs. <a href="https://github.com/emacs-dashb
 </div>
 </div>
 
-<div id="outline-container-orgfd435b8" class="outline-3">
-<h3 id="orgfd435b8">Keybindings</h3>
-<div class="outline-text-3" id="text-orgfd435b8">
+<div id="outline-container-org4d9b6d9" class="outline-3">
+<h3 id="org4d9b6d9">Keybindings</h3>
+<div class="outline-text-3" id="text-org4d9b6d9">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #98be65;">;; </span><span style="color: #98be65;">general improvements</span>
 (global-set-key (kbd <span style="color: #cdbe70;">"&lt;escape&gt;"</span>) 'keyboard-escape-quit)
@@ -646,9 +646,9 @@ Dash board for initial startup of emacs. <a href="https://github.com/emacs-dashb
 </div>
 </div>
 
-<div id="outline-container-org2d8c97e" class="outline-3">
-<h3 id="org2d8c97e">Dired</h3>
-<div class="outline-text-3" id="text-org2d8c97e">
+<div id="outline-container-org120d275" class="outline-3">
+<h3 id="org120d275">Dired</h3>
+<div class="outline-text-3" id="text-org120d275">
 <p>
 More to do at <a href="https://youtu.be/PMWwM8QJAtU">here</a>: dired-open
 </p>
@@ -709,9 +709,9 @@ More to do at <a href="https://youtu.be/PMWwM8QJAtU">here</a>: dired-open
 </div>
 </div>
 
-<div id="outline-container-org5e087ac" class="outline-3">
-<h3 id="org5e087ac">Proced</h3>
-<div class="outline-text-3" id="text-org5e087ac">
+<div id="outline-container-org1534efe" class="outline-3">
+<h3 id="org1534efe">Proced</h3>
+<div class="outline-text-3" id="text-org1534efe">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #98be65;">;;;; </span><span style="color: #98be65;">Proced ;;;;</span>
 (<span style="color: #fb4933;">defun</span> <span style="color: #fabd2f;">proced-settings</span> ()
@@ -723,9 +723,9 @@ More to do at <a href="https://youtu.be/PMWwM8QJAtU">here</a>: dired-open
 </div>
 </div>
 
-<div id="outline-container-org07a4ec5" class="outline-3">
-<h3 id="org07a4ec5">Native Compilation</h3>
-<div class="outline-text-3" id="text-org07a4ec5">
+<div id="outline-container-org332c6ea" class="outline-3">
+<h3 id="org332c6ea">Native Compilation</h3>
+<div class="outline-text-3" id="text-org332c6ea">
 <p>
 Suppress compilation warnings
 </p>
@@ -737,9 +737,9 @@ Suppress compilation warnings
 </div>
 </div>
 
-<div id="outline-container-org02cec88" class="outline-3">
-<h3 id="org02cec88"><span class="todo TODO">TODO</span> Goto last change</h3>
-<div class="outline-text-3" id="text-org02cec88">
+<div id="outline-container-org8203d91" class="outline-3">
+<h3 id="org8203d91"><span class="todo TODO">TODO</span> Goto last change</h3>
+<div class="outline-text-3" id="text-org8203d91">
 <p>
 Check with other environments to settle on "C-;" or "M-;" &#x2013; the other us used for <code>evil-nerd comment</code>
 </p>
@@ -755,13 +755,13 @@ Check with other environments to settle on "C-;" or "M-;" &#x2013; the other us 
 </div>
 </div>
 
-<div id="outline-container-orgbf5ae39" class="outline-3">
-<h3 id="orgbf5ae39">Input Buffer, Directory Search</h3>
-<div class="outline-text-3" id="text-orgbf5ae39">
+<div id="outline-container-orge5b0cf8" class="outline-3">
+<h3 id="orge5b0cf8">Input Buffer, Directory Search</h3>
+<div class="outline-text-3" id="text-orge5b0cf8">
 </div>
-<div id="outline-container-orgf042ec5" class="outline-4">
-<h4 id="orgf042ec5">Ivy, Ivy-Rich, and Counsel</h4>
-<div class="outline-text-4" id="text-orgf042ec5">
+<div id="outline-container-orgeae02d5" class="outline-4">
+<h4 id="orgeae02d5">Ivy, Ivy-Rich, and Counsel</h4>
+<div class="outline-text-4" id="text-orgeae02d5">
 <p>
 Ivy displays vertical completions of input buffer.
 </p>
@@ -778,9 +778,9 @@ Ivy displays vertical completions of input buffer.
 </div>
 </div>
 
-<div id="outline-container-orgd6eea24" class="outline-4">
-<h4 id="orgd6eea24">Ivy-Rich</h4>
-<div class="outline-text-4" id="text-orgd6eea24">
+<div id="outline-container-orgcaf8c3d" class="outline-4">
+<h4 id="orgcaf8c3d">Ivy-Rich</h4>
+<div class="outline-text-4" id="text-orgcaf8c3d">
 <p>
 Ivy-rich provides information to display in input buffer to counsel.
 </p>
@@ -794,9 +794,9 @@ Ivy-rich provides information to display in input buffer to counsel.
 </div>
 </div>
 
-<div id="outline-container-orgeb37a2d" class="outline-4">
-<h4 id="orgeb37a2d">Ivy-prescient</h4>
-<div class="outline-text-4" id="text-orgeb37a2d">
+<div id="outline-container-orgedee1de" class="outline-4">
+<h4 id="orgedee1de">Ivy-prescient</h4>
+<div class="outline-text-4" id="text-orgedee1de">
 <p>
 prescient.el provides some helpful behavior for sorting Ivy completion candidates based on how recently or frequently you select them. This can be especially helpful when using M-x to run commands that you don’t have bound to a key but still need to access occasionally.
 </p>
@@ -815,9 +815,9 @@ prescient.el provides some helpful behavior for sorting Ivy completion candidate
 </div>
 </div>
 
-<div id="outline-container-org0fdd1ac" class="outline-4">
-<h4 id="org0fdd1ac">Counsel</h4>
-<div class="outline-text-4" id="text-org0fdd1ac">
+<div id="outline-container-org107cb02" class="outline-4">
+<h4 id="org107cb02">Counsel</h4>
+<div class="outline-text-4" id="text-org107cb02">
 <p>
 Counsel displays ivy-rich info along with suggestions in input buffer.
 </p>
@@ -839,13 +839,13 @@ Archive: elpa, melpa</li>
 </div>
 </div>
 
-<div id="outline-container-org3731c52" class="outline-3">
-<h3 id="org3731c52">Helpful and Which-key</h3>
-<div class="outline-text-3" id="text-org3731c52">
+<div id="outline-container-orge4f401e" class="outline-3">
+<h3 id="orge4f401e">Helpful and Which-key</h3>
+<div class="outline-text-3" id="text-orge4f401e">
 </div>
-<div id="outline-container-orgbac7ae8" class="outline-4">
-<h4 id="orgbac7ae8">Helpful</h4>
-<div class="outline-text-4" id="text-orgbac7ae8">
+<div id="outline-container-org5a72c3b" class="outline-4">
+<h4 id="org5a72c3b">Helpful</h4>
+<div class="outline-text-4" id="text-org5a72c3b">
 <p>
 Better version of help. We remap normal help keys to Helpful's versions.
 Archive: melpa
@@ -867,9 +867,9 @@ Archive: melpa
 </div>
 </div>
 
-<div id="outline-container-org9b78755" class="outline-4">
-<h4 id="org9b78755">Which-key</h4>
-<div class="outline-text-4" id="text-org9b78755">
+<div id="outline-container-org4c822c0" class="outline-4">
+<h4 id="org4c822c0">Which-key</h4>
+<div class="outline-text-4" id="text-org4c822c0">
 <p>
 Archive: elpa, melpa
 </p>
@@ -884,9 +884,9 @@ Archive: elpa, melpa
 </div>
 </div>
 
-<div id="outline-container-org39ae969" class="outline-3">
-<h3 id="org39ae969">Font size</h3>
-<div class="outline-text-3" id="text-org39ae969">
+<div id="outline-container-orgd384be4" class="outline-3">
+<h3 id="orgd384be4">Font size</h3>
+<div class="outline-text-3" id="text-orgd384be4">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #fb4933;">defun</span> <span style="color: #fabd2f;">jmn-set-font-height</span>(value)
   (<span style="color: #fb4933;">interactive</span> <span style="color: #cdbe70;">"nFont height (default is 100): "</span>)
@@ -904,13 +904,13 @@ Archive: elpa, melpa
 </div>
 </div>
 
-<div id="outline-container-org61c89a5" class="outline-3">
-<h3 id="org61c89a5">General Helper Function</h3>
-<div class="outline-text-3" id="text-org61c89a5">
+<div id="outline-container-orgfe5fcec" class="outline-3">
+<h3 id="orgfe5fcec">General Helper Function</h3>
+<div class="outline-text-3" id="text-orgfe5fcec">
 </div>
-<div id="outline-container-orge1c35a6" class="outline-4">
-<h4 id="orge1c35a6">jmn-load-init</h4>
-<div class="outline-text-4" id="text-orge1c35a6">
+<div id="outline-container-orgd675b0f" class="outline-4">
+<h4 id="orgd675b0f">jmn-load-init</h4>
+<div class="outline-text-4" id="text-orgd675b0f">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #fb4933;">defun</span> <span style="color: #fabd2f;">jmn-load-init</span> ()
   (<span style="color: #fb4933;">interactive</span>)
@@ -920,9 +920,9 @@ Archive: elpa, melpa
 </div>
 </div>
 
-<div id="outline-container-org6c3b782" class="outline-4">
-<h4 id="org6c3b782">jmn-vscode-current-buffer-file-at-point</h4>
-<div class="outline-text-4" id="text-org6c3b782">
+<div id="outline-container-orgdcae28b" class="outline-4">
+<h4 id="orgdcae28b">jmn-vscode-current-buffer-file-at-point</h4>
+<div class="outline-text-4" id="text-orgdcae28b">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #fb4933;">defun</span> <span style="color: #fabd2f;">jmn/vscode-current-buffer-file-at-point</span> ()
   (<span style="color: #fb4933;">interactive</span>)
@@ -945,13 +945,13 @@ Archive: elpa, melpa
 </div>
 </div>
 
-<div id="outline-container-org920c2ab" class="outline-2">
-<h2 id="org920c2ab">General Development</h2>
-<div class="outline-text-2" id="text-org920c2ab">
+<div id="outline-container-org763cdeb" class="outline-2">
+<h2 id="org763cdeb">General Development</h2>
+<div class="outline-text-2" id="text-org763cdeb">
 </div>
-<div id="outline-container-org6d05b40" class="outline-3">
-<h3 id="org6d05b40">Indentation</h3>
-<div class="outline-text-3" id="text-org6d05b40">
+<div id="outline-container-org2fe59e7" class="outline-3">
+<h3 id="org2fe59e7">Indentation</h3>
+<div class="outline-text-3" id="text-org2fe59e7">
 <p>
 Guess the indentation offset and 'indent-tabs-mode' from the file using internal heuristics.
 </p>
@@ -963,9 +963,9 @@ Guess the indentation offset and 'indent-tabs-mode' from the file using internal
 </div>
 </div>
 
-<div id="outline-container-orgc39b777" class="outline-3">
-<h3 id="orgc39b777">Prog-mode</h3>
-<div class="outline-text-3" id="text-orgc39b777">
+<div id="outline-container-org8c612d1" class="outline-3">
+<h3 id="org8c612d1">Prog-mode</h3>
+<div class="outline-text-3" id="text-org8c612d1">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #98be65;">;;</span><span style="color: #98be65;">Prog-mode</span>
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
@@ -978,18 +978,18 @@ Guess the indentation offset and 'indent-tabs-mode' from the file using internal
 </div>
 </div>
 
-<div id="outline-container-org78590d8" class="outline-3">
-<h3 id="org78590d8">Parens/delimiters</h3>
-<div class="outline-text-3" id="text-org78590d8">
+<div id="outline-container-org01efd52" class="outline-3">
+<h3 id="org01efd52">Parens/delimiters</h3>
+<div class="outline-text-3" id="text-org01efd52">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(show-paren-mode    1) <span style="color: #98be65;">; </span><span style="color: #98be65;">Highlight parentheses pairs.</span>
 </pre>
 </div>
 </div>
 
-<div id="outline-container-orge599d03" class="outline-4">
-<h4 id="orge599d03"><span class="todo TODO">TODO</span> Rainbow Delimiters</h4>
-<div class="outline-text-4" id="text-orge599d03">
+<div id="outline-container-org8c9992e" class="outline-4">
+<h4 id="org8c9992e"><span class="todo TODO">TODO</span> Rainbow Delimiters</h4>
+<div class="outline-text-4" id="text-org8c9992e">
 <p>
 Need to test the org-mode hook
 Archive: melpa
@@ -1005,9 +1005,9 @@ Archive: melpa
 </div>
 </div>
 
-<div id="outline-container-orgfad1aaf" class="outline-4">
-<h4 id="orgfad1aaf">Smartparens NOT USED</h4>
-<div class="outline-text-4" id="text-orgfad1aaf">
+<div id="outline-container-org647ead2" class="outline-4">
+<h4 id="org647ead2">Smartparens NOT USED</h4>
+<div class="outline-text-4" id="text-org647ead2">
 <p>
 Auto-creates closing parenthesis and bar and, smartly, writes it over if it is typed.
 Archive: melpa
@@ -1021,9 +1021,9 @@ Archive: melpa
 </div>
 </div>
 
-<div id="outline-container-org2a7f0e1" class="outline-3">
-<h3 id="org2a7f0e1">Magit</h3>
-<div class="outline-text-3" id="text-org2a7f0e1">
+<div id="outline-container-org86ae057" class="outline-3">
+<h3 id="org86ae057">Magit</h3>
+<div class="outline-text-3" id="text-org86ae057">
 <p>
 <a href="https://magit.vc/">Magit Documentation</a> Archive: melpa
 </p>
@@ -1039,9 +1039,9 @@ Archive: melpa
 </div>
 </div>
 
-<div id="outline-container-org03de0b5" class="outline-3">
-<h3 id="org03de0b5">Git-Gutter (not used)</h3>
-<div class="outline-text-3" id="text-org03de0b5">
+<div id="outline-container-org651ed74" class="outline-3">
+<h3 id="org651ed74">Git-Gutter (not used)</h3>
+<div class="outline-text-3" id="text-org651ed74">
 <p>
 Git-gutter+ allows for git commands
 </p>
@@ -1054,9 +1054,9 @@ Git-gutter+ allows for git commands
 </div>
 </div>
 
-<div id="outline-container-org346a53f" class="outline-3">
-<h3 id="org346a53f">Highlight-indent-guide</h3>
-<div class="outline-text-3" id="text-org346a53f">
+<div id="outline-container-org52ad77a" class="outline-3">
+<h3 id="org52ad77a">Highlight-indent-guide</h3>
+<div class="outline-text-3" id="text-org52ad77a">
 <p>
 I am undecided on if this is worth keeping.
 </p>
@@ -1072,9 +1072,9 @@ I am undecided on if this is worth keeping.
 </div>
 </div>
 
-<div id="outline-container-orgad6797f" class="outline-3">
-<h3 id="orgad6797f">Company-Mode</h3>
-<div class="outline-text-3" id="text-orgad6797f">
+<div id="outline-container-org1c9f22e" class="outline-3">
+<h3 id="org1c9f22e">Company-Mode</h3>
+<div class="outline-text-3" id="text-org1c9f22e">
 <p>
 Currently <code>company-mode</code> gets called by <code>lsp-mode</code> by default, providing the auto-complete box that <code>lsp</code> presents it's suggestions in.
 </p>
@@ -1089,9 +1089,9 @@ Currently <code>company-mode</code> gets called by <code>lsp-mode</code> by defa
 </div>
 </div>
 
-<div id="outline-container-org3e5a169" class="outline-4">
-<h4 id="org3e5a169">company-box-mode</h4>
-<div class="outline-text-4" id="text-org3e5a169">
+<div id="outline-container-org18f0d83" class="outline-4">
+<h4 id="org18f0d83">company-box-mode</h4>
+<div class="outline-text-4" id="text-org18f0d83">
 <p>
 Brings up a another box with information about the highlighted recommended item in the company/lsp box.
 </p>
@@ -1104,9 +1104,9 @@ Brings up a another box with information about the highlighted recommended item 
 </div>
 </div>
 
-<div id="outline-container-org4d197c2" class="outline-4">
-<h4 id="org4d197c2">company-prescient</h4>
-<div class="outline-text-4" id="text-org4d197c2">
+<div id="outline-container-org8802051" class="outline-4">
+<h4 id="org8802051">company-prescient</h4>
+<div class="outline-text-4" id="text-org8802051">
 <p>
 Help in sorting the completion results.
 </p>
@@ -1121,9 +1121,9 @@ Help in sorting the completion results.
 </div>
 </div>
 
-<div id="outline-container-org7ccf00a" class="outline-3">
-<h3 id="org7ccf00a">Treemacs</h3>
-<div class="outline-text-3" id="text-org7ccf00a">
+<div id="outline-container-orga7743cf" class="outline-3">
+<h3 id="orga7743cf">Treemacs</h3>
+<div class="outline-text-3" id="text-orga7743cf">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #fb4933;">use-package</span> <span style="color: #d3869b;">treemacs</span>
   <span style="color: #cd8500;">:ensure</span> t
@@ -1136,13 +1136,13 @@ Help in sorting the completion results.
 </div>
 </div>
 
-<div id="outline-container-orge165e66" class="outline-3">
-<h3 id="orge165e66">LSP and DAP</h3>
-<div class="outline-text-3" id="text-orge165e66">
+<div id="outline-container-org51eddd3" class="outline-3">
+<h3 id="org51eddd3">LSP and DAP</h3>
+<div class="outline-text-3" id="text-org51eddd3">
 </div>
-<div id="outline-container-org9ef7a64" class="outline-4">
-<h4 id="org9ef7a64">lsp-mode</h4>
-<div class="outline-text-4" id="text-org9ef7a64">
+<div id="outline-container-org9951c9b" class="outline-4">
+<h4 id="org9951c9b">lsp-mode</h4>
+<div class="outline-text-4" id="text-org9951c9b">
 <p>
 Provides language backend to company-mode.
 </p>
@@ -1178,9 +1178,9 @@ The last line concerning <code>cangd</code> comes from <a href="https://www.mort
 </div>
 </div>
 
-<div id="outline-container-orgc1cf188" class="outline-4">
-<h4 id="orgc1cf188">lsp-ui</h4>
-<div class="outline-text-4" id="text-orgc1cf188">
+<div id="outline-container-orga549573" class="outline-4">
+<h4 id="orga549573">lsp-ui</h4>
+<div class="outline-text-4" id="text-orga549573">
 <p>
 Provides additional lsp information to the company-mode box. The mode provides info when hoovered by mouse. <a href="https://emacs-lsp.github.io/lsp-ui/">lsp-ui documentation</a>
 </p>
@@ -1199,9 +1199,9 @@ Provides additional lsp information to the company-mode box. The mode provides i
 </div>
 </div>
 
-<div id="outline-container-org3d3a6eb" class="outline-4">
-<h4 id="org3d3a6eb">lsp-ivy</h4>
-<div class="outline-text-4" id="text-org3d3a6eb">
+<div id="outline-container-org1c47a7e" class="outline-4">
+<h4 id="org1c47a7e">lsp-ivy</h4>
+<div class="outline-text-4" id="text-org1c47a7e">
 <p>
 <a href="https://github.com/emacs-lsp/lsp-ivy">lsp-ivy</a> integrates Ivy with <code>lsp-mode</code> to make it easy to search for things by name in your code.  When you run these commands, a prompt will appear in the minibuffer allowing you to type part of the name of a symbol in your code.  Results will be populated in the minibuffer so that you can find what you're looking for and jump to that location in the code upon selecting the result.
 </p>
@@ -1222,9 +1222,9 @@ Try these commands with <code>M-x</code>:
 </div>
 </div>
 
-<div id="outline-container-org50b50df" class="outline-4">
-<h4 id="org50b50df">lsp-treemacs</h4>
-<div class="outline-text-4" id="text-org50b50df">
+<div id="outline-container-org4450bb7" class="outline-4">
+<h4 id="org4450bb7">lsp-treemacs</h4>
+<div class="outline-text-4" id="text-org4450bb7">
 <p>
 Shows file contents: classes functions etc
 </p>
@@ -1239,9 +1239,9 @@ Shows file contents: classes functions etc
 </div>
 </div>
 
-<div id="outline-container-orgd5b6d18" class="outline-4">
-<h4 id="orgd5b6d18">Dap Debugging</h4>
-<div class="outline-text-4" id="text-orgd5b6d18">
+<div id="outline-container-org6feb2df" class="outline-4">
+<h4 id="org6feb2df">Dap Debugging</h4>
+<div class="outline-text-4" id="text-org6feb2df">
 <p>
 Like lsp-mode but for debuggers.
 </p>
@@ -1255,9 +1255,9 @@ Like lsp-mode but for debuggers.
 </div>
 </div>
 
-<div id="outline-container-orgb6b09ea" class="outline-3">
-<h3 id="orgb6b09ea">Flycheck</h3>
-<div class="outline-text-3" id="text-orgb6b09ea">
+<div id="outline-container-orge35abee" class="outline-3">
+<h3 id="orge35abee">Flycheck</h3>
+<div class="outline-text-3" id="text-orge35abee">
 <p>
 Checks the code for bugs on the fly.
 </p>
@@ -1272,17 +1272,17 @@ Checks the code for bugs on the fly.
 </div>
 </div>
 
-<div id="outline-container-org4c28022" class="outline-3">
-<h3 id="org4c28022">CMake</h3>
-<div class="outline-text-3" id="text-org4c28022">
+<div id="outline-container-org84cd4e1" class="outline-3">
+<h3 id="org84cd4e1">CMake</h3>
+<div class="outline-text-3" id="text-org84cd4e1">
 <p>
 Lsp-mode requires the language server on the system:
 <code>pip install cmake-language-server</code>.
 </p>
 </div>
-<div id="outline-container-orge9e3b29" class="outline-4">
-<h4 id="orge9e3b29">CMake-mode</h4>
-<div class="outline-text-4" id="text-orge9e3b29">
+<div id="outline-container-orgf8e54bb" class="outline-4">
+<h4 id="orgf8e54bb">CMake-mode</h4>
+<div class="outline-text-4" id="text-orgf8e54bb">
 <p>
 Archive: melpa
 </p>
@@ -1301,9 +1301,9 @@ Archive: melpa
 </div>
 </div>
 
-<div id="outline-container-org8fe8f87" class="outline-4">
-<h4 id="org8fe8f87">CMake project</h4>
-<div class="outline-text-4" id="text-org8fe8f87">
+<div id="outline-container-orge613442" class="outline-4">
+<h4 id="orge613442">CMake project</h4>
+<div class="outline-text-4" id="text-orge613442">
 <p>
 In the source directory containing <code>CMakeLists.txt</code> run <code>M-x cmake-project-configure-project</code>.
 As a preference, use the <code>/bin/</code> option to keep the cmake files out of the source directory.
@@ -1320,9 +1320,9 @@ Archive: melpa
 </div>
 </div>
 
-<div id="outline-container-org6911fd5" class="outline-3">
-<h3 id="org6911fd5">Yasnippet</h3>
-<div class="outline-text-3" id="text-org6911fd5">
+<div id="outline-container-org8ec0894" class="outline-3">
+<h3 id="org8ec0894">Yasnippet</h3>
+<div class="outline-text-3" id="text-org8ec0894">
 <p>
 Archive: elpa, melpa
 </p>
@@ -1339,9 +1339,9 @@ Archive: elpa, melpa
 </div>
 </div>
 
-<div id="outline-container-org90a65a5" class="outline-3">
-<h3 id="org90a65a5"><span class="todo TODO">TODO</span> Flyspell</h3>
-<div class="outline-text-3" id="text-org90a65a5">
+<div id="outline-container-orgedd0d6b" class="outline-3">
+<h3 id="orgedd0d6b"><span class="todo TODO">TODO</span> Flyspell</h3>
+<div class="outline-text-3" id="text-orgedd0d6b">
 <p>
 <code>C-,</code>    flyspell-goto-next-error
 <code>C-.</code>    flyspell-auto-correct-word
@@ -1355,9 +1355,9 @@ Archive: elpa, melpa
 </div>
 </div>
 
-<div id="outline-container-orgfbf257f" class="outline-3">
-<h3 id="orgfbf257f">Evil nerd commenter</h3>
-<div class="outline-text-3" id="text-orgfbf257f">
+<div id="outline-container-orgbed63ae" class="outline-3">
+<h3 id="orgbed63ae">Evil nerd commenter</h3>
+<div class="outline-text-3" id="text-orgbed63ae">
 <p>
 Archive: melpa
 </p>
@@ -1369,9 +1369,9 @@ Archive: melpa
 </div>
 </div>
 
-<div id="outline-container-orge487412" class="outline-3">
-<h3 id="orge487412">Tree Sitter Highlighting</h3>
-<div class="outline-text-3" id="text-orge487412">
+<div id="outline-container-org68a80ff" class="outline-3">
+<h3 id="org68a80ff">Tree Sitter Highlighting</h3>
+<div class="outline-text-3" id="text-org68a80ff">
 <p>
 Archive: melpa
 </p>
@@ -1386,9 +1386,9 @@ Archive: melpa
 </div>
 </div>
 
-<div id="outline-container-org98f88a9" class="outline-3">
-<h3 id="org98f88a9">Ripgrep</h3>
-<div class="outline-text-3" id="text-org98f88a9">
+<div id="outline-container-org8ca7f83" class="outline-3">
+<h3 id="org8ca7f83">Ripgrep</h3>
+<div class="outline-text-3" id="text-org8ca7f83">
 <p>
 Archive: melpa
 </p>
@@ -1402,9 +1402,9 @@ Archive: melpa
 </div>
 </div>
 
-<div id="outline-container-orgb4fc6ae" class="outline-3">
-<h3 id="orgb4fc6ae">YAML</h3>
-<div class="outline-text-3" id="text-orgb4fc6ae">
+<div id="outline-container-org6d7df4d" class="outline-3">
+<h3 id="org6d7df4d">YAML</h3>
+<div class="outline-text-3" id="text-org6d7df4d">
 <p>
 Archive: melpa
 </p>
@@ -1416,9 +1416,9 @@ Archive: melpa
 </div>
 </div>
 
-<div id="outline-container-org8249782" class="outline-3">
-<h3 id="org8249782">Docker</h3>
-<div class="outline-text-3" id="text-org8249782">
+<div id="outline-container-org50cf68e" class="outline-3">
+<h3 id="org50cf68e">Docker</h3>
+<div class="outline-text-3" id="text-org50cf68e">
 <p>
 Archive: melpa
 </p>
@@ -1430,9 +1430,9 @@ Archive: melpa
 </div>
 </div>
 
-<div id="outline-container-org614044f" class="outline-3">
-<h3 id="org614044f"><span class="todo TODO">TODO</span> Compilation mode in async output</h3>
-<div class="outline-text-3" id="text-org614044f">
+<div id="outline-container-org3685c92" class="outline-3">
+<h3 id="org3685c92"><span class="todo TODO">TODO</span> Compilation mode in async output</h3>
+<div class="outline-text-3" id="text-org3685c92">
 <p>
 Note: not used or tangled
 </p>
@@ -1447,13 +1447,13 @@ Note: not used or tangled
 </div>
 </div>
 
-<div id="outline-container-orgd00c687" class="outline-3">
-<h3 id="orgd00c687">Pure Dev Tools</h3>
-<div class="outline-text-3" id="text-orgd00c687">
+<div id="outline-container-org2cf5899" class="outline-3">
+<h3 id="org2cf5899">Pure Dev Tools</h3>
+<div class="outline-text-3" id="text-org2cf5899">
 </div>
-<div id="outline-container-org5c9dd85" class="outline-4">
-<h4 id="org5c9dd85">Tab completion</h4>
-<div class="outline-text-4" id="text-org5c9dd85">
+<div id="outline-container-org932d293" class="outline-4">
+<h4 id="org932d293">Tab completion</h4>
+<div class="outline-text-4" id="text-org932d293">
 <p>
 Gives of tab completion in:
 </p>
@@ -1487,9 +1487,9 @@ As of 28.1 there is <code>tab-first-completion</code>. Could add a setup for it 
 </p>
 </div>
 </div>
-<div id="outline-container-org41973a7" class="outline-4">
-<h4 id="org41973a7">vc-mode</h4>
-<div class="outline-text-4" id="text-org41973a7">
+<div id="outline-container-orga8eeaea" class="outline-4">
+<h4 id="orga8eeaea">vc-mode</h4>
+<div class="outline-text-4" id="text-orga8eeaea">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #fb4933;">if</span> jmn-pure
     (global-set-key (kbd <span style="color: #cdbe70;">"C-x g"</span>) (<span style="color: #fb4933;">lambda</span> () (<span style="color: #fb4933;">interactive</span>)
@@ -1518,13 +1518,13 @@ As of 28.1 there is <code>tab-first-completion</code>. Could add a setup for it 
 </div>
 </div>
 
-<div id="outline-container-org3e4ccf5" class="outline-2">
-<h2 id="org3e4ccf5">Languages</h2>
-<div class="outline-text-2" id="text-org3e4ccf5">
+<div id="outline-container-org9d1c94e" class="outline-2">
+<h2 id="org9d1c94e">Languages</h2>
+<div class="outline-text-2" id="text-org9d1c94e">
 </div>
-<div id="outline-container-org15b3aba" class="outline-3">
-<h3 id="org15b3aba">Emacs-lisp</h3>
-<div class="outline-text-3" id="text-org15b3aba">
+<div id="outline-container-orgcbe8e00" class="outline-3">
+<h3 id="orgcbe8e00">Emacs-lisp</h3>
+<div class="outline-text-3" id="text-orgcbe8e00">
 <p>
 Use <code>C-c '</code> to view elisp babel blocks in their own file (to get completion).
 </p>
@@ -1534,9 +1534,9 @@ Use <code>C-c '</code> to view elisp babel blocks in their own file (to get comp
 </div>
 </div>
 
-<div id="outline-container-orge37a8f8" class="outline-3">
-<h3 id="orge37a8f8">Bash</h3>
-<div class="outline-text-3" id="text-orge37a8f8">
+<div id="outline-container-orga559400" class="outline-3">
+<h3 id="orga559400">Bash</h3>
+<div class="outline-text-3" id="text-orga559400">
 <ul class="org-ul">
 <li>Flycheck uses shellcheck, which requires <code>sudo dnf install -y shellcheck</code></li>
 <li>debuggers are available</li>
@@ -1565,8 +1565,8 @@ Use <code>C-c '</code> to view elisp babel blocks in their own file (to get comp
 </div>
 
 <ul class="org-ul">
-<li><a id="org046bc7c"></a><span class="todo HOLD">HOLD</span> May need to attach shellcheck with flymake<br />
-<div class="outline-text-5" id="text-org046bc7c">
+<li><a id="org40e2db1"></a><span class="todo HOLD">HOLD</span> May need to attach shellcheck with flymake<br />
+<div class="outline-text-5" id="text-org40e2db1">
 <p>
 See <a href="https://amitp.blogspot.com/2023/10/emacs-and-shellcheck.html">https://amitp.blogspot.com/2023/10/emacs-and-shellcheck.html</a>
 </p>
@@ -1575,17 +1575,17 @@ See <a href="https://amitp.blogspot.com/2023/10/emacs-and-shellcheck.html">https
 </ul>
 </div>
 
-<div id="outline-container-orge9fd3db" class="outline-3">
-<h3 id="orge9fd3db">Python</h3>
-<div class="outline-text-3" id="text-orge9fd3db">
+<div id="outline-container-org46b6440" class="outline-3">
+<h3 id="org46b6440">Python</h3>
+<div class="outline-text-3" id="text-org46b6440">
 </div>
-<div id="outline-container-org07c4c3d" class="outline-4">
-<h4 id="org07c4c3d"><span class="todo TODO">TODO</span> Jupyter Notebooks</h4>
-<div class="outline-text-4" id="text-org07c4c3d">
+<div id="outline-container-org2ad5d8a" class="outline-4">
+<h4 id="org2ad5d8a"><span class="todo TODO">TODO</span> Jupyter Notebooks</h4>
+<div class="outline-text-4" id="text-org2ad5d8a">
 </div>
 <ul class="org-ul">
-<li><a id="org8b14d8e"></a><span class="todo TODO">TODO</span> run Jupyter in babel<br />
-<div class="outline-text-5" id="text-org8b14d8e">
+<li><a id="org73119a8"></a><span class="todo TODO">TODO</span> run Jupyter in babel<br />
+<div class="outline-text-5" id="text-org73119a8">
 <p>
 <a href="https://sqrtminusone.xyz/posts/2021-05-01-org-python/">Reference</a> and <a href="https://github.com/jkitchin/scimax">https://github.com/jkitchin/scimax</a>
 Cannot get zmq (Jupyter dependency)  to work currently
@@ -1602,8 +1602,8 @@ Cannot get zmq (Jupyter dependency)  to work currently
 </div>
 </li>
 
-<li><a id="org8067a16"></a><span class="todo TODO">TODO</span> open notebook in Emacs<br />
-<div class="outline-text-5" id="text-org8067a16">
+<li><a id="orgf21fb34"></a><span class="todo TODO">TODO</span> open notebook in Emacs<br />
+<div class="outline-text-5" id="text-orgf21fb34">
 <p>
 If I use EIN, add the setting for displaying the figures inline.
 </p>
@@ -1620,8 +1620,8 @@ If I use EIN, add the setting for displaying the figures inline.
 </div>
 </li>
 
-<li><a id="orgd819e5a"></a><span class="todo TODO">TODO</span> completion<br />
-<div class="outline-text-5" id="text-orgd819e5a">
+<li><a id="org1c97e38"></a><span class="todo TODO">TODO</span> completion<br />
+<div class="outline-text-5" id="text-org1c97e38">
 <p>
 In <a href="https://www.youtube.com/watch?v=OB9vFu9Za8w">EIN video</a>, Miller says that the completion is based on <code>auto-complete</code> rather than <code>company</code>. So here we are going to try to get completion setup for <code>EIN</code>.
 Also, in <a href="https://github.com/millejoh/emacs-ipython-notebook#ob-ein">EIN github</a>, Miller says that <code>EIN</code> is an <code>elpy</code> module, so maybe we need <code>elpy</code> for completion?
@@ -1631,9 +1631,9 @@ Also, in <a href="https://github.com/millejoh/emacs-ipython-notebook#ob-ein">EIN
 </ul>
 </div>
 
-<div id="outline-container-orge62d4a5" class="outline-4">
-<h4 id="orge62d4a5">Pyvenv</h4>
-<div class="outline-text-4" id="text-orge62d4a5">
+<div id="outline-container-orgea45705" class="outline-4">
+<h4 id="orgea45705">Pyvenv</h4>
+<div class="outline-text-4" id="text-orgea45705">
 <p>
 Archive: melpa
 </p>
@@ -1675,13 +1675,13 @@ After changing venv all installed packages from venv should be visible for LSP s
 </div>
 </div>
 
-<div id="outline-container-org47a466a" class="outline-4">
-<h4 id="org47a466a">Python-mode</h4>
-<div class="outline-text-4" id="text-org47a466a">
+<div id="outline-container-org7a96127" class="outline-4">
+<h4 id="org7a96127">Python-mode</h4>
+<div class="outline-text-4" id="text-org7a96127">
 </div>
 <ul class="org-ul">
-<li><a id="org5b321ae"></a>Pyright<br />
-<div class="outline-text-5" id="text-org5b321ae">
+<li><a id="orgcdbdc97"></a>Pyright<br />
+<div class="outline-text-5" id="text-orgcdbdc97">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #98be65;">; </span><span style="color: #98be65;">npm must be installed on the system.</span>
   (<span style="color: #fb4933;">use-package</span> <span style="color: #d3869b;">lsp-pyright</span>
@@ -1694,8 +1694,8 @@ After changing venv all installed packages from venv should be visible for LSP s
 </div>
 </li>
 
-<li><a id="orgb75bed9"></a>python-mode<br />
-<div class="outline-text-5" id="text-orgb75bed9">
+<li><a id="orga8b7092"></a>python-mode<br />
+<div class="outline-text-5" id="text-orga8b7092">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #98be65;">;;;; </span><span style="color: #98be65;">Python-mode ;;;;</span>
 (<span style="color: #fb4933;">with-eval-after-load</span> 'python
@@ -1711,9 +1711,9 @@ After changing venv all installed packages from venv should be visible for LSP s
 </ul>
 </div>
 
-<div id="outline-container-orga112668" class="outline-4">
-<h4 id="orga112668">Hook</h4>
-<div class="outline-text-4" id="text-orga112668">
+<div id="outline-container-orgd032d83" class="outline-4">
+<h4 id="orgd032d83">Hook</h4>
+<div class="outline-text-4" id="text-orgd032d83">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #fb4933;">defun</span> <span style="color: #fabd2f;">my-python-mode-hook-fn</span> ()
   )
@@ -1725,13 +1725,13 @@ After changing venv all installed packages from venv should be visible for LSP s
 </div>
 </div>
 
-<div id="outline-container-org254a18d" class="outline-3">
-<h3 id="org254a18d">C/C++</h3>
-<div class="outline-text-3" id="text-org254a18d">
+<div id="outline-container-org3c9a26f" class="outline-3">
+<h3 id="org3c9a26f">C/C++</h3>
+<div class="outline-text-3" id="text-org3c9a26f">
 </div>
-<div id="outline-container-orgf466f1e" class="outline-4">
-<h4 id="orgf466f1e">Compilation Buffer</h4>
-<div class="outline-text-4" id="text-orgf466f1e">
+<div id="outline-container-orga1d840c" class="outline-4">
+<h4 id="orga1d840c">Compilation Buffer</h4>
+<div class="outline-text-4" id="text-orga1d840c">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #fb4933;">setq</span> compilation-scroll-output t) <span style="color: #98be65;">;;</span><span style="color: #98be65;">*Compilation* buffer scroll with the output.</span>
 </pre>
@@ -1762,9 +1762,9 @@ The following keeps the compilation buffer if there are warnings or errors, and 
 </div>
 </div>
 
-<div id="outline-container-org9b70249" class="outline-4">
-<h4 id="org9b70249">Hook</h4>
-<div class="outline-text-4" id="text-org9b70249">
+<div id="outline-container-org41d25f4" class="outline-4">
+<h4 id="org41d25f4">Hook</h4>
+<div class="outline-text-4" id="text-org41d25f4">
 <p>
 Currently lsp-mode works with clangd backend without any initial setup.
 company-clang needs <code>clang</code> installed on the system.
@@ -1784,9 +1784,9 @@ company-clang needs <code>clang</code> installed on the system.
 </div>
 </div>
 
-<div id="outline-container-orgf23dc23" class="outline-3">
-<h3 id="orgf23dc23">Octave</h3>
-<div class="outline-text-3" id="text-orgf23dc23">
+<div id="outline-container-org25e7ba3" class="outline-3">
+<h3 id="org25e7ba3">Octave</h3>
+<div class="outline-text-3" id="text-org25e7ba3">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(add-to-list 'auto-mode-alist '(<span style="color: #cdbe70;">"\\.m$"</span> . octave-mode))
 </pre>
@@ -1794,26 +1794,29 @@ company-clang needs <code>clang</code> installed on the system.
 </div>
 </div>
 
-<div id="outline-container-org7e04fa0" class="outline-3">
-<h3 id="org7e04fa0"><span class="todo TODO">TODO</span> Markdown</h3>
-<div class="outline-text-3" id="text-org7e04fa0">
+<div id="outline-container-org17b4722" class="outline-3">
+<h3 id="org17b4722">Markdown</h3>
+<div class="outline-text-3" id="text-org17b4722">
 <p>
-Hook doesn't look right, but I am guessing I tested it when added
+Use <code>markdown-preview-mode</code> to view in browser.
 </p>
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #fb4933;">use-package</span> <span style="color: #d3869b;">markdown-mode</span>
-  <span style="color: #cd8500;">:defer</span> t
-  <span style="color: #cd8500;">:hook</span> (markdown-mode-hook . (<span style="color: #fb4933;">lambda</span> ()
-                                (flyspell-mode))))
+<pre class="src src-emacs-lisp"> (<span style="color: #fb4933;">use-package</span> <span style="color: #d3869b;">markdown-mode</span>
+   <span style="color: #cd8500;">:defer</span> t
+   <span style="color: #cd8500;">:hook</span> (markdown-mode-hook . (<span style="color: #fb4933;">lambda</span> ()
+                                 (flyspell-mode))))
+
+(<span style="color: #fb4933;">use-package</span>  <span style="color: #d3869b;">markdown-preview-mode</span>
+  <span style="color: #cd8500;">:defer</span> t)
 </pre>
 </div>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgf3afea7" class="outline-2">
-<h2 id="orgf3afea7">Org-Mode</h2>
-<div class="outline-text-2" id="text-orgf3afea7">
+<div id="outline-container-org2920a6c" class="outline-2">
+<h2 id="org2920a6c">Org-Mode</h2>
+<div class="outline-text-2" id="text-org2920a6c">
 <p>
 Notes on completion: use <code>C-c C-l</code> to insert a path link and get completion.
 </p>
@@ -1822,9 +1825,9 @@ Notes on completion: use <code>C-c C-l</code> to insert a path link and get comp
 </ul>
 </div>
 
-<div id="outline-container-org511320d" class="outline-3">
-<h3 id="org511320d">Mode setup</h3>
-<div class="outline-text-3" id="text-org511320d">
+<div id="outline-container-org0fe9d0a" class="outline-3">
+<h3 id="org0fe9d0a">Mode setup</h3>
+<div class="outline-text-3" id="text-org0fe9d0a">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #fb4933;">defun</span> <span style="color: #fabd2f;">jmn/org-mode-setup</span> ()
   (<span style="color: #fb4933;">unless</span> jmn-term
@@ -1840,9 +1843,9 @@ Notes on completion: use <code>C-c C-l</code> to insert a path link and get comp
 </div>
 </div>
 
-<div id="outline-container-orgc088baa" class="outline-3">
-<h3 id="orgc088baa">Fonts</h3>
-<div class="outline-text-3" id="text-orgc088baa">
+<div id="outline-container-org28f65b6" class="outline-3">
+<h3 id="org28f65b6">Fonts</h3>
+<div class="outline-text-3" id="text-org28f65b6">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #fb4933;">defun</span> <span style="color: #fabd2f;">jmn/org-font-setup</span> ()
   (<span style="color: #fb4933;">unless</span> jmn-term <span style="color: #98be65;">;; </span><span style="color: #98be65;">Replace list hyphen with dot</span>
@@ -1883,9 +1886,9 @@ Notes on completion: use <code>C-c C-l</code> to insert a path link and get comp
 </div>
 </div>
 
-<div id="outline-container-org1ec7cb0" class="outline-3">
-<h3 id="org1ec7cb0">Start</h3>
-<div class="outline-text-3" id="text-org1ec7cb0">
+<div id="outline-container-org6966e62" class="outline-3">
+<h3 id="org6966e62">Start</h3>
+<div class="outline-text-3" id="text-org6966e62">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(add-hook 'org-mode-hook  'jmn/org-mode-setup)
 
@@ -1917,9 +1920,9 @@ Notes on completion: use <code>C-c C-l</code> to insert a path link and get comp
 </div>
 </div>
 
-<div id="outline-container-org2614a23" class="outline-3">
-<h3 id="org2614a23">Bullets</h3>
-<div class="outline-text-3" id="text-org2614a23">
+<div id="outline-container-orgb6288fb" class="outline-3">
+<h3 id="orgb6288fb">Bullets</h3>
+<div class="outline-text-3" id="text-orgb6288fb">
 <p>
 Archive: melpa
 </p>
@@ -1934,9 +1937,9 @@ Archive: melpa
 </div>
 </div>
 
-<div id="outline-container-org396c16f" class="outline-3">
-<h3 id="org396c16f">Center column and line wrapping</h3>
-<div class="outline-text-3" id="text-org396c16f">
+<div id="outline-container-org978378b" class="outline-3">
+<h3 id="org978378b">Center column and line wrapping</h3>
+<div class="outline-text-3" id="text-org978378b">
 <p>
 Archive: melpa
 </p>
@@ -1953,9 +1956,9 @@ Archive: melpa
 </div>
 </div>
 
-<div id="outline-container-org8bf05a0" class="outline-3">
-<h3 id="org8bf05a0">Org-babel</h3>
-<div class="outline-text-3" id="text-org8bf05a0">
+<div id="outline-container-org964fd7d" class="outline-3">
+<h3 id="org964fd7d">Org-babel</h3>
+<div class="outline-text-3" id="text-org964fd7d">
 <p>
 Either start a source block with  <code>&lt;[template]</code> or <code>C-c C-,</code> to select from org-select.
 </p>
@@ -1994,9 +1997,9 @@ Use # -<b>- org-src-preserve-indentation: t; -</b>- when doing tangle/detangle w
 </div>
 </div>
 
-<div id="outline-container-orgd20605b" class="outline-3">
-<h3 id="orgd20605b">Inline latex</h3>
-<div class="outline-text-3" id="text-orgd20605b">
+<div id="outline-container-org25838aa" class="outline-3">
+<h3 id="org25838aa">Inline latex</h3>
+<div class="outline-text-3" id="text-org25838aa">
 <p>
 Note: I had to install texlive dependencies for latex framents to work. I found what needed to be installed by running <code>pdflatex</code> on the generated tex file in <code>/tmp/</code> created by org.
 </p>
@@ -2030,9 +2033,9 @@ Create a function to align the size of displayed latex framents with overall org
 </div>
 </div>
 
-<div id="outline-container-orgcf6c0a4" class="outline-3">
-<h3 id="orgcf6c0a4">Keybindings</h3>
-<div class="outline-text-3" id="text-orgcf6c0a4">
+<div id="outline-container-org88910b2" class="outline-3">
+<h3 id="org88910b2">Keybindings</h3>
+<div class="outline-text-3" id="text-org88910b2">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #cdbe70;">"C-c x"</span>) #'org-html-export-to-html)
 (global-set-key (kbd <span style="color: #cdbe70;">"C-c s"</span>) #'org-store-link)
@@ -2044,13 +2047,13 @@ Create a function to align the size of displayed latex framents with overall org
 </div>
 </div>
 
-<div id="outline-container-org7713ad0" class="outline-3">
-<h3 id="org7713ad0">HTML</h3>
-<div class="outline-text-3" id="text-org7713ad0">
+<div id="outline-container-orgc53414d" class="outline-3">
+<h3 id="orgc53414d">HTML</h3>
+<div class="outline-text-3" id="text-orgc53414d">
 </div>
-<div id="outline-container-orgf92f080" class="outline-4">
-<h4 id="orgf92f080">htmlize</h4>
-<div class="outline-text-4" id="text-orgf92f080">
+<div id="outline-container-orgbc17262" class="outline-4">
+<h4 id="orgbc17262">htmlize</h4>
+<div class="outline-text-4" id="text-orgbc17262">
 <p>
 For syntax highlighting in export html, we want htmlize version &gt; <code>1.34</code>
 </p>
@@ -2063,9 +2066,9 @@ For syntax highlighting in export html, we want htmlize version &gt; <code>1.34<
 </div>
 </div>
 
-<div id="outline-container-org3eba82b" class="outline-4">
-<h4 id="org3eba82b">Save to HTML on save</h4>
-<div class="outline-text-4" id="text-org3eba82b">
+<div id="outline-container-orga123a51" class="outline-4">
+<h4 id="orga123a51">Save to HTML on save</h4>
+<div class="outline-text-4" id="text-orga123a51">
 <p>
 To have an org file convert to html on save, add the file name to the <code>org-files-to-html-on-save</code> in the file's local variables. This can be done in one of two ways:
 </p>
@@ -2098,8 +2101,8 @@ reference this list.
 </div>
 
 <ul class="org-ul">
-<li><a id="orgace5dcc"></a>Make the local eval "safe"<br />
-<div class="outline-text-5" id="text-orgace5dcc">
+<li><a id="orgb3840e0"></a>Make the local eval "safe"<br />
+<div class="outline-text-5" id="text-orgb3840e0">
 <p>
 The following removes the prompts when loading the buffer with the local variable
 </p>
@@ -2112,9 +2115,9 @@ The following removes the prompts when loading the buffer with the local variabl
 </ul>
 </div>
 
-<div id="outline-container-orga34ae0a" class="outline-4">
-<h4 id="orga34ae0a">Make Read The Org setup file safe</h4>
-<div class="outline-text-4" id="text-orga34ae0a">
+<div id="outline-container-org9c4fff4" class="outline-4">
+<h4 id="org9c4fff4">Make Read The Org setup file safe</h4>
+<div class="outline-text-4" id="text-org9c4fff4">
 <p>
 Make the setup file safe for non-pure machines.
 </p>
@@ -2128,13 +2131,13 @@ Make the setup file safe for non-pure machines.
 </div>
 </div>
 </div>
-<div id="outline-container-orgd666e1b" class="outline-2">
-<h2 id="orgd666e1b">Agenda and GTD</h2>
-<div class="outline-text-2" id="text-orgd666e1b">
+<div id="outline-container-org1a7583d" class="outline-2">
+<h2 id="org1a7583d">Agenda and GTD</h2>
+<div class="outline-text-2" id="text-org1a7583d">
 </div>
-<div id="outline-container-org169add5" class="outline-3">
-<h3 id="org169add5">Keybindings</h3>
-<div class="outline-text-3" id="text-org169add5">
+<div id="outline-container-org9c20a70" class="outline-3">
+<h3 id="org9c20a70">Keybindings</h3>
+<div class="outline-text-3" id="text-org9c20a70">
 <ul class="org-ul">
 <li><code>C-c C-s</code>      :   scheduled timestamp</li>
 <li><code>C-c C-d</code>      :   deadline timestamp</li>
@@ -2158,9 +2161,9 @@ Make the setup file safe for non-pure machines.
 </div>
 </div>
 
-<div id="outline-container-org9f74387" class="outline-3">
-<h3 id="org9f74387">General</h3>
-<div class="outline-text-3" id="text-org9f74387">
+<div id="outline-container-org35a4323" class="outline-3">
+<h3 id="org35a4323">General</h3>
+<div class="outline-text-3" id="text-org35a4323">
 <p>
 Following the tutorial <a href="https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode-gtd.html">here</a>.
 </p>
@@ -2251,9 +2254,9 @@ Following the tutorial <a href="https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/
 </div>
 </div>
 
-<div id="outline-container-orgf79b46e" class="outline-3">
-<h3 id="orgf79b46e">Habits</h3>
-<div class="outline-text-3" id="text-orgf79b46e">
+<div id="outline-container-org67ca099" class="outline-3">
+<h3 id="org67ca099">Habits</h3>
+<div class="outline-text-3" id="text-org67ca099">
 <p>
 File holding habits must be added to <code>org-agenda-files</code> above
 </p>
@@ -2274,9 +2277,9 @@ File holding habits must be added to <code>org-agenda-files</code> above
 </div>
 </div>
 
-<div id="outline-container-org5c99660" class="outline-3">
-<h3 id="org5c99660">Capture Templates</h3>
-<div class="outline-text-3" id="text-org5c99660">
+<div id="outline-container-orgd0f68a9" class="outline-3">
+<h3 id="orgd0f68a9">Capture Templates</h3>
+<div class="outline-text-3" id="text-orgd0f68a9">
 <p>
 <a href="https://orgmode.org/manual/Capture-templates.html">Capture templates (The Org Manual)</a>
 </p>
@@ -2315,9 +2318,9 @@ File holding habits must be added to <code>org-agenda-files</code> above
 </div>
 </div>
 
-<div id="outline-container-org4723909" class="outline-3">
-<h3 id="org4723909">Archive</h3>
-<div class="outline-text-3" id="text-org4723909">
+<div id="outline-container-org0cfd451" class="outline-3">
+<h3 id="org0cfd451">Archive</h3>
+<div class="outline-text-3" id="text-org0cfd451">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #fb4933;">defun</span> <span style="color: #fabd2f;">org-archive-done-tasks-tree</span> ()
   <span style="color: #cdbe70;">"Archive all DONE tasks in the current org tree"</span>
@@ -2341,9 +2344,9 @@ File holding habits must be added to <code>org-agenda-files</code> above
 </div>
 </div>
 
-<div id="outline-container-orgf9f7a53" class="outline-3">
-<h3 id="orgf9f7a53">Process Inbox Item</h3>
-<div class="outline-text-3" id="text-orgf9f7a53">
+<div id="outline-container-org7bfe5d5" class="outline-3">
+<h3 id="org7bfe5d5">Process Inbox Item</h3>
+<div class="outline-text-3" id="text-org7bfe5d5">
 <p>
 <a href="https://github.com/jethrokuan/.emacs.d/blob/master/init.el">https://github.com/jethrokuan/.emacs.d/blob/master/init.el</a>
 </p>
@@ -2367,9 +2370,9 @@ File holding habits must be added to <code>org-agenda-files</code> above
 </div>
 </div>
 
-<div id="outline-container-orgaa05467" class="outline-3">
-<h3 id="orgaa05467">Advice</h3>
-<div class="outline-text-3" id="text-orgaa05467">
+<div id="outline-container-org8e8c69f" class="outline-3">
+<h3 id="org8e8c69f">Advice</h3>
+<div class="outline-text-3" id="text-org8e8c69f">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #fb4933;">defmacro</span> <span style="color: #fabd2f;">func-ignore</span> (fnc)
   <span style="color: #cdbe70;">"Return function that ignores its arguments and invokes FNC."</span>
@@ -2402,13 +2405,13 @@ File holding habits must be added to <code>org-agenda-files</code> above
 </div>
 </div>
 
-<div id="outline-container-org88e8b4b" class="outline-2">
-<h2 id="org88e8b4b">Terminals</h2>
-<div class="outline-text-2" id="text-org88e8b4b">
+<div id="outline-container-org5985303" class="outline-2">
+<h2 id="org5985303">Terminals</h2>
+<div class="outline-text-2" id="text-org5985303">
 </div>
-<div id="outline-container-org6493194" class="outline-3">
-<h3 id="org6493194">term-mode</h3>
-<div class="outline-text-3" id="text-org6493194">
+<div id="outline-container-orgcb94a57" class="outline-3">
+<h3 id="orgcb94a57">term-mode</h3>
+<div class="outline-text-3" id="text-orgcb94a57">
 <ul class="org-ul">
 <li>Slower than vterm at printing large amounts of information.</li>
 <li>For more than one terminal, you must M-x rename-uniquely the terminal.</li>
@@ -2421,9 +2424,9 @@ C-c C-k -&gt; char-mode
 C-c C-j  -&gt; line-mode
 </p>
 </div>
-<div id="outline-container-orga49c24d" class="outline-4">
-<h4 id="orga49c24d">Keybindings</h4>
-<div class="outline-text-4" id="text-orga49c24d">
+<div id="outline-container-orge98eac6" class="outline-4">
+<h4 id="orge98eac6">Keybindings</h4>
+<div class="outline-text-4" id="text-orge98eac6">
 <p>
 Just some changes to make it feel more like the other modes.
 </p>
@@ -2448,9 +2451,9 @@ Just some changes to make it feel more like the other modes.
 </div>
 </div>
 
-<div id="outline-container-orga7237ee" class="outline-4">
-<h4 id="orga7237ee">Better term-mode colors</h4>
-<div class="outline-text-4" id="text-orga7237ee">
+<div id="outline-container-org6014aad" class="outline-4">
+<h4 id="org6014aad">Better term-mode colors</h4>
+<div class="outline-text-4" id="text-org6014aad">
 <p>
 Archive: melpa
 </p>
@@ -2463,9 +2466,9 @@ Archive: melpa
 </div>
 </div>
 
-<div id="outline-container-org0f6482e" class="outline-3">
-<h3 id="org0f6482e">vterm</h3>
-<div class="outline-text-3" id="text-org0f6482e">
+<div id="outline-container-org9bcb5a3" class="outline-3">
+<h3 id="org9bcb5a3">vterm</h3>
+<div class="outline-text-3" id="text-org9bcb5a3">
 <p>
 Faster terminal due to being compiled. Default is a better mode than term-mode; it's like a Char-mode but with ability to access function list with M-x.  <a href="https://github.com/akermu/emacs-libvterm">vterm Documentation</a>
 </p>
@@ -2519,13 +2522,13 @@ Need to install: cmake, libtool
 </div>
 </div>
 
-<div id="outline-container-orgbe81fcb" class="outline-2">
-<h2 id="orgbe81fcb">Theme</h2>
-<div class="outline-text-2" id="text-orgbe81fcb">
+<div id="outline-container-org18dfa6d" class="outline-2">
+<h2 id="org18dfa6d">Theme</h2>
+<div class="outline-text-2" id="text-org18dfa6d">
 </div>
-<div id="outline-container-org4d6f224" class="outline-3">
-<h3 id="org4d6f224">Setup and helpers</h3>
-<div class="outline-text-3" id="text-org4d6f224">
+<div id="outline-container-org59618ba" class="outline-3">
+<h3 id="org59618ba">Setup and helpers</h3>
+<div class="outline-text-3" id="text-org59618ba">
 <p>
 Helpful functions
 </p>
@@ -2543,13 +2546,13 @@ Helpful functions
 </div>
 </div>
 
-<div id="outline-container-org9dc7318" class="outline-3">
-<h3 id="org9dc7318">Theme Packages</h3>
-<div class="outline-text-3" id="text-org9dc7318">
+<div id="outline-container-org36c2afa" class="outline-3">
+<h3 id="org36c2afa">Theme Packages</h3>
+<div class="outline-text-3" id="text-org36c2afa">
 </div>
-<div id="outline-container-org0981883" class="outline-4">
-<h4 id="org0981883">Gruvbox</h4>
-<div class="outline-text-4" id="text-org0981883">
+<div id="outline-container-orga53d9c8" class="outline-4">
+<h4 id="orga53d9c8">Gruvbox</h4>
+<div class="outline-text-4" id="text-orga53d9c8">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #fb4933;">use-package</span> <span style="color: #d3869b;">gruvbox-theme</span>)
 
@@ -2645,9 +2648,9 @@ Helpful functions
 </div>
 </div>
 
-<div id="outline-container-orgac684c0" class="outline-4">
-<h4 id="orgac684c0">Dark+ (not used)</h4>
-<div class="outline-text-4" id="text-orgac684c0">
+<div id="outline-container-org90efbcf" class="outline-4">
+<h4 id="org90efbcf">Dark+ (not used)</h4>
+<div class="outline-text-4" id="text-org90efbcf">
 <ul class="org-ul">
 <li>The modeline, when un-selected, has the same background as files, making it hard to delineation between vertically split windows.</li>
 </ul>
@@ -2675,9 +2678,9 @@ Helpful functions
 </div>
 </div>
 
-<div id="outline-container-orgc3b1168" class="outline-3">
-<h3 id="orgc3b1168">Pure Themes</h3>
-<div class="outline-text-3" id="text-orgc3b1168">
+<div id="outline-container-org5cd0af8" class="outline-3">
+<h3 id="org5cd0af8">Pure Themes</h3>
+<div class="outline-text-3" id="text-org5cd0af8">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #fb4933;">defun</span> <span style="color: #fabd2f;">jmn-load-pure-dark-theme</span>()
   (load-theme 'wombat)
@@ -2692,9 +2695,9 @@ Helpful functions
 </div>
 </div>
 
-<div id="outline-container-org58f2a91" class="outline-3">
-<h3 id="org58f2a91">Default and time switches</h3>
-<div class="outline-text-3" id="text-org58f2a91">
+<div id="outline-container-org12b1790" class="outline-3">
+<h3 id="org12b1790">Default and time switches</h3>
+<div class="outline-text-3" id="text-org12b1790">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #fb4933;">if</span> jmn-pure
     (<span style="color: #fb4933;">if</span> jmn-dark-mode
@@ -2714,9 +2717,9 @@ Helpful functions
 </div>
 </div>
 
-<div id="outline-container-orgdb915c9" class="outline-2">
-<h2 id="orgdb915c9">Windows Core setup</h2>
-<div class="outline-text-2" id="text-orgdb915c9">
+<div id="outline-container-org8733b57" class="outline-2">
+<h2 id="org8733b57">Windows Core setup</h2>
+<div class="outline-text-2" id="text-org8733b57">
 <p>
 Major changes for windows. Small changes also exist in the rest of the config.
 </p>
@@ -2750,13 +2753,13 @@ Major changes for windows. Small changes also exist in the rest of the config.
 </div>
 </div>
 
-<div id="outline-container-org183f579" class="outline-2">
-<h2 id="org183f579">Hacky Fixes</h2>
-<div class="outline-text-2" id="text-org183f579">
+<div id="outline-container-org7f44d35" class="outline-2">
+<h2 id="org7f44d35">Hacky Fixes</h2>
+<div class="outline-text-2" id="text-org7f44d35">
 </div>
-<div id="outline-container-orgb38fe49" class="outline-3">
-<h3 id="orgb38fe49">Corrects error: File mode specification error: (error Invalid image type ‘svg’) (not used)</h3>
-<div class="outline-text-3" id="text-orgb38fe49">
+<div id="outline-container-orgbab72e5" class="outline-3">
+<h3 id="orgbab72e5">Corrects error: File mode specification error: (error Invalid image type ‘svg’) (not used)</h3>
+<div class="outline-text-3" id="text-orgbab72e5">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #fb4933;">setq</span> image-types '(svg png gif tiff jpeg xpm xbm pbm))
 </pre>
@@ -2764,9 +2767,9 @@ Major changes for windows. Small changes also exist in the rest of the config.
 </div>
 </div>
 
-<div id="outline-container-orgaff19d9" class="outline-3">
-<h3 id="orgaff19d9">Keep transparency when toggling to full-screen in Emacs 29+ (not used)</h3>
-<div class="outline-text-3" id="text-orgaff19d9">
+<div id="outline-container-orgaf4a3da" class="outline-3">
+<h3 id="orgaf4a3da">Keep transparency when toggling to full-screen in Emacs 29+ (not used)</h3>
+<div class="outline-text-3" id="text-orgaf4a3da">
 <p>
 Was needed at one point&#x2013; keeping just in case it is need in the future.
 </p>
@@ -2789,9 +2792,9 @@ Was needed at one point&#x2013; keeping just in case it is need in the future.
 </div>
 </div>
 
-<div id="outline-container-orgbea78fa" class="outline-3">
-<h3 id="orgbea78fa">Transparency in term (<code>emacs -nw</code>)</h3>
-<div class="outline-text-3" id="text-orgbea78fa">
+<div id="outline-container-org21bb7b2" class="outline-3">
+<h3 id="org21bb7b2">Transparency in term (<code>emacs -nw</code>)</h3>
+<div class="outline-text-3" id="text-org21bb7b2">
 <p>
 source: <a href="https://github.com/syl20bnr/spacemacs/issues/7262">https://github.com/syl20bnr/spacemacs/issues/7262</a>
 </p>
@@ -2807,7 +2810,7 @@ source: <a href="https://github.com/syl20bnr/spacemacs/issues/7262">https://gith
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: ape</p>
-<p class="date">Created: 2024-01-21 Sun 19:04</p>
+<p class="date">Created: 2024-01-22 Mon 18:43</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -653,9 +653,12 @@
 (add-to-list 'auto-mode-alist '("\\.m$" . octave-mode))
 
 (use-package markdown-mode
-  :defer t
-  :hook (markdown-mode-hook . (lambda ()
-                                (flyspell-mode))))
+   :defer t
+   :hook (markdown-mode-hook . (lambda ()
+                                 (flyspell-mode))))
+
+(use-package  markdown-preview-mode
+  :defer t)
 
 (defun jmn/org-mode-setup ()
   (unless jmn-term

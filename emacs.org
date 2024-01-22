@@ -1047,13 +1047,16 @@ The following keeps the compilation buffer if there are warnings or errors, and 
 (add-to-list 'auto-mode-alist '("\\.m$" . octave-mode))
 #+end_src
 
-** TODO Markdown
-Hook doesn't look right, but I am guessing I tested it when added
+** Markdown
+Use =markdown-preview-mode= to view in browser.
 #+begin_src emacs-lisp
-  (use-package markdown-mode
-    :defer t
-    :hook (markdown-mode-hook . (lambda ()
-                                  (flyspell-mode))))
+   (use-package markdown-mode
+     :defer t
+     :hook (markdown-mode-hook . (lambda ()
+                                   (flyspell-mode))))
+
+  (use-package  markdown-preview-mode
+    :defer t)
 #+end_src
 
 * Org-Mode
