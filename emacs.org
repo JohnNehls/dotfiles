@@ -142,7 +142,11 @@ Recentf is needed for recent files on the dashboard.
   (if jmn-pure
       (progn
         ;; display recent files on startup
-        (add-hook 'after-init-hook (lambda () (recentf-open-files)))
+        ;; (add-hook 'after-init-hook (lambda () (recentf-open-files)))
+        ;; display projects.org on startup
+        (add-hook 'after-init-hook
+                  (lambda () (find-file
+                              (concat jmn-gtd-directory "projects.org"))))
         ;; make display recent files the dashboard command
         (global-set-key (kbd "C-c d") 'recentf-open-files)))
 #+end_src
@@ -863,7 +867,7 @@ As of 28.1 there is =tab-first-completion=. Could add a setup for it above which
 *** vc-mode
 #+begin_src emacs-lisp
   (if jmn-pure
-      (global-set-key (kbd "C-x g") (lambda () (interactive)
+      (global-set-key (kbd "C-c g") (lambda () (interactive)
                                       (vc-dir (file-name-directory (buffer-file-name))))))
 
   (defun jmn-vc-commit ()
@@ -1572,7 +1576,7 @@ Need to install: cmake, libtool
                    (window-height . 0.3))))
 #+end_src
 
-* Theme
+* Theme and Frame
 ** Setup and helpers
 Helpful functions
 #+begin_src emacs-lisp
@@ -1713,6 +1717,11 @@ Helpful functions
       (set-face-background 'org-block "gray93")))
 #+end_src
 
+** Frame Height
+#+begin_src emacs-lisp
+  (if (window-system)
+      (set-frame-height (selected-frame) 54))
+#+end_src
 ** Default and time switches
 #+begin_src emacs-lisp
     (if jmn-pure
@@ -1746,8 +1755,10 @@ Major changes for windows. Small changes also exist in the rest of the config.
     (setq shell-file-name explicit-shell-file-name)
 
     ;; give emacs access to gnu coreutils, though should already be in =path=
+    (add-to-list 'exec-path "c:/Program Files/Git/") ;; git-bash, git-cmd
     (add-to-list 'exec-path "c:/Program Files/Git/bin") ;; bash
-    (add-to-list 'exec-path "c:/Program Files/Git/usr/bin") ;; coreutils-- diff, ls, etc
+    (add-to-list 'exec-path "c:/Program Files/Git/usr/bin") ;; coreutils (diff, ls, etc.)
+    (add-to-list 'exec-path "c:/Program Files/Python312") ;; python-- not working
 
     ;; likey no octave, so read only matlab files
     (add-hook 'octave-mode-hook 'read-only-mode)
