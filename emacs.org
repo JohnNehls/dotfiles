@@ -582,15 +582,15 @@ Archive: melpa
 #+begin_src emacs-lisp
   (use-package rainbow-delimiters
     :defer t
-    ;; :hook ((prog-mode . rainbow-delimiters-mode)
-    ;;   (org-mode (lambda () (rainbow-delimiters-mode 0))))
+    :hook ((prog-mode . rainbow-delimiters-mode)
+      (org-mode . (lambda () (rainbow-delimiters-mode 0))))
     )
 #+end_src
 
 *** Smartparens NOT USED
 Auto-creates closing parenthesis and bar and, smartly, writes it over if it is typed.
 Archive: melpa
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
   (use-package smartparens
     :hook (prog-mode . smartparens-mode))
 #+end_src
@@ -600,28 +600,34 @@ Archive: melpa
 #+begin_src emacs-lisp
   (use-package magit
     :commands (magit-status)
-    ;; :custom
-    ;; ;display Magit status buffer in the same buffer rather than splitting it.
-    ;; (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
-    )
+    :custom
+    ;display Magit status buffer in the same buffer rather than splitting it.
+    (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 #+end_src
 
-** Git-Gutter (not used)
-Git-gutter+ allows for git commands
-#+begin_src emacs-lisp :tangle no
-  (use-package git-gutter+
-    :hook prog-mode
-    :defer t)
+** Git-Gutter
+Git-gutter-fringe displays git-gutter in the fringe
+#+begin_src emacs-lisp
+  (use-package git-gutter
+    :hook ((prog-mode . git-gutter-mode)
+           (org-mode . git-gutter-mode)
+           (text-mode . git-gutter-mode))
+    :config (setq git-gutter:update-interval 0.02))
+
+  (use-package git-gutter-fringe
+    :after git-gutter
+    :config
+    (set-face-background 'git-gutter-fr:deleted  (face-background 'default))
+    (set-face-foreground 'git-gutter-fr:deleted  "red"))
 #+end_src
 
 ** Highlight-indent-guide
-I am undecided on if this is worth keeping.
 #+begin_src emacs-lisp
   (use-package highlight-indent-guides
     :defer 2
     :hook prog-mode
     :config
-    (setq highlight-indent-guides-method 'character)
+    (setq highlight-indent-guides-method 'fill)
     (setq highlight-indent-guides-auto-character-face-perc 50))
 #+end_src
 
@@ -792,7 +798,7 @@ Archive: elpa, melpa
   ;;     (define-key flyspell-mode-map (kbd "C-;") nil))
 #+end_src
 
-** Evil nerd commenter
+** TODO Evil nerd commenter
 Archive: melpa
 #+begin_src emacs-lisp
   (use-package evil-nerd-commenter
@@ -890,8 +896,8 @@ As of 28.1 there is =tab-first-completion=. Could add a setup for it above which
 
 * Languages
 ** Emacs-lisp
-Use =C-c '= to view elisp babel blocks in their own file (to get completion).
-- added flycheck-mode-hook in its install
+Use =C-c '= to view elisp babel blocks in their own file to get completion in company-mode.
+- added flycheck-mode-hook in it's use-package config.
 
 ** Bash
 - Flycheck uses shellcheck, which requires ~sudo dnf install -y shellcheck~
@@ -1751,7 +1757,7 @@ Major changes for windows. Small changes also exist in the rest of the config.
     (add-hook 'term-mode-hook 'ansi-color-for-comint-mode-on)  ;; needed?
     ;; (setq explicit-shell-file-name "c:/Program Files/Git/bin/bash.exe") ;; gitbash
 
-    (setq explicit-shell-file-name "c:/Program Files/Emacs/libexec/emacs/27.2/x86_64-w64-ming32/cmdproxy.exe") ;; Emacs recommended
+    (setq explicit-shell-file-name "c:/Program Files/Emacs/libexec/emacs/27.2/x86_64-w64-mingw32/cmdproxy.exe") ;; Emacs recommended
     (setq shell-file-name explicit-shell-file-name)
 
     ;; give emacs access to gnu coreutils, though should already be in =path=

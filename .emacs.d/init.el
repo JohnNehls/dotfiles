@@ -13,13 +13,13 @@
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun efs/org-babel-tangle-config ()
   (when (string-equal (buffer-file-name)
-		      (expand-file-name jmn-config-location))
+                      (expand-file-name jmn-config-location))
     ;; Dynamic scoping to the rescue
     (let ((org-confirm-babel-evaluate nil))
       (org-babel-tangle))))
 
 (add-hook 'org-mode-hook
-	  (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+          (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 
 (if (member system-name jmn-connected-systems)
     (defconst jmn-pure nil "Indicating if we are pure or using packages")
@@ -34,7 +34,7 @@
   (progn
     (require 'package)
     (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-			     ("elpa" . "https://elpa.gnu.org/packages/")))
+                             ("elpa" . "https://elpa.gnu.org/packages/")))
     (package-initialize)
 
     (unless package-archive-contents
@@ -104,7 +104,7 @@
 (add-to-list 'recentf-exclude (concat jmn-gtd-directory "journal.org"))
 (add-to-list 'recentf-exclude (concat jmn-gtd-directory "habits.org"))
 (add-to-list 'recentf-exclude
-	     (concat (file-name-directory jmn-config-location) "emacs.html"))
+             (concat (file-name-directory jmn-config-location) "emacs.html"))
 
 (if jmn-pure
     (progn
@@ -112,8 +112,8 @@
       ;; (add-hook 'after-init-hook (lambda () (recentf-open-files)))
       ;; display projects.org on startup
       (add-hook 'after-init-hook
-		(lambda () (find-file
-			    (concat jmn-gtd-directory "projects.org"))))
+                (lambda () (find-file
+                            (concat jmn-gtd-directory "projects.org"))))
       ;; make display recent files the dashboard command
       (global-set-key (kbd "C-c d") 'recentf-open-files)))
 
@@ -159,19 +159,19 @@
   :defer 1
   :init
   (when (and (not (member "all-the-icons" (font-family-list))) ;; autoinstall fonts
-	     (window-system))
+             (window-system))
     (all-the-icons-install-fonts t)))
 
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
   :custom ((doom-modeline-height 10)
-	   (doom-modeline-vcs-max-length 20))) ;; default is 12
+           (doom-modeline-vcs-max-length 20))) ;; default is 12
 
 ;;;; Cleanup whitespace only on lines I touched ;;;;
 (use-package ws-butler
     :defer 4
     :hook ((text-mode . ws-butler-mode)
-	   (prog-mode . ws-butler-mode)))
+           (prog-mode . ws-butler-mode)))
 
 (use-package dashboard
   :ensure t
@@ -182,10 +182,10 @@
   (setq dashboard-center-content 1)
   (setq dashboard-show-shortcuts 1)  ;; show the single-character shortcuts
   (setq dashboard-items '((recents  . 5)
-			  (bookmarks . 5)
-			  (projects . 5)
-			  (agenda . 5)
-			  (registers . 5)))
+                          (bookmarks . 5)
+                          (projects . 5)
+                          (agenda . 5)
+                          (registers . 5)))
 
   (setcdr (assoc 'projects dashboard-item-shortcuts) "j")
   (setq dashboard-set-heading-icons t)
@@ -276,19 +276,19 @@
   (setq wdired-allow-to-change-permissions t)
   (define-key dired-mode-map (kbd "C-o") 'other-window)
   (setq dired-guess-shell-alist-user '(
-				       ("\\.png\\'" "shotwell")
-				       ("\\.jpg\\'" "shotwell")
-				       ("\\.jpeg\\'" "shotwell")
-				       ("\\.mp4\\'" "vlc")
-				       ("\\.avi\\'" "vlc")
-				       ("\\.iso\\'" "vlc")
-				       ("\\.webm\\'" "vlc")
-				       ("\\.mkv\\'" "vlc")
-				       ("\\.mp3\\'" "rhythmbox")
-				       ("\\.html\\'" "firefox")
-				       ("\\.epub\\'" "ebook-viewer")
-				       ("\\.pdf\\'" "evince")
-				       ("\\.ipynb\\'" "code"))))
+                                       ("\\.png\\'" "shotwell")
+                                       ("\\.jpg\\'" "shotwell")
+                                       ("\\.jpeg\\'" "shotwell")
+                                       ("\\.mp4\\'" "vlc")
+                                       ("\\.avi\\'" "vlc")
+                                       ("\\.iso\\'" "vlc")
+                                       ("\\.webm\\'" "vlc")
+                                       ("\\.mkv\\'" "vlc")
+                                       ("\\.mp3\\'" "rhythmbox")
+                                       ("\\.html\\'" "firefox")
+                                       ("\\.epub\\'" "ebook-viewer")
+                                       ("\\.pdf\\'" "evince")
+                                       ("\\.ipynb\\'" "code"))))
 
 (use-package all-the-icons-dired
   :after dired
@@ -306,13 +306,13 @@
   :after dired
   :defer t
   :hook (dired-mode .
-		    (lambda () (define-key dired-mode-map [remap dired-find-file]
-					   'dired-single-buffer)
-		      (define-key dired-mode-map
-				  [remap dired-mouse-find-file-other-window]
-				  'dired-single-buffer-mouse)
-		      (define-key dired-mode-map [remap dired-up-directory]
-				  'dired-single-up-directory))))
+                    (lambda () (define-key dired-mode-map [remap dired-find-file]
+                                           'dired-single-buffer)
+                      (define-key dired-mode-map
+                                  [remap dired-mouse-find-file-other-window]
+                                  'dired-single-buffer-mouse)
+                      (define-key dired-mode-map [remap dired-up-directory]
+                                  'dired-single-up-directory))))
 
 ;;;; Proced ;;;;
 (defun proced-settings ()
@@ -352,10 +352,10 @@
 (use-package counsel
   :defer t
   :bind (("M-x" . counsel-M-x)      ; displays ivy-rich info in minibuffer
-	 ("C-x C-f" . counsel-find-file)
-	 :map minibuffer-local-map
-	 ("C-r" . 'counsel-minibuffer-history)
-	 ))
+         ("C-x C-f" . counsel-find-file)
+         :map minibuffer-local-map
+         ("C-r" . 'counsel-minibuffer-history)
+         ))
 
 (use-package helpful
   :defer 3
@@ -379,10 +379,10 @@
   (set-face-attribute  'default nil :height value))
 
 (jmn-set-font-height (alist-get (system-name) '(
-						("xps" . 110)
-						("dsk" . 110)
-						("lat" . 115))
-				100 nil 'string=)) ;; default is 100
+                                                ("xps" . 110)
+                                                ("dsk" . 110)
+                                                ("lat" . 115))
+                                100 nil 'string=)) ;; default is 100
 
 (setq text-scale-mode-step 1.05)
 
@@ -393,17 +393,17 @@
 (defun jmn/vscode-current-buffer-file-at-point ()
   (interactive)
   (start-process-shell-command "code"
-			       nil
-			       (concat "code --goto "
-				       (buffer-file-name)
-				       ":"
-				       (number-to-string (line-number-at-pos))
-				       ":"
-				       ;; +1 who knows why
-				       (number-to-string (+ 1 (current-column))))))
+                               nil
+                               (concat "code --goto "
+                                       (buffer-file-name)
+                                       ":"
+                                       (number-to-string (line-number-at-pos))
+                                       ":"
+                                       ;; +1 who knows why
+                                       (number-to-string (+ 1 (current-column))))))
 
 (define-key global-map (kbd "<f12>")
-	    'jmn-vscode-current-buffer-file-at-point)
+            'jmn-vscode-current-buffer-file-at-point)
 
 (use-package dtrt-indent
   :hook (prog-mode . (lambda () (dtrt-indent-mode 1))))
@@ -419,22 +419,36 @@
 
 (use-package rainbow-delimiters
   :defer t
-  ;; :hook ((prog-mode . rainbow-delimiters-mode)
-  ;;   (org-mode (lambda () (rainbow-delimiters-mode 0))))
+  :hook ((prog-mode . rainbow-delimiters-mode)
+    (org-mode . (lambda () (rainbow-delimiters-mode 0))))
   )
+
+(use-package smartparens
+  :hook (prog-mode . smartparens-mode))
 
 (use-package magit
   :commands (magit-status)
-  ;; :custom
-  ;; ;display Magit status buffer in the same buffer rather than splitting it.
-  ;; (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
-  )
+  :custom
+  ;display Magit status buffer in the same buffer rather than splitting it.
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+
+(use-package git-gutter
+  :hook ((prog-mode . git-gutter-mode)
+         (org-mode . git-gutter-mode)
+         (text-mode . git-gutter-mode))
+  :config (setq git-gutter:update-interval 0.02))
+
+(use-package git-gutter-fringe
+  :after git-gutter
+  :config
+  (set-face-background 'git-gutter-fr:deleted  (face-background 'default))
+  (set-face-foreground 'git-gutter-fr:deleted  "red"))
 
 (use-package highlight-indent-guides
   :defer 2
   :hook prog-mode
   :config
-  (setq highlight-indent-guides-method 'character)
+  (setq highlight-indent-guides-method 'fill)
   (setq highlight-indent-guides-auto-character-face-perc 50))
 
 (use-package company
@@ -462,11 +476,11 @@
 (use-package lsp-mode
   :commands (lsp)
   :hook ((sh-mode . lsp-mode)
-	 (python-mode . lsp-mode)
-	 (c-mode . lsp-mode)
-	 (c++-mode . lsp-mode)
-	 (markdown-mode . lsp-mode)
-	 (cmake-mode . lsp-mode))
+         (python-mode . lsp-mode)
+         (c-mode . lsp-mode)
+         (c++-mode . lsp-mode)
+         (markdown-mode . lsp-mode)
+         (cmake-mode . lsp-mode))
   :init
   (setq lsp-keymap-prefix "C-c l") ;; or "C-l"
   :custom ((lsp-idle-delay 0.5)) ;; 0.5 is the defualt
@@ -501,7 +515,7 @@
 
 (use-package flycheck
   :hook ((emacs-lisp-mode . flycheck-mode)
-	 (sh-mode))
+         (sh-mode))
   :diminish flycheck-mode
   :after lsp)
 
@@ -517,7 +531,7 @@
 
 (use-package cmake-project
   :hook ((c++-mode . cmake-project-mode )
-	 (c-mode . cmake-project-mode)))
+         (c-mode . cmake-project-mode)))
 
 (use-package yasnippet
   :after lsp
@@ -536,9 +550,9 @@
 
 (use-package tree-sitter-langs
   :hook ((sh-mode . tree-sitter-hl-mode)
-	 (python-mode . tree-sitter-hl-mode)
-	 (c-mode . tree-sitter-hl-mode)
-	 (c++-mode . tree-sitter-hl-mode)))
+         (python-mode . tree-sitter-hl-mode)
+         (c-mode . tree-sitter-hl-mode)
+         (c++-mode . tree-sitter-hl-mode)))
 
 (use-package ripgrep
   :defer 2
@@ -562,7 +576,7 @@
 
 (if jmn-pure
     (global-set-key (kbd "C-c g") (lambda () (interactive)
-				    (vc-dir (file-name-directory (buffer-file-name))))))
+                                    (vc-dir (file-name-directory (buffer-file-name))))))
 
 (defun jmn-vc-commit ()
     "My command to show the vc-diff along with the commit input"
@@ -583,7 +597,7 @@
 
 (defun my-sh-mode-hook-fn()
   (setq sh-basic-offset 2
-	sh-indentation 2)) ;; defaults is 4
+        sh-indentation 2)) ;; defaults is 4
 (add-hook 'sh-mode-hook #'my-sh-mode-hook-fn)
 
 (use-package sh-script
@@ -592,7 +606,7 @@
   ((bash-language-server . "sudo dnf install -y nodejs-bash-language-server"))
   :config
   (setq sh-basic-offset 2
-	sh-indentation 2)) ;; defaults are 4
+        sh-indentation 2)) ;; defaults are 4
 
 (use-package pyvenv
 :ensure t
@@ -601,17 +615,17 @@
 :config
 
 (setenv "WORKON_HOME" "/home/ape/.conda/envs")
-	; Show python venv name in modeline
-	(setq pyvenv-mode-line-indicator
-	      '(pyvenv-virtual-env-name ("[venv:" pyvenv-virtual-env-name "] ")))
-	(pyvenv-mode t))
+        ; Show python venv name in modeline
+        (setq pyvenv-mode-line-indicator
+              '(pyvenv-virtual-env-name ("[venv:" pyvenv-virtual-env-name "] ")))
+        (pyvenv-mode t))
 
 ; npm must be installed on the system.
   (use-package lsp-pyright
     :after lsp
     :hook (python-mode . (lambda ()
-			    (require 'lsp-pyright)
-			    (lsp))))
+                            (require 'lsp-pyright)
+                            (lsp))))
 
 ;;;; Python-mode ;;;;
 (with-eval-after-load 'python
@@ -619,7 +633,7 @@
   (define-key python-mode-map (kbd "C-RET") 'python-shell-send-statement)
   (if (executable-find "ipython")
       (progn (setq python-shell-interpreter "ipython") ;;only if I have ipython
-	     (setq python-shell-interpreter-args "-i --simple-prompt"))))
+             (setq python-shell-interpreter-args "-i --simple-prompt"))))
 
 (defun my-python-mode-hook-fn ()
   )
@@ -631,18 +645,18 @@
 (defun bury-compile-buffer-if-successful (buffer string)
  "Bury a compilation buffer if succeeded without warnings "
  (when (and
-	 (buffer-live-p buffer)
-	 (string-match "compilation" (buffer-name buffer))
-	 (string-match "finished" string)
-	 (not
-	  (with-current-buffer buffer
-	    (goto-char (point-min))
-	    (search-forward "warning" nil t))))
+         (buffer-live-p buffer)
+         (string-match "compilation" (buffer-name buffer))
+         (string-match "finished" string)
+         (not
+          (with-current-buffer buffer
+            (goto-char (point-min))
+            (search-forward "warning" nil t))))
     (run-with-timer 1 nil
-		    (lambda (buf)
-		      (bury-buffer buf)
-		      (switch-to-prev-buffer (get-buffer-window buf) 'kill))
-		    buffer)))
+                    (lambda (buf)
+                      (bury-buffer buf)
+                      (switch-to-prev-buffer (get-buffer-window buf) 'kill))
+                    buffer)))
 (add-hook 'compilation-finish-functions 'bury-compile-buffer-if-successful)
 
 (setq-default c-basic-offset 2)
@@ -659,7 +673,7 @@
 (use-package markdown-mode
    :defer t
    :hook (markdown-mode-hook . (lambda ()
-				 (flyspell-mode))))
+                                 (flyspell-mode))))
 
 (use-package  markdown-preview-mode
   :defer t)
@@ -678,24 +692,24 @@
   (unless jmn-term ;; Replace list hyphen with dot
     (font-lock-add-keywords
      'org-mode '(("^ *\\([-]\\) "
-		  (0 (prog1 () (compose-region (match-beginning 1)
-					       (match-end 1) "•")))))))
+                  (0 (prog1 () (compose-region (match-beginning 1)
+                                               (match-end 1) "•")))))))
 
   ;; Set faces for heading levels
   (let ((jmn-org-hfont-alist '((gnu/linux . "Cantarell")
-			      (windows-nt . unspecified))))
+                              (windows-nt . unspecified))))
     (dolist (face '((org-level-1 . 1.2)
-		    (org-level-2 . 1.1)
-		    (org-level-3 . 1.1)
-		    (org-level-4 . 1.1)
-		    (org-level-5 . 1.1)
-		    (org-level-6 . 1.1)
-		    (org-level-7 . 1.1)
-		    (org-level-8 . 1.1)
-		    ))
+                    (org-level-2 . 1.1)
+                    (org-level-3 . 1.1)
+                    (org-level-4 . 1.1)
+                    (org-level-5 . 1.1)
+                    (org-level-6 . 1.1)
+                    (org-level-7 . 1.1)
+                    (org-level-8 . 1.1)
+                    ))
       (set-face-attribute (car face) nil
-			  :font (alist-get system-type jmn-org-hfont-alist)
-			  :weight 'regular :height (cdr face))))
+                          :font (alist-get system-type jmn-org-hfont-alist)
+                          :weight 'regular :height (cdr face))))
 
   ;; Ensure that anything that should be fixed-pitch in Org files appears that way
   ;; (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch) ;;warning
@@ -704,9 +718,9 @@
   (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
   (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
   (set-face-attribute 'org-special-keyword nil
-		      :inherit '(font-lock-comment-face fixed-pitch))
+                      :inherit '(font-lock-comment-face fixed-pitch))
   (set-face-attribute 'org-meta-line nil
-		      :inherit '(font-lock-comment-face fixed-pitch))
+                      :inherit '(font-lock-comment-face fixed-pitch))
   (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 
 (add-hook 'org-mode-hook  'jmn/org-mode-setup)
@@ -716,24 +730,24 @@
   (unless (or jmn-term jmn-pure)
     (setq org-ellipsis " ▾"))
   (setq org-hide-emphasis-markers t
-	org-src-fontify-natively t
-	org-fontify-quote-and-verse-blocks t
-	org-src-tab-acts-natively t
-	org-edit-src-content-indentation 2 ;; I undo this somewhere 4tangling
-	org-hide-block-startup nil
-	org-src-preserve-indentation nil
-	org-startup-folded 'content
-	org-cycle-separator-lines 2
-	org-capture-bookmark nil
-	org-list-indent-offset 1
-	org-image-actual-width nil    ;; fix to allow picture resizing
-	org-return-follows-link t
-	org-use-speed-commands t
-	org-export-babel-evaluate nil ;; don't run src blocks on export
-	org-agenda-tags-column (alist-get
-				(system-name) '(("xps" . -85)
-						("dsk" . -90))
-				'auto nil 'string=)))
+        org-src-fontify-natively t
+        org-fontify-quote-and-verse-blocks t
+        org-src-tab-acts-natively t
+        org-edit-src-content-indentation 2 ;; I undo this somewhere 4tangling
+        org-hide-block-startup nil
+        org-src-preserve-indentation nil
+        org-startup-folded 'content
+        org-cycle-separator-lines 2
+        org-capture-bookmark nil
+        org-list-indent-offset 1
+        org-image-actual-width nil    ;; fix to allow picture resizing
+        org-return-follows-link t
+        org-use-speed-commands t
+        org-export-babel-evaluate nil ;; don't run src blocks on export
+        org-agenda-tags-column (alist-get
+                                (system-name) '(("xps" . -85)
+                                                ("dsk" . -90))
+                                'auto nil 'string=)))
 
 (unless jmn-term
   (use-package org-bullets
@@ -743,19 +757,19 @@
 
 (defun jmn/org-mode-visual-fill ()
   (setq visual-fill-column-width 100
-	visual-fill-column-center-text t)
+        visual-fill-column-center-text t)
   (visual-fill-column-mode 1))
 
 (use-package visual-fill-column
   :hook (org-mode . jmn/org-mode-visual-fill))
 
 (org-babel-do-load-languages 'org-babel-load-languages
-			     (append org-babel-load-languages
-				     '((shell  . t)
-				       (python . t)
-				       (makefile . t)
-				       (latex  . t)
-				       (C      . t))))
+                             (append org-babel-load-languages
+                                     '((shell  . t)
+                                       (python . t)
+                                       (makefile . t)
+                                       (latex  . t)
+                                       (C      . t))))
 
 (setq org-confirm-babel-evaluate nil)
 
@@ -780,7 +794,7 @@ f"))
 (defun update-org-latex-fragments ()
   (org-latex-preview '(64))
   (plist-put org-format-latex-options :scale
-	     (+ jmn-latex-scale  (* 0.3 text-scale-mode-amount)))
+             (+ jmn-latex-scale  (* 0.3 text-scale-mode-amount)))
   (org-latex-preview '(16)))
 (add-hook 'text-scale-mode-hook 'update-org-latex-fragments)
 
@@ -825,7 +839,7 @@ f"))
 
 ;; SOMEDAY itmes are ommitted from GTD interface on purpose
 (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|"
-				    "DONE(d)" "IGNORE(i)")))
+                                    "DONE(d)" "IGNORE(i)")))
 
 (require 'find-lisp) ;; may not be needed
 (setq org-agenda-files (find-lisp-find-files jmn-gtd-directory "\.org$"))
@@ -833,17 +847,17 @@ f"))
 ;; level/maxlevel = order in hierarchy
 (setq org-refile-targets
       '(("projects.org" :maxlevel . 2)
-	("someday.org" :maxlevel . 1)
-	("whip.org" :level . 0)
-	("next.org" :level . 0)))
+        ("someday.org" :maxlevel . 1)
+        ("whip.org" :level . 0)
+        ("next.org" :level . 0)))
 
 ;; https://github.com/syl20bnr/spacemacs/issues/3094
 (setq org-refile-use-outline-path 'file org-outline-path-complete-in-steps nil)
 (setq org-refile-allow-creating-parent-nodes 'confirm)
 
 (setq org-agenda-prefix-format '((agenda . " %i %-10:c%t [%e]% s ")
-				 (todo . " %i %-10:c [%-4e] ")
-				 (tags . " %i %-12:c")))
+                                 (todo . " %i %-10:c [%-4e] ")
+                                 (tags . " %i %-12:c")))
 
 (setq org-deadline-warning-days 30)
 
@@ -854,44 +868,44 @@ f"))
 
 (setq org-agenda-custom-commands
       '(("d" "Dashboard"
-	 ((agenda ""
-		  ((org-deadline-warning-days 30)))
-	  (todo "NEXT"
-		((org-agenda-overriding-header "Next Un-Scheduled Tasks")))
-	  (todo "TODO"
-		((org-agenda-overriding-header "Active Un-Scheduled Tasks")))))
+         ((agenda ""
+                  ((org-deadline-warning-days 30)))
+          (todo "NEXT"
+                ((org-agenda-overriding-header "Next Un-Scheduled Tasks")))
+          (todo "TODO"
+                ((org-agenda-overriding-header "Active Un-Scheduled Tasks")))))
 
-	(" " "Agenda"
-	 ((agenda ""
-		  ((org-agenda-span 'day)
-		   (org-deadline-warning-days 365)))
+        (" " "Agenda"
+         ((agenda ""
+                  ((org-agenda-span 'day)
+                   (org-deadline-warning-days 365)))
 
-	  (todo "TODO"
-		((org-agenda-overriding-header "To Refile")
-		 (org-agenda-files (list (concat jmn-gtd-directory "inbox.org")))))
+          (todo "TODO"
+                ((org-agenda-overriding-header "To Refile")
+                 (org-agenda-files (list (concat jmn-gtd-directory "inbox.org")))))
 
-	  (todo "NEXT"
-		((org-agenda-overriding-header "In Progress")
-		 (org-agenda-files (list (concat jmn-gtd-directory "projects.org")
-					 (concat jmn-gtd-directory "next.org")
-					 (concat jmn-gtd-directory "inbox.org")))))
+          (todo "NEXT"
+                ((org-agenda-overriding-header "In Progress")
+                 (org-agenda-files (list (concat jmn-gtd-directory "projects.org")
+                                         (concat jmn-gtd-directory "next.org")
+                                         (concat jmn-gtd-directory "inbox.org")))))
 
-	  (todo "TODO"
-		((org-agenda-overriding-header "Projects")
-		 (org-agenda-files (list (concat jmn-gtd-directory  "projects.org")))))
+          (todo "TODO"
+                ((org-agenda-overriding-header "Projects")
+                 (org-agenda-files (list (concat jmn-gtd-directory  "projects.org")))))
 
-	  (todo "TODO"
-		((org-agenda-overriding-header "One-off Tasks")
-		 (org-agenda-files (list (concat jmn-gtd-directory  "next.org"))))
-		(org-agenda-skip-function '(org-agenda-skip-entry-if
-					    'deadline 'scheduled)))
+          (todo "TODO"
+                ((org-agenda-overriding-header "One-off Tasks")
+                 (org-agenda-files (list (concat jmn-gtd-directory  "next.org"))))
+                (org-agenda-skip-function '(org-agenda-skip-entry-if
+                                            'deadline 'scheduled)))
 
-	  (todo "HOLD"
-		    ((org-agenda-overriding-header "HOLD")
-		     (org-agenda-files (list (concat jmn-gtd-directory "projects.org")
-					     (concat jmn-gtd-directory "next.org")
-					     (concat jmn-gtd-directory "inbox.org")))))
-	  ))))
+          (todo "HOLD"
+                    ((org-agenda-overriding-header "HOLD")
+                     (org-agenda-files (list (concat jmn-gtd-directory "projects.org")
+                                             (concat jmn-gtd-directory "next.org")
+                                             (concat jmn-gtd-directory "inbox.org")))))
+          ))))
 
 (defun jmn-someday() "Quick access to someday.org (no links in agenda)"
        (interactive)
@@ -904,30 +918,30 @@ f"))
 ;;(require 'org-habit)
 (with-eval-after-load 'org-habit
   (setq org-habit-graph-column
-	(alist-get (system-name) '(("xps" . 56)
-				   ("dsk" . 52))
-		   50 nil 'string=))) ;; default is 40
+        (alist-get (system-name) '(("xps" . 56)
+                                   ("dsk" . 52))
+                   50 nil 'string=))) ;; default is 40
 
 (setq org-capture-templates
       `(("t" "Todo [inbox]" entry
-	 (file ,(concat jmn-gtd-directory "inbox.org"))
-	 "* TODO %i%?" :empty-lines 1)
+         (file ,(concat jmn-gtd-directory "inbox.org"))
+         "* TODO %i%?" :empty-lines 1)
 
-	("T" "Todo Today [inbox]" entry
-	   (file ,(concat jmn-gtd-directory "inbox.org"))
-	   "* TODO %?\nDEADLINE: %t" :empty-lines 1)
+        ("T" "Todo Today [inbox]" entry
+           (file ,(concat jmn-gtd-directory "inbox.org"))
+           "* TODO %?\nDEADLINE: %t" :empty-lines 1)
 
-	("l" "Linked Todo [inbox]" entry
-	 (file ,(concat jmn-gtd-directory "inbox.org"))
-	 "* TODO %i%? \n %a" :empty-lines 1)
+        ("l" "Linked Todo [inbox]" entry
+         (file ,(concat jmn-gtd-directory "inbox.org"))
+         "* TODO %i%? \n %a" :empty-lines 1)
 
-	("s" "Schedule" entry
-	 (file+headline ,(concat jmn-gtd-directory "whip.org")  "Whip")
-	 "* %i%? \n %U %^t" :empty-lines 1)
+        ("s" "Schedule" entry
+         (file+headline ,(concat jmn-gtd-directory "whip.org")  "Whip")
+         "* %i%? \n %U %^t" :empty-lines 1)
 
-	("j" "Journal" entry
-	 (file+datetree ,(concat jmn-gtd-directory "journal.org"))
-	 "* %?\nEntered on %U\n  %i\n  %a"  :empty-lines 1)))
+        ("j" "Journal" entry
+         (file+datetree ,(concat jmn-gtd-directory "journal.org"))
+         "* %?\nEntered on %U\n  %i\n  %a"  :empty-lines 1)))
 
 (defun org-archive-done-tasks-tree ()
   "Archive all DONE tasks in the current org tree"
@@ -949,7 +963,7 @@ f"))
 
 ;; could set in the inbox header instead (where tags are set)
 (customize-set-variable 'org-global-properties
-			'(("Effort_ALL" . "0:05 0:15 0:30 1:00 2:00 4:00")))
+                        '(("Effort_ALL" . "0:05 0:15 0:30 1:00 2:00 4:00")))
 
 (defun jmn/org-agenda-process-inbox-item ()
   "Process a single item in the org-agenda."
@@ -968,23 +982,23 @@ f"))
      (funcall ,fnc)))
 
 (advice-add 'org-archive-done-tasks-tree
-	    :after (func-ignore #'org-save-all-org-buffers))
+            :after (func-ignore #'org-save-all-org-buffers))
 (advice-add 'org-archive-done-tasks-file
-	    :after (func-ignore #'org-save-all-org-buffers))
+            :after (func-ignore #'org-save-all-org-buffers))
 (advice-add 'org-refile
-	    :after (func-ignore #'org-save-all-org-buffers))
+            :after (func-ignore #'org-save-all-org-buffers))
 (advice-add 'org-deadline
-	    :after (func-ignore #'org-save-all-org-buffers))
+            :after (func-ignore #'org-save-all-org-buffers))
 (advice-add 'org-schedule
-	    :after (func-ignore #'org-save-all-org-buffers))
+            :after (func-ignore #'org-save-all-org-buffers))
 (advice-add 'org-store-log-note
-	    :after (func-ignore #'org-save-all-org-buffers))
+            :after (func-ignore #'org-save-all-org-buffers))
 (advice-add 'org-todo
-	    :after (func-ignore #'org-save-all-org-buffers))
+            :after (func-ignore #'org-save-all-org-buffers))
 
 ;; if agenda is already open, update it with new capture;; work?
 (advice-add 'org-capture-finalize
-	     :after (func-ignore #'org-agenda-redo-all))
+             :after (func-ignore #'org-agenda-redo-all))
 ;; ;; (advice-add 'org-capture-finalize
 ;; ;;             :after (func-ignore #'org-agenda-redo-all))
 
@@ -1006,15 +1020,15 @@ f"))
 
 (use-package vterm
   :ensure-system-package ((cmake . "sudo dnf install -y cmake")
-			  (libtool . "sudo dnf install -y libtool" )) ;; compilation
+                          (libtool . "sudo dnf install -y libtool" )) ;; compilation
   :defer t
   :bind (:map vterm-mode-map ("C-o" . other-window))
   :init (let ((package "cmake"))
-	   (unless (executable-find package)
-	     (async-shell-command (concat "sudo dnf install -y " package))))
-	 (let ((package "libtool"))
-	   (unless (executable-find package)
-	     (async-shell-command (concat "sudo dnf install -y " package))))
+           (unless (executable-find package)
+             (async-shell-command (concat "sudo dnf install -y " package))))
+         (let ((package "libtool"))
+           (unless (executable-find package)
+             (async-shell-command (concat "sudo dnf install -y " package))))
   :config
   ;;(setq term-prompt-regexp "^[^$]*[$] *");; match your custom shell
   ;;(setq vterm-shell "zsh");; Set this to customize the shell to launch
@@ -1027,15 +1041,15 @@ f"))
   (setq vterm-toggle-fullscreen-p nil)
   (global-set-key (kbd "C-`") 'vterm-toggle)
   (add-to-list 'display-buffer-alist
-	       '((lambda(bufname _) (with-current-buffer
-					bufname (equal major-mode 'vterm-mode)))
-		 (display-buffer-reuse-window display-buffer-at-bottom)
-		 ;;(display-buffer-reuse-window display-buffer-in-direction)
-		 ;;display-buffer-in-direction/direction/dedicated is added in emacs27
-		 ;;(direction . bottom)
-		 ;;(dedicated . t) ;dedicated is supported in emacs27
-		 (reusable-frames . visible)
-		 (window-height . 0.3))))
+               '((lambda(bufname _) (with-current-buffer
+                                        bufname (equal major-mode 'vterm-mode)))
+                 (display-buffer-reuse-window display-buffer-at-bottom)
+                 ;;(display-buffer-reuse-window display-buffer-in-direction)
+                 ;;display-buffer-in-direction/direction/dedicated is added in emacs27
+                 ;;(direction . bottom)
+                 ;;(dedicated . t) ;dedicated is supported in emacs27
+                 (reusable-frames . visible)
+                 (window-height . 0.3))))
 
 (setq custom-safe-themes t) ;; don't ask if theme is safe
 
@@ -1060,12 +1074,12 @@ f"))
     (set-face-background 'org-block-end-line (face-background `default))
 
     (setq org-todo-keyword-faces
-	  `(("NEXT" . ,(face-foreground font-lock-function-name-face))
-	    ("HOLD" . ,(face-foreground font-lock-builtin-face))
-	    ("DONE" . ,(alist-get 'done-color props))))
+          `(("NEXT" . ,(face-foreground font-lock-function-name-face))
+            ("HOLD" . ,(face-foreground font-lock-builtin-face))
+            ("DONE" . ,(alist-get 'done-color props))))
 
     (if (alist-get 'org-block props)
-	(set-face-background 'org-block (alist-get 'org-block props)))))
+        (set-face-background 'org-block (alist-get 'org-block props)))))
 
 
 (defun jmn-load-gruvbox-dark-medium ()
@@ -1074,7 +1088,7 @@ f"))
   (disable-theme (car custom-enabled-themes))
   (load-theme 'gruvbox-dark-medium t)
   (set-face-background 'line-number
-		       (face-attribute 'default :background))
+                       (face-attribute 'default :background))
 
   ;; (set-face-foreground 'default "gray75") ;; default "#ebdbb2"
   (set-face-foreground 'default "moccasin") ;; default "#ebdbb2"
@@ -1094,17 +1108,17 @@ f"))
   (set-face-background 'mode-line-active   "gray35")
 
   (set-face-background 'line-number
-		       (face-attribute 'default :background))
+                       (face-attribute 'default :background))
   (set-face-background 'fringe
-		       (face-attribute 'default :background))
+                       (face-attribute 'default :background))
 
   (set-face-foreground 'font-lock-comment-face  "#98be65") ;; default "#ebdbb2"
   (set-face-foreground 'font-lock-string-face  "LightGoldenrod3")
   (set-face-foreground 'font-lock-builtin-face  "Orange3")
   (jmn-set-gruv-org-faces '((done-color . "gray35" )
-			    (org-block-begin-line . "gray14")
-			    (org-block-end-line . "gray14")
-			    (org-block . "gray7"))))
+                            (org-block-begin-line . "gray14")
+                            (org-block-end-line . "gray14")
+                            (org-block . "gray7"))))
 
 (defun jmn-load-gruvbox-light-medium()
   "Theme for light time"
@@ -1121,7 +1135,7 @@ f"))
   (load-theme 'gruvbox-light-hard t)
 
   (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
-			    (org-block . "#fbf1c7")))) ;; default "#f9f5d7"
+                            (org-block . "#fbf1c7")))) ;; default "#f9f5d7"
 
   (defun jmn-load-gruvbox-light-soft()
   "Theme for very light time"
@@ -1130,7 +1144,7 @@ f"))
   (load-theme 'gruvbox-light-soft t)
 
   (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
-			    (org-block . "#ebdbb2")))) ;; default "#f9f5d7"
+                            (org-block . "#ebdbb2")))) ;; default "#f9f5d7"
 
 (defun jmn-load-pure-dark-theme()
   (load-theme 'wombat)
@@ -1146,11 +1160,11 @@ f"))
 
 (if jmn-pure
     (if jmn-dark-mode
-	(if (eq system-type 'gnu/linux)  ;; pure dark linux
-	    (jmn-load-pure-dark-theme)
-	  (progn ;; pure dark windows
-	    (print "No dark-mode for windows- setting light mode")
-	    (jmn-load-pure-light-theme)))
+        (if (eq system-type 'gnu/linux)  ;; pure dark linux
+            (jmn-load-pure-dark-theme)
+          (progn ;; pure dark windows
+            (print "No dark-mode for windows- setting light mode")
+            (jmn-load-pure-light-theme)))
       (jmn-load-pure-light-theme))  ;; pure light
 
   (if jmn-dark-mode  ;; non-pure and dark
@@ -1167,7 +1181,7 @@ f"))
   (add-hook 'term-mode-hook 'ansi-color-for-comint-mode-on)  ;; needed?
   ;; (setq explicit-shell-file-name "c:/Program Files/Git/bin/bash.exe") ;; gitbash
 
-  (setq explicit-shell-file-name "c:/Program Files/Emacs/libexec/emacs/27.2/x86_64-w64-ming32/cmdproxy.exe") ;; Emacs recommended
+  (setq explicit-shell-file-name "c:/Program Files/Emacs/libexec/emacs/27.2/x86_64-w64-mingw32/cmdproxy.exe") ;; Emacs recommended
   (setq shell-file-name explicit-shell-file-name)
 
   ;; give emacs access to gnu coreutils, though should already be in =path=
@@ -1186,4 +1200,4 @@ f"))
 
 (if jmn-term
     (add-hook 'window-setup-hook
-	      (lambda ()(set-face-background 'default "unspecified-bg" (selected-frame)))))
+              (lambda ()(set-face-background 'default "unspecified-bg" (selected-frame)))))
