@@ -68,6 +68,8 @@
 (defalias 'yes-or-no-p 'y-or-n-p)               ; Make  =yes or no= prompts shorter
 (column-number-mode 1)                          ; show column number in modeline
 (winner-mode 1)                                 ; redo and undo window changes
+(if (version<= "28" emacs-version)
+    (repeat-mode 1))                 ; multi-key sequences can be repeated
 
 ;; hooks
 (if jmn-pure
@@ -123,6 +125,18 @@
   (if (version<= "29" emacs-version)
       (set-frame-parameter nil 'alpha-background value)
     (set-frame-parameter (selected-frame) 'alpha value)))
+
+(if (version<= "27" emacs-version)
+    (progn
+      (setq tab-bar-close-button-show nil        ; remove close button
+            tab-bar-show 1                       ; only show tab bar if #tabs>1
+            tab-bar-select-tab-modifiers '(meta) ; Alt-1 switch to the tab numbered i
+            tab-bar-tab-hints t)                 ; show a number on each tabs
+      (tab-bar-mode 1)
+      (if nil                                    ; create named tabs at start up?
+          (dolist (name '("org" "code" "term"))
+            (tab-bar-new-tab)
+            (tab-bar-rename-tab name)))))
 
 ;;;; Scrolling ;;;;
 ;; Fully redraw the display before it processes queued input events.
