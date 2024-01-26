@@ -93,50 +93,12 @@
 (setq backup-directory-alist
       '( ("." . "~/.emacs.d/filebackups")))
 
-(recentf-mode 1) ;; needed for recent files in dashboard
-(setq recentf-max-menu-items 25) ;; max number of entries
-(run-at-time nil (* 5 60) 'recentf-save-list) ;; save recent files periodically
-
-;; Exclude the following files from the recents list
-(add-to-list 'recentf-exclude "~/.emacs.d/recentf")
-(add-to-list 'recentf-exclude (concat jmn-gtd-directory "inbox.org"))
-(add-to-list 'recentf-exclude (concat jmn-gtd-directory "next.org"))
-(add-to-list 'recentf-exclude (concat jmn-gtd-directory "whip.org"))
-(add-to-list 'recentf-exclude (concat jmn-gtd-directory "someday.org"))
-(add-to-list 'recentf-exclude (concat jmn-gtd-directory "journal.org"))
-(add-to-list 'recentf-exclude (concat jmn-gtd-directory "habits.org"))
-(add-to-list 'recentf-exclude
-             (concat (file-name-directory jmn-config-location) "emacs.html"))
-
-(if jmn-pure
-    (progn
-      ;; display recent files on startup
-      ;; (add-hook 'after-init-hook (lambda () (recentf-open-files)))
-      ;; display projects.org on startup
-      (add-hook 'after-init-hook
-                (lambda () (find-file
-                            (concat jmn-gtd-directory "projects.org"))))
-      ;; make display recent files the dashboard command
-      (global-set-key (kbd "C-c d") 'recentf-open-files)))
-
 (defun transparency (value)
   "Sets the transparency of the frame window. 0=transparent/100=opaque"
   (interactive "nTransparency Value 0 - 100 opaque:")
   (if (version<= "29" emacs-version)
       (set-frame-parameter nil 'alpha-background value)
     (set-frame-parameter (selected-frame) 'alpha value)))
-
-(if (version<= "27" emacs-version)
-    (progn
-      (setq tab-bar-close-button-show nil        ; remove close button
-            tab-bar-show 1                       ; only show tab bar if #tabs>1
-            tab-bar-select-tab-modifiers '(meta) ; Alt-1 switch to the tab numbered i
-            tab-bar-tab-hints t)                 ; show a number on each tabs
-      (tab-bar-mode 1)
-      (if nil                                    ; create named tabs at start up?
-          (dolist (name '("org" "code" "term"))
-            (tab-bar-new-tab)
-            (tab-bar-rename-tab name)))))
 
 ;;;; Scrolling ;;;;
 ;; Fully redraw the display before it processes queued input events.
@@ -186,34 +148,6 @@
     :defer 4
     :hook ((text-mode . ws-butler-mode)
            (prog-mode . ws-butler-mode)))
-
-(use-package dashboard
-  :ensure t
-  :init     (dashboard-setup-startup-hook)
-  :bind ( "C-c d" . dashboard-open)
-  :config
-  (setq dashboard-startup-banner 2)  ;; (nil . no-banner)  ([1-5] . plain-text banners)
-  (setq dashboard-center-content 1)
-  (setq dashboard-show-shortcuts 1)  ;; show the single-character shortcuts
-  (setq dashboard-items '((recents  . 5)
-                          (bookmarks . 5)
-                          (projects . 5)
-                          (agenda . 5)
-                          (registers . 5)))
-
-  (setcdr (assoc 'projects dashboard-item-shortcuts) "j")
-  (setq dashboard-set-heading-icons t)
-  (setq dashboard-set-file-icons t)
-  (setq dashboard-projects-backend 'project-el)
-  (dashboard-modify-heading-icons '((recents . "file-text")))
-  (setq dashboard-set-footer nil))
-
-(defun my-dashboard-hook()
-  "Needed to define these after hook for some reason"
-  (define-key dashboard-mode-map (kbd "n")  'dashboard-next-line)
-  (define-key dashboard-mode-map (kbd "p")  'dashboard-previous-line))
-
-(add-hook 'dashboard-mode-hook 'my-dashboard-hook)
 
 ;; general improvements
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
@@ -441,10 +375,15 @@
   :hook (prog-mode . smartparens-mode))
 
 (use-package magit
-  :commands (magit-status)
-  :custom
-  ;display Magit status buffer in the same buffer rather than splitting it.
-  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+  :commands (magit-status))
+  ;; :custom
+  ;; ;;display status buffer in the same buffer rather than splitting it.
+  ;; (magit-display-buffer-function
+  ;;    #'magit-display-buffer-same-window-except-diff-v1))
+
+
+;; here incase magit installed on a pure machine ;; replace original keybinding?
+(add-hook 'magit-status-mode-hook (lambda () (define-key magit-mode-map (kbd "C-<tab>") nil)))
 
 (use-package git-gutter
   :hook ((prog-mode . git-gutter-mode)
@@ -816,7 +755,6 @@ f"))
 (global-set-key (kbd "C-c s") #'org-store-link)
 (global-set-key (kbd "C-c i") #'org-insert-link)
 (global-set-key (kbd "C-c c") #'org-capture)
-(global-set-key (kbd "C-c a") (lambda (&optional args) (interactive "P") (org-agenda args " ")))
 
 (use-package htmlize
   :ensure t
@@ -841,9 +779,6 @@ f"))
 (if (and (version<= "29" emacs-version) (not jmn-pure))
     (with-eval-after-load 'org
       (add-to-list 'org-safe-remote-resources  "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")))
-
-(with-eval-after-load 'org-agenda
-  (define-key org-agenda-keymap (kbd "o") 'org-agenda-goto)) ;; more like dired
 
 ;; Org Agenda
 (setq org-agenda-window-setup 'other-window) ;; other good option: reorganize-frame
@@ -1016,6 +951,13 @@ f"))
 ;; ;; (advice-add 'org-capture-finalize
 ;; ;;             :after (func-ignore #'org-agenda-redo-all))
 
+(defun jmn-agenda (&optional arg) (interactive "P") (org-agenda arg " "))
+
+(global-set-key (kbd "C-c a") 'jmn-agenda)
+
+(with-eval-after-load 'org-agenda
+  (define-key org-agenda-keymap (kbd "o") 'org-agenda-goto)) ;; more like dired
+
 (with-eval-after-load 'term
   (define-key term-raw-map (kbd "C-o") 'other-window)
   (define-key term-raw-map (kbd "M-o") 'previous-multiframe-window)
@@ -1037,16 +979,17 @@ f"))
                           (libtool . "sudo dnf install -y libtool" )) ;; compilation
   :defer t
   :bind (:map vterm-mode-map ("C-o" . other-window))
+  :config
+  (dolist (num '("1" "2" "3" "4" "5" "6" "7" "8" "9"))
+    (define-key vterm-mode-map (kbd (concat "M-" num)) nil))
+  (setq vterm-max-scrollback 10000)
   :init (let ((package "cmake"))
            (unless (executable-find package)
              (async-shell-command (concat "sudo dnf install -y " package))))
          (let ((package "libtool"))
            (unless (executable-find package)
-             (async-shell-command (concat "sudo dnf install -y " package))))
-  :config
-  ;;(setq term-prompt-regexp "^[^$]*[$] *");; match your custom shell
-  ;;(setq vterm-shell "zsh");; Set this to customize the shell to launch
-  (setq vterm-max-scrollback 10000))
+             (async-shell-command (concat "sudo dnf install -y " package)))))
+
 
 (use-package vterm-toggle
   :after vterm
@@ -1163,7 +1106,14 @@ f"))
 (defun jmn-load-pure-dark-theme()
   (load-theme 'wombat)
   (with-eval-after-load 'org
-    (set-face-background 'org-block "gray8")))
+    (set-face-background 'org-block "gray8"))
+  (with-eval-after-load 'tab-bar
+    (dolist (face '(tab-bar tab-bar-tab tab-bar-tab-inactive))
+      (set-face-attribute  face nil
+                           :foreground (face-foreground 'default)
+                           :background (face-background 'default)
+                           :weight 'regular))
+    (set-face-background 'tab-bar-tab "gray25")))
 
 (defun jmn-load-pure-light-theme()
   (with-eval-after-load 'org
@@ -1215,3 +1165,90 @@ f"))
 (if jmn-term
     (add-hook 'window-setup-hook
               (lambda ()(set-face-background 'default "unspecified-bg" (selected-frame)))))
+
+(recentf-mode 1) ;; needed for recent files in dashboard
+(setq recentf-max-menu-items 25) ;; max number of entries
+(run-at-time nil (* 5 60) 'recentf-save-list) ;; save recent files periodically
+
+;; Exclude the following files from the recents list
+(add-to-list 'recentf-exclude "~/.emacs.d/recentf")
+(add-to-list 'recentf-exclude (concat jmn-gtd-directory "inbox.org"))
+(add-to-list 'recentf-exclude (concat jmn-gtd-directory "next.org"))
+(add-to-list 'recentf-exclude (concat jmn-gtd-directory "whip.org"))
+(add-to-list 'recentf-exclude (concat jmn-gtd-directory "someday.org"))
+(add-to-list 'recentf-exclude (concat jmn-gtd-directory "journal.org"))
+(add-to-list 'recentf-exclude (concat jmn-gtd-directory "habits.org"))
+(add-to-list 'recentf-exclude
+             (concat (file-name-directory jmn-config-location) "emacs.html"))
+
+(if jmn-pure
+    (progn
+      ;; display recent files on startup
+      ;; (add-hook 'after-init-hook (lambda () (recentf-open-files)))
+      ;; display projects.org on startup
+      (add-hook 'after-init-hook
+                (lambda () (find-file
+                            (concat jmn-gtd-directory "projects.org"))))
+      ;; make display recent files the dashboard command
+      (global-set-key (kbd "C-c d") 'recentf-open-files)))
+
+(if (version<= "27" emacs-version)
+    (progn
+      (setq tab-bar-close-button-show nil        ; remove close button
+            tab-bar-show 1                       ; only show tab bar if #tabs>1
+            tab-bar-select-tab-modifiers '(meta) ; Alt-1 switch to the tab numbered i
+            tab-bar-tab-hints t)                 ; show a number on each tabs
+
+      (tab-bar-mode 1)))
+
+(defun jmn-tabs()
+  "Create my tabs"
+  (interactive)
+  ;; (dolist (name '("org" "code" "term"))
+  ;;   (tab-bar-new-tab)
+  ;;   (tab-bar-rename-tab name))
+  (tab-close-other)
+  (tab-bar-rename-tab "config")
+  (find-file jmn-config-location)
+  (magit-status)
+
+  (tab-bar-new-tab)
+  (tab-bar-rename-tab "org")
+  (find-file (concat jmn-gtd-directory "projects.org"))
+  (jmn-agenda)
+
+  (tab-bar-new-tab)
+  (tab-bar-rename-tab "term")
+  (if jmn-pure
+      (term "/bin/bash")
+    (vterm))
+
+  (tab-switch "org"))
+
+(use-package dashboard
+  :ensure t
+  :init     (dashboard-setup-startup-hook)
+  :bind ( "C-c d" . dashboard-open)
+  :config
+  (setq dashboard-startup-banner 2)  ;; (nil . no-banner)  ([1-5] . plain-text banners)
+  (setq dashboard-center-content 1)
+  (setq dashboard-show-shortcuts 1)  ;; show the single-character shortcuts
+  (setq dashboard-items '((recents  . 5)
+                          (bookmarks . 5)
+                          (projects . 5)
+                          (agenda . 5)
+                          (registers . 5)))
+
+  (setcdr (assoc 'projects dashboard-item-shortcuts) "j")
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  (setq dashboard-projects-backend 'project-el)
+  (dashboard-modify-heading-icons '((recents . "file-text")))
+  (setq dashboard-set-footer nil))
+
+(defun my-dashboard-hook()
+  "Needed to define these after hook for some reason"
+  (define-key dashboard-mode-map (kbd "n")  'dashboard-next-line)
+  (define-key dashboard-mode-map (kbd "p")  'dashboard-previous-line))
+
+(add-hook 'dashboard-mode-hook 'my-dashboard-hook)
