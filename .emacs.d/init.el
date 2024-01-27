@@ -1135,6 +1135,9 @@ f"))
       (jmn-load-gruvbox-dark-hard)
     (jmn-load-gruvbox-light-medium)))  ;; non-pure and light
 
+(if (eq system-type 'gnu/linux)
+    (setq shell-command-switch "-ic"))  ;; add -i so it loads .bashrc (aliases!)
+
 (cond
  ((eq system-type 'windows-nt)
   ;;set font

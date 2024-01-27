@@ -1698,7 +1698,14 @@ Helpful functions
         (jmn-load-gruvbox-light-medium)))  ;; non-pure and light
 #+end_src
 
-* Windows Core setup
+* Shell Backend and Windows Core Setup
+** Linux
+#+begin_src emacs-lisp
+  (if (eq system-type 'gnu/linux)
+      (setq shell-command-switch "-ic"))  ;; add -i so it loads .bashrc (aliases!)
+#+end_src
+
+** Windows
 Major changes for windows. Small changes also exist in the rest of the config.
 #+begin_src emacs-lisp
   (cond
