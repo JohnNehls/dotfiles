@@ -353,6 +353,11 @@
 (define-key global-map (kbd "<f12>")
             'jmn-vscode-current-buffer-file-at-point)
 
+(defun jmn-remove-M-1-9-from-mode-map (modemap)
+  "remove 'M-[d]' keybinding from a mode-map"
+  (dolist (num '("1" "2" "3" "4" "5" "6" "7" "8" "9"))
+    (define-key modemap (kbd (concat "M-" num)) nil)))
+
 (use-package dtrt-indent
   :hook (prog-mode . (lambda () (dtrt-indent-mode 1))))
 
@@ -377,13 +382,15 @@
 (use-package magit
   :commands (magit-status))
   ;; :custom
-  ;; ;;display status buffer in the same buffer rather than splitting it.
   ;; (magit-display-buffer-function
-  ;;    #'magit-display-buffer-same-window-except-diff-v1))
+  ;;    #'magit-display-buffer-same-window-except-diff-v1));;display status buffer
 
 
-;; here incase magit installed on a pure machine ;; replace original keybinding?
-(add-hook 'magit-status-mode-hook (lambda () (define-key magit-mode-map (kbd "C-<tab>") nil)))
+;; moved here incase magit installed on a pure machine ;; replace original keybinding?
+(with-eval-after-load 'magit
+  (add-hook 'magit-status-mode-hook
+            (lambda () (define-key magit-mode-map (kbd "C-<tab>") nil)))
+  (jmn-remove-M-1-9-from-mode-map magit-mode-map))
 
 (use-package git-gutter
   :hook ((prog-mode . git-gutter-mode)
@@ -980,8 +987,7 @@ f"))
   :defer t
   :bind (:map vterm-mode-map ("C-o" . other-window))
   :config
-  (dolist (num '("1" "2" "3" "4" "5" "6" "7" "8" "9"))
-    (define-key vterm-mode-map (kbd (concat "M-" num)) nil))
+  (jmn-remove-M-1-9-from-mode-map vterm-mode-map)
   (setq vterm-max-scrollback 10000)
   :init (let ((package "cmake"))
            (unless (executable-find package)
@@ -1202,23 +1208,22 @@ f"))
             tab-bar-select-tab-modifiers '(meta) ; Alt-1 switch to the tab numbered i
             tab-bar-tab-hints t)                 ; show a number on each tabs
 
-      (tab-bar-mode 1)))
+      (tab-bar-mode 1)
+      (tab-bar-close-other-tabs))) ; ensures (tab-bar-mode 1) works on older systems
 
-(defun jmn-tabs()
-  "Create my tabs"
+
+(defun jmn-create-my-tabs()
+  "Create my default tabs"
   (interactive)
-  ;; (dolist (name '("org" "code" "term"))
-  ;;   (tab-bar-new-tab)
-  ;;   (tab-bar-rename-tab name))
   (tab-close-other)
-  (tab-bar-rename-tab "config")
-  (find-file jmn-config-location)
-  (magit-status)
-
-  (tab-bar-new-tab)
+  (delete-other-windows)
   (tab-bar-rename-tab "org")
   (find-file (concat jmn-gtd-directory "projects.org"))
   (jmn-agenda)
+
+  (tab-bar-new-tab)
+  (tab-bar-rename-tab "workspace")
+  (switch-to-buffer "projects.org")
 
   (tab-bar-new-tab)
   (tab-bar-rename-tab "term")
@@ -1226,7 +1231,12 @@ f"))
       (term "/bin/bash")
     (vterm))
 
-  (tab-switch "org"))
+  (tab-bar-new-tab)
+  (tab-bar-rename-tab "config")
+  (find-file jmn-config-location)
+  (magit-status)
+
+  (tab-bar-select-tab-by-name "org"))
 
 (use-package dashboard
   :ensure t
