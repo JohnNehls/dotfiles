@@ -60,7 +60,7 @@
 (menu-bar-mode -1)				; Disable the menu bar
 (scroll-bar-mode -1)                          ; remove side scrollbar
 (tooltip-mode -1)				; Disable tooltips
-(set-fringe-mode 10)				; Give some breathing room
+(set-fringe-mode 6)				; Give some breathing room
 (setq visible-bell t)                         ; Set up the visible bell
 (save-place-mode 1)				; Open file where last visited
 (setq Buffer-menu-name-width 35)		; give name more room
