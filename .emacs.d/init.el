@@ -8,7 +8,7 @@
   "Systems which should download packages. Others get the 'pure' configuration.")
 
 (defconst jmn-dark-mode t
-  "Do we want Emacs in a dark mode? Note: no dark config for windows as of now")
+  "Do we want Emacs in a dark mode? Note: no dark-mode for windows as of now")
 
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun efs/org-babel-tangle-config ()
@@ -413,6 +413,7 @@
 
 (use-package company
   :ensure t
+  :hook (eglot-managed-mode . company-mode)
   :custom
   (company-minimum-prefix-length 1)
   (company-idle-delay 0.5))
@@ -433,45 +434,14 @@
   :config
   (setq treemacs-width 30))
 
-(use-package lsp-mode
-  :commands (lsp)
-  :hook ((sh-mode . lsp-mode)
-         (python-mode . lsp-mode)
-         (c-mode . lsp-mode)
-         (c++-mode . lsp-mode)
-         (markdown-mode . lsp-mode)
-         (cmake-mode . lsp-mode))
-  :init
-  (setq lsp-keymap-prefix "C-c l") ;; or "C-l"
-  :custom ((lsp-idle-delay 0.5)) ;; 0.5 is the defualt
-  :config
-  (lsp-enable-which-key-integration t)
-  ;; Annoying stuff (uncomment to turn off)
-  ;; (setq lsp-enable-links nil)
-  ;; (setq lsp-signature-render-documentation nil)
-  (setq lsp-headerline-breadcrumb-enable nil)
-  ;; (setq lsp-ui-doc-enable nil)
-  ;; (setq lsp-completion-enable-additional-text-edit nil)
+(use-package eglot
+  :defer t
+  :ensure-system-package
+  ((bash-language-server . "sudo dnf install -y nodejs-bash-language-server")
+   (pyright . "pip install pyright")
+   (clangd . "clang-tools-extra")))
 
-  ;; `-background-index' requires clangd v8+!
-  (setq lsp-clients-clangd-args '("-j=4" "-background-index" "-log=error"))
-  )
-
-(use-package lsp-ui
-  :after lsp
-  :hook (lsp-mode . lsp-ui-mode)
-  :custom
-  (lsp-ui-doc-position 'bottom))
-
-(use-package lsp-ivy
-  :after lsp)
-
-(use-package lsp-treemacs
-  :after lsp)
-
-(use-package dap-mode
-  :after lsp
-  :commands dap-mode)
+(add-hook 'prog-mode-hook 'eglot-ensure)
 
 (use-package flycheck
   :hook ((emacs-lisp-mode . flycheck-mode)
@@ -579,13 +549,6 @@
         (setq pyvenv-mode-line-indicator
               '(pyvenv-virtual-env-name ("[venv:" pyvenv-virtual-env-name "] ")))
         (pyvenv-mode t))
-
-; npm must be installed on the system.
-  (use-package lsp-pyright
-    :after lsp
-    :hook (python-mode . (lambda ()
-                            (require 'lsp-pyright)
-                            (lsp))))
 
 ;;;; Python-mode ;;;;
 (with-eval-after-load 'python

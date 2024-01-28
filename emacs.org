@@ -18,7 +18,7 @@ Hopefully only need to change these to get setup on a new machine.
     "Systems which should download packages. Others get the 'pure' configuration.")
 
   (defconst jmn-dark-mode t
-    "Do we want Emacs in a dark mode? Note: no dark config for windows as of now")
+    "Do we want Emacs in a dark mode? Note: no dark-mode for windows as of now")
 #+end_src
 
 * Setup
@@ -591,6 +591,7 @@ Currently =company-mode= gets called by =lsp-mode= by default, providing the aut
 #+begin_src emacs-lisp
   (use-package company
     :ensure t
+    :hook (eglot-managed-mode . company-mode)
     :custom
     (company-minimum-prefix-length 1)
     (company-idle-delay 0.5))
@@ -623,7 +624,22 @@ Help in sorting the completion results.
       (setq treemacs-width 30))
 #+end_src
 
-** LSP and DAP
+** Eglot
+#+begin_src emacs-lisp
+  (use-package eglot
+    :defer t
+    :ensure-system-package
+    ((bash-language-server . "sudo dnf install -y nodejs-bash-language-server")
+     (pyright . "pip install pyright")
+     (clangd . "clang-tools-extra")))
+
+  (add-hook 'prog-mode-hook 'eglot-ensure)
+#+end_src
+
+** LSP and DAP (not used)
+:PROPERTIES:
+:header-args:emacs-lisp: :tangle no
+:END:
 *** lsp-mode
 Provides language backend to company-mode.
 #+begin_src emacs-lisp
@@ -936,8 +952,10 @@ So the flow should be like this:
 After changing venv all installed packages from venv should be visible for LSP server.
 
 *** Python-mode
+For lsp, have pyright installed =pip install pyright=
+
 **** Pyright
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   ; npm must be installed on the system.
     (use-package lsp-pyright
       :after lsp
