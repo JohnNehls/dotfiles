@@ -494,6 +494,10 @@
 (use-package dockerfile-mode
   :defer t)
 
+(use-package devdocs
+ :defer 2
+ :bind  ("C-h D" . 'devdocs-lookup))
+
 (defun jmn-tab-complete-mode ()
   "My tab complete config"
   (setq tab-always-indent 'complete) ;;complete if indented
@@ -556,7 +560,9 @@
              (setq python-shell-interpreter-args "-i --simple-prompt"))))
 
 (defun my-python-mode-hook-fn ()
-  )
+  (with-eval-after-load 'devdocs
+    (setq-local devdocs-current-docs '("python~3.12"))))
+
 
 (add-hook 'python-mode-hook #'my-python-mode-hook-fn)
 
@@ -581,11 +587,16 @@
 
 (setq-default c-basic-offset 2)
 
-(defun my-c-c++-mode-hook-fn ()
-  )
+(defun my-c++-mode-hook-fn ()
+  (with-eval-after-load 'devdocs
+    (setq-local devdocs-current-docs '("cpp"))))
 
-(add-hook #'c-mode-hook #'my-c-c++-mode-hook-fn)
-(add-hook #'c++-mode-hook #'my-c-c++-mode-hook-fn)
+(defun my-c-mode-hook-fn ()
+  (with-eval-after-load 'devdocs
+    (setq-local devdocs-current-docs '("c"))))
+
+(add-hook #'c-mode-hook #'my-c-mode-hook-fn)
+(add-hook #'c++-mode-hook #'my-c++-mode-hook-fn)
 
 (add-to-list 'auto-mode-alist '("\\.m$" . octave-mode))
 
