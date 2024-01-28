@@ -243,6 +243,11 @@ Archive: melpa
   ;; "C-M-o" opens in another buffer and keeps focus in the Buffer-menu
   (define-key Buffer-menu-mode-map (kbd "C-M-o") 'Buffer-menu-switch-other-window)
 
+  ;; xref
+  (with-eval-after-load 'xref
+    (define-key xref--xref-buffer-mode-map (kbd "C-o") 'other-window)
+    (define-key xref--xref-buffer-mode-map (kbd "o") 'xref-show-location-at-point))
+
   ;; bookmark-bmenue
   (with-eval-after-load 'bookmark
     (define-key bookmark-bmenu-mode-map (kbd "C-o") 'other-window)
