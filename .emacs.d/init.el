@@ -414,7 +414,8 @@
   :hook prog-mode
   :config
   (setq highlight-indent-guides-method 'fill)
-  (setq highlight-indent-guides-auto-character-face-perc 50))
+  (setq highlight-indent-guides-auto-odd-face-perc -7)
+  (setq highlight-indent-guides-auto-even-face-perc 7))
 
 (use-package company
   :ensure t
@@ -440,19 +441,16 @@
   (setq treemacs-width 30))
 
 (use-package eglot
-  :defer t
+  :defer 1
   :ensure-system-package
   ((bash-language-server . "sudo dnf install -y nodejs-bash-language-server")
    (pyright . "pip install pyright")
-   (clangd . "clang-tools-extra")))
-
-(add-hook 'prog-mode-hook 'eglot-ensure)
-
-(use-package flycheck
-  :hook ((emacs-lisp-mode . flycheck-mode)
-         (sh-mode))
-  :diminish flycheck-mode
-  :after lsp)
+   (clangd . "sudo dnf install -y clang-tools-extra"))
+  :hook
+  ((sh-mode . eglot-ensure)
+   (python-mode . eglot-ensure)
+   (c-mode . eglot-ensure)
+   (c++-mode . eglot-ensure)))
 
 (use-package cmake-mode
   :defer t
@@ -464,17 +462,13 @@
   :after cmake-mode
   :config (cmake-font-lock-activate))
 
-(use-package cmake-project
-  :hook ((c++-mode . cmake-project-mode )
-         (c-mode . cmake-project-mode)))
-
 (use-package yasnippet
-  :after lsp
+  :defer 1
   :config
   (yas-global-mode 1))
 
-(use-package yasnippet-snippets
-  :after yas-minor-mode) ; load basic snippets from melpa
+  (use-package yasnippet-snippets
+    :after yas-minor-mode) ; load basic snippets from melpa
 
 ;; free up C-; for goto-last change
 ;; (with-eval-after-load 'flyspell
@@ -537,8 +531,6 @@
 
 (use-package sh-script
   :defer t
-  :ensure-system-package
-  ((bash-language-server . "sudo dnf install -y nodejs-bash-language-server"))
   :config
   (setq sh-basic-offset 2
         sh-indentation 2)) ;; defaults are 4
@@ -560,7 +552,7 @@
   (setq python-shell-completion-native-enable 1)
   (define-key python-mode-map (kbd "C-RET") 'python-shell-send-statement)
   (if (executable-find "ipython")
-      (progn (setq python-shell-interpreter "ipython") ;;only if I have ipython
+      (progn (setq python-shell-interpreter "ipython")
              (setq python-shell-interpreter-args "-i --simple-prompt"))))
 
 (defun my-python-mode-hook-fn ()
@@ -590,7 +582,6 @@
 (setq-default c-basic-offset 2)
 
 (defun my-c-c++-mode-hook-fn ()
-  ;; (local-set-key (kbd "C-<tab>") #'lsp-format-buffer) ;tab comp
   )
 
 (add-hook #'c-mode-hook #'my-c-c++-mode-hook-fn)
@@ -1140,9 +1131,14 @@ f"))
   (setq inserft-directory-program "c:/Program Files/Git/user/bin/ls.exe") ;; ls loc
   ))
 
+(defun jmn-set-background-unspecified ()
+  "Set background of buffer and line numbers to unspecified"
+  (interactive)
+  (set-face-background 'default "unspecified-bg" (selected-frame))
+  (set-face-background 'line-number "unspecified-bg"))
+
 (if jmn-term
-    (add-hook 'window-setup-hook
-              (lambda ()(set-face-background 'default "unspecified-bg" (selected-frame)))))
+    (add-hook 'window-setup-hook 'jmn-set-background-unspecified))
 
 (recentf-mode 1) ;; needed for recent files in dashboard
 (setq recentf-max-menu-items 25) ;; max number of entries
@@ -1174,7 +1170,7 @@ f"))
     (progn
       (setq tab-bar-close-button-show nil        ; remove close button
             tab-bar-show 1                       ; only show tab bar if #tabs>1
-            tab-bar-select-tab-modifiers '(meta) ; Alt-1 switch to the tab numbered i
+            tab-bar-select-tab-modifiers '(meta) ; Alt-i switch to the tab numbered i
             tab-bar-tab-hints t)                 ; show a number on each tabs
 
       (tab-bar-mode 1)
