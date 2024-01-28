@@ -703,6 +703,7 @@
         org-image-actual-width nil    ;; fix to allow picture resizing
         org-return-follows-link t
         org-use-speed-commands t
+        org-use-property-inheritance t  ;; preperties to affect nested sections
         org-export-babel-evaluate nil ;; don't run src blocks on export
         org-agenda-tags-column (alist-get
                                 (system-name) '(("xps" . -85)
