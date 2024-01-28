@@ -1,0 +1,152 @@
+#    -*- mode: org -*-
+
+
+Archived entries from file /home/ape/dotfiles/emacs.org
+
+
+* LSP and DAP (not used)
+:PROPERTIES:
+:header-args:emacs-lisp: :tangle no
+:ARCHIVE_TIME: 2024-01-28 Sun 16:27
+:ARCHIVE_FILE: ~/dotfiles/emacs.org
+:ARCHIVE_OLPATH: General Development
+:ARCHIVE_CATEGORY: emacs
+:END:
+** lsp-mode
+Provides language backend to company-mode.
+#+begin_src emacs-lisp
+  (use-package lsp-mode
+    :commands (lsp)
+    :hook ((sh-mode . lsp-mode)
+           (python-mode . lsp-mode)
+           (c-mode . lsp-mode)
+           (c++-mode . lsp-mode)
+           (markdown-mode . lsp-mode)
+           (cmake-mode . lsp-mode))
+    :init
+    (setq lsp-keymap-prefix "C-c l") ;; or "C-l"
+    :custom ((lsp-idle-delay 0.5)) ;; 0.5 is the defualt
+    :config
+    (lsp-enable-which-key-integration t)
+    ;; Annoying stuff (uncomment to turn off)
+    ;; (setq lsp-enable-links nil)
+    ;; (setq lsp-signature-render-documentation nil)
+    (setq lsp-headerline-breadcrumb-enable nil)
+    ;; (setq lsp-ui-doc-enable nil)
+    ;; (setq lsp-completion-enable-additional-text-edit nil)
+
+    ;; `-background-index' requires clangd v8+!
+    (setq lsp-clients-clangd-args '("-j=4" "-background-index" "-log=error"))
+    )
+#+end_src
+The last line concerning =cangd= comes from [[https://www.mortens.dev/blog/emacs-and-the-language-server-protocol/index.html][mortens.dev]].
+
+** lsp-ui
+Provides additional lsp information to the company-mode box. The mode provides info when hoovered by mouse. [[https://emacs-lsp.github.io/lsp-ui/][lsp-ui documentation]]
+
+*Note:* Functions also display the proceeding C++ function comments as documentation
+#+begin_src emacs-lisp
+  (use-package lsp-ui
+    :after lsp
+    :hook (lsp-mode . lsp-ui-mode)
+    :custom
+    (lsp-ui-doc-position 'bottom))
+#+end_src
+
+** lsp-ivy
+[[https://github.com/emacs-lsp/lsp-ivy][lsp-ivy]] integrates Ivy with =lsp-mode= to make it easy to search for things by name in your code.  When you run these commands, a prompt will appear in the minibuffer allowing you to type part of the name of a symbol in your code.  Results will be populated in the minibuffer so that you can find what you're looking for and jump to that location in the code upon selecting the result.
+
+Try these commands with =M-x=:
+- =lsp-ivy-workspace-symbol= - Search for a symbol name in the current project workspace
+- =lsp-ivy-global-workspace-symbol= - Search for a symbol name in all active project workspaces.
+
+#+begin_src emacs-lisp
+  (use-package lsp-ivy
+    :after lsp)
+#+end_src
+
+** lsp-treemacs
+Shows file contents: classes functions etc
+- See lsp-treemacs-references
+#+begin_src emacs-lisp
+  (use-package lsp-treemacs
+    :after lsp)
+#+end_src
+
+** Dap Debugging
+Like lsp-mode but for debuggers.
+#+begin_src emacs-lisp
+  (use-package dap-mode
+    :after lsp
+    :commands dap-mode)
+#+end_src
+
+* Flycheck (not used) --eglot uses flymake
+:PROPERTIES:
+:header-args:emacs-lisp: :tangle no
+:ARCHIVE_TIME: 2024-01-28 Sun 16:28
+:ARCHIVE_FILE: ~/dotfiles/emacs.org
+:ARCHIVE_OLPATH: General Development
+:ARCHIVE_CATEGORY: emacs
+:END:
+Checks the code for bugs on the fly.
+#+begin_src emacs-lisp
+  (use-package flycheck
+    :hook ((emacs-lisp-mode . flycheck-mode))
+    :diminish flycheck-mode
+    :after lsp)
+#+end_src
+
+* Grammarly (not set up)                                           :noexport:
+:PROPERTIES:
+:ARCHIVE_TIME: 2024-01-28 Sun 16:28
+:ARCHIVE_FILE: ~/dotfiles/emacs.org
+:ARCHIVE_OLPATH: General Emacs
+:ARCHIVE_CATEGORY: emacs
+:END:
+There looks to be several packages at the moment. Top two (as of 1/10/22) are installed here without proper hooks.
+** lsp-grammarly
+Gives warning on startup for login.   [[https://github.com/emacs-grammarly/lsp-grammarly][lsp-grammarly doc]]
+#+begin_src emacs-lisp  :tangle no
+  (use-package lsp-grammarly
+  :ensure t
+  :hook (text-mode . (lambda ()
+                       (require 'lsp-grammarly)
+                       (lsp))))
+#+end_src
+
+** flycheck-grammarly
+Works w/o being logged in.                         [[https://github.com/emacs-grammarly/flycheck-grammarly][flycheck-grammarly doc]]
+#+begin_src emacs-lisp  :tangle no
+  (use-package flycheck-grammarly
+  :config
+  (setq flycheck-grammarly-check-time 0.8))
+#+end_src
+
+* Dark+ (not used)
+:PROPERTIES:
+:ARCHIVE_TIME: 2024-01-28 Sun 16:29
+:ARCHIVE_FILE: ~/dotfiles/emacs.org
+:ARCHIVE_OLPATH: Theme and Frame/Theme Packages
+:ARCHIVE_CATEGORY: emacs
+:END:
+- The modeline, when un-selected, has the same background as files, making it hard to delineation between vertically split windows.
+#+begin_src emacs-lisp :tangle no
+  (use-package doom-themes
+    :defer t  )
+
+  (defun jmn-load-dark+()
+    "Theme for very light time"
+    (interactive)
+    (disable-theme (car custom-enabled-themes))
+    (load-theme 'doom-dark+ t)
+    (set-face-background 'line-number
+                         (face-attribute 'default :background))
+    ;; default does not change filename settings when modified
+    (set-face-foreground 'doom-modeline-buffer-modified "red")
+    (with-eval-after-load 'org
+             ;; (set-face-foreground 'org-priority (face-foreground font-lock-builtin-face))
+        (setq org-todo-keyword-faces
+              `(("NEXT" .  ,(face-foreground font-lock-function-name-face))
+                ("HOLD" . "dark orange")))))
+#+end_src
