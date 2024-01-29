@@ -827,7 +827,7 @@ f"))
         (" " "Agenda"
          ((agenda ""
                   ((org-agenda-span 'day)
-                   (org-deadline-warning-days 365)))
+                   (org-deadline-warning-days 7)))
 
           (todo "TODO"
                 ((org-agenda-overriding-header "To Refile")
