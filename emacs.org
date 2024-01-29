@@ -611,8 +611,12 @@ Help in sorting the completion results.
 #+end_src
 
 ** Eglot
-Combines with flymake, company-mode, and xref to make an IDE experience.
+Combines with flymake, eldoc, company-mode, and xref to make an IDE experience.
+- can search in a company completion box!
+- Flymake
+  shows underlines: errors in red, warnings in blue
 
+- "C-h ." provides eldoc info at the point
 Function/keybinding learning area:
 - eglot
    - eglot find declaration
@@ -627,17 +631,33 @@ Function/keybinding learning area:
 
 
 #+begin_src emacs-lisp
-      (use-package eglot
-        :defer 1
-        :ensure-system-package
-        ((bash-language-server . "sudo dnf install -y nodejs-bash-language-server")
-         (pyright . "pip install pyright")
-         (clangd . "sudo dnf install -y clang-tools-extra"))
-        :hook
-        ((sh-mode . eglot-ensure)
-         (python-mode . eglot-ensure)
-         (c-mode . eglot-ensure)
-         (c++-mode . eglot-ensure)))
+  (use-package eglot
+    :defer 1
+    :ensure-system-package
+    ((bash-language-server . "sudo dnf install -y nodejs-bash-language-server")
+     (pyright . "pip install pyright")
+     (clangd . "sudo dnf install -y clang-tools-extra"))
+    :hook ((sh-mode . eglot-ensure)
+           (python-mode . eglot-ensure)
+           (c-mode . eglot-ensure)
+           (c++-mode . eglot-ensure))
+    :config
+    ;; make shorter ones later?
+    ;; use "M-." for xref-find-definitions
+    ;; use "M-?" for xref-find-references
+    ;;; use "M-g n" and "M-g p" to go to next and previous location
+    ;; use ... for xref-pop-marker-stack
+    (define-prefix-command 'eglot-prefix)
+    (global-set-key (kbd "C-x e") 'eglot-prefix)
+    (define-key eglot-prefix (kbd "r") 'eglot-rename)
+    (define-key eglot-prefix (kbd "o") 'eglot-code-action-organize-imports)
+    (define-key eglot-prefix (kbd "h") 'eldoc)
+    (define-key eglot-prefix (kbd "d") 'eglot-find-declaration)
+    (define-key eglot-prefix (kbd "a") 'eglot-format-buffer)
+    (define-key eglot-prefix (kbd "n") 'flymake-goto-next-error)
+    (define-key eglot-prefix (kbd "p") 'flymake-goto-prev-error)
+    (define-key eglot-prefix (kbd "b") 'flymake-show-buffer-diagnostics)
+    )
 #+end_src
 
 ** CMake
@@ -662,10 +682,12 @@ In the source directory containing ~CMakeLists.txt~ run =M-x cmake-project-confi
 As a preference, use the =/bin/= option to keep the cmake files out of the source directory.
 After this, the =compile= automatically holds the correct command.
 Archive: melpa
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
   (use-package cmake-project
-    :hook ((c++-mode . cmake-project-mode )
-           (c-mode . cmake-project-mode)))
+    :defer 2
+    ;; :hook ((c++-mode . cmake-project-mode )
+    ;;        (c-mode . cmake-project-mode))
+    )
 #+end_src
 
 ** Yasnippet
@@ -1194,7 +1216,7 @@ Following the tutorial [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode
   (setq org-refile-targets
         '(("projects.org" :maxlevel . 2)
           ("someday.org" :maxlevel . 1)
-          ("whip.org" :level . 0)
+          ("whip.org" :level . 1)
           ("next.org" :level . 0)))
 
   ;; https://github.com/syl20bnr/spacemacs/issues/3094

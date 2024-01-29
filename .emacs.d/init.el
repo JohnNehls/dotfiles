@@ -446,11 +446,27 @@
   ((bash-language-server . "sudo dnf install -y nodejs-bash-language-server")
    (pyright . "pip install pyright")
    (clangd . "sudo dnf install -y clang-tools-extra"))
-  :hook
-  ((sh-mode . eglot-ensure)
-   (python-mode . eglot-ensure)
-   (c-mode . eglot-ensure)
-   (c++-mode . eglot-ensure)))
+  :hook ((sh-mode . eglot-ensure)
+         (python-mode . eglot-ensure)
+         (c-mode . eglot-ensure)
+         (c++-mode . eglot-ensure))
+  :config
+  ;; make shorter ones later?
+  ;; use "M-." for xref-find-definitions
+  ;; use "M-?" for xref-find-references
+  ;;; use "M-g n" and "M-g p" to go to next and previous location
+  ;; use ... for xref-pop-marker-stack
+  (define-prefix-command 'eglot-prefix)
+  (global-set-key (kbd "C-x e") 'eglot-prefix)
+  (define-key eglot-prefix (kbd "r") 'eglot-rename)
+  (define-key eglot-prefix (kbd "o") 'eglot-code-action-organize-imports)
+  (define-key eglot-prefix (kbd "h") 'eldoc)
+  (define-key eglot-prefix (kbd "d") 'eglot-find-declaration)
+  (define-key eglot-prefix (kbd "a") 'eglot-format-buffer)
+  (define-key eglot-prefix (kbd "n") 'flymake-goto-next-error)
+  (define-key eglot-prefix (kbd "p") 'flymake-goto-prev-error)
+  (define-key eglot-prefix (kbd "b") 'flymake-show-buffer-diagnostics)
+  )
 
 (use-package cmake-mode
   :defer t
@@ -461,6 +477,12 @@
   :ensure t
   :after cmake-mode
   :config (cmake-font-lock-activate))
+
+(use-package cmake-project
+  :defer 2
+  ;; :hook ((c++-mode . cmake-project-mode )
+  ;;        (c-mode . cmake-project-mode))
+  )
 
 (use-package yasnippet
   :defer 1
@@ -775,7 +797,7 @@ f"))
 (setq org-refile-targets
       '(("projects.org" :maxlevel . 2)
         ("someday.org" :maxlevel . 1)
-        ("whip.org" :level . 0)
+        ("whip.org" :level . 1)
         ("next.org" :level . 0)))
 
 ;; https://github.com/syl20bnr/spacemacs/issues/3094
