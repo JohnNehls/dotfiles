@@ -343,7 +343,7 @@
   (interactive)
   (load "~/.emacs.d/init.el"))
 
-(defun jmn/vscode-current-buffer-file-at-point ()
+(defun jmn-vscode-current-buffer-file-at-point ()
   (interactive)
   (start-process-shell-command "code"
                                nil
@@ -1239,11 +1239,11 @@ f"))
   (tab-bar-rename-tab "workspace")
   (switch-to-buffer "projects.org")
 
-  (tab-bar-new-tab)
-  (tab-bar-rename-tab "term")
-  (if jmn-pure
-      (term "/bin/bash")
-    (vterm))
+  ;; (tab-bar-new-tab)
+  ;; (tab-bar-rename-tab "term")
+  ;; (if jmn-pure
+  ;;     (term "/bin/bash")
+  ;;   (vterm))
 
   (tab-bar-new-tab)
   (tab-bar-rename-tab "config")
