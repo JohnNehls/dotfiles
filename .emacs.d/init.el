@@ -520,6 +520,22 @@
  :defer 2
  :bind  ("C-h D" . 'devdocs-lookup))
 
+(defun jmn-smerge-accept-all-lower()
+  "Accept all lower changes below the cursor point"
+  (interactive)
+  (while (not (smerge-next))
+    (smerge-keep-lower)))
+
+(defun jmn-smerge-accept-all-upper()
+  "Accept all upper changes below the cursor point"
+  (interactive)
+  (while (not (smerge-next))
+    (smerge-keep-upper)))
+
+(with-eval-after-load 'smerge
+  (define-key smerge-mode-map (kbd "C-c ^ L") 'jmn-smerge-accept-all-lower)
+  (define-key smerge-mode-map (kbd "C-c ^ U") 'jmn-smerge-accept-all-upper))
+
 (defun jmn-tab-complete-mode ()
   "My tab complete config"
   (setq tab-always-indent 'complete) ;;complete if indented
