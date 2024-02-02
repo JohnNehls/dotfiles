@@ -1121,7 +1121,7 @@ Use # -*- org-src-preserve-indentation: t; -*- when doing tangle/detangle with p
   (setq org-confirm-babel-evaluate nil)
 
   (with-eval-after-load 'org
-    (require 'org-tempo);; This is needed as of Org 9.2
+    (require 'org-tempo)  ;; not needed after org version 9.2
     (add-to-list 'org-structure-template-alist '("la" . "src latex"))
     (add-to-list 'org-structure-template-alist '("m" . "src makefile"))
     (add-to-list 'org-structure-template-alist '("js" . "src js"))
@@ -1705,9 +1705,9 @@ Major changes for windows. Small changes also exist in the rest of the config.
 (setq image-types '(svg png gif tiff jpeg xpm xbm pbm))
 #+end_src
 
-** Keep transparency when toggling to full-screen in Emacs 29+ (not used)
+** Keep transparency when toggling to full-screen in Emacs 29+
 Was needed at one point-- keeping just in case it is need in the future.
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
   (if (version<= "29" emacs-version)
       (progn
         (defun toggle-full-screen-with-transparency ()
@@ -1785,7 +1785,7 @@ Recentf is needed for recent files on the dashboard.
     (interactive)
     (tab-close-other)
     (delete-other-windows)
-    (tab-bar-rename-tab "org")
+    (tab-bar-rename-tab "gtd")
     (find-file (concat jmn-gtd-directory "projects.org"))
     (jmn-agenda)
 
@@ -1793,18 +1793,22 @@ Recentf is needed for recent files on the dashboard.
     (tab-bar-rename-tab "workspace")
     (switch-to-buffer "projects.org")
 
-    ;; (tab-bar-new-tab)
-    ;; (tab-bar-rename-tab "term")
-    ;; (if jmn-pure
-    ;;     (term "/bin/bash")
-    ;;   (vterm))
+    (tab-bar-new-tab)
+    (if jmn-pure
+        (progn
+          (term "/bin/bash")
+          (tab-bar-rename-tab "term"))
+      (progn
+        (vterm)
+        (tab-bar-rename-tab "vterm")))
+
 
     (tab-bar-new-tab)
     (tab-bar-rename-tab "config")
     (find-file jmn-config-location)
     (magit-status)
 
-    (tab-bar-select-tab-by-name "org"))
+    (tab-bar-select-tab 2))
 #+end_src
 
 ** Dashboard

@@ -743,7 +743,7 @@
 (setq org-confirm-babel-evaluate nil)
 
 (with-eval-after-load 'org
-  (require 'org-tempo);; This is needed as of Org 9.2
+  (require 'org-tempo)  ;; not needed after org version 9.2
   (add-to-list 'org-structure-template-alist '("la" . "src latex"))
   (add-to-list 'org-structure-template-alist '("m" . "src makefile"))
   (add-to-list 'org-structure-template-alist '("js" . "src js"))
@@ -1180,6 +1180,20 @@ f"))
   (setq inserft-directory-program "c:/Program Files/Git/user/bin/ls.exe") ;; ls loc
   ))
 
+(if (version<= "29" emacs-version)
+    (progn
+      (defun toggle-full-screen-with-transparency ()
+        "Toggle full screen and adjust frame transparency."
+        (interactive)
+        (let ((current-alpha (frame-parameter nil 'alpha-background)))
+          (transparency 100)
+          (toggle-frame-fullscreen)
+          (sit-for 0.7)
+          (transparency current-alpha)
+          ))
+      (global-unset-key (kbd "<f11>"))
+      (global-set-key (kbd "<f11>") 'toggle-full-screen-with-transparency)))
+
 (defun jmn-set-background-unspecified ()
   "Set background of buffer and line numbers to unspecified"
   (interactive)
@@ -1231,7 +1245,7 @@ f"))
   (interactive)
   (tab-close-other)
   (delete-other-windows)
-  (tab-bar-rename-tab "org")
+  (tab-bar-rename-tab "gtd")
   (find-file (concat jmn-gtd-directory "projects.org"))
   (jmn-agenda)
 
@@ -1239,18 +1253,22 @@ f"))
   (tab-bar-rename-tab "workspace")
   (switch-to-buffer "projects.org")
 
-  ;; (tab-bar-new-tab)
-  ;; (tab-bar-rename-tab "term")
-  ;; (if jmn-pure
-  ;;     (term "/bin/bash")
-  ;;   (vterm))
+  (tab-bar-new-tab)
+  (if jmn-pure
+      (progn
+        (term "/bin/bash")
+        (tab-bar-rename-tab "term"))
+    (progn
+      (vterm)
+      (tab-bar-rename-tab "vterm")))
+
 
   (tab-bar-new-tab)
   (tab-bar-rename-tab "config")
   (find-file jmn-config-location)
   (magit-status)
 
-  (tab-bar-select-tab-by-name "org"))
+  (tab-bar-select-tab 2))
 
 (use-package dashboard
   :ensure t
