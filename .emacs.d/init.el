@@ -1167,7 +1167,7 @@ f"))
     (set-face-background 'org-block "gray93")))
 
 (if (window-system)
-    (set-frame-height (selected-frame) 54))
+    (set-frame-height (selected-frame) 80))
 
 (if jmn-pure
     (if jmn-dark-mode
