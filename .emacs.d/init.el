@@ -9,7 +9,7 @@
 (defconst jmn-connected-systems '("lat" "dsk" "xps")
   "Systems which should download packages. Others get the 'pure' configuration.")
 
-(defconst jmn-connected-beauty nil
+(defconst jmn-connected-extras nil
   "Flag of weather to use the purely astetic packages or not on connected system")
 
 (defconst jmn-pureplus-systems '("lat")
@@ -151,7 +151,7 @@
   (setq undo-tree-auto-save-history nil)) ;; don't save ~undo-tree~ file
 
 ;;;; Modeline ;;;;
-(if jmn-connected-beauty
+(if jmn-connected-extras
     (use-package all-the-icons
       :defer 1
       :init
@@ -282,7 +282,7 @@
                                   'dired-single-buffer-mouse)
                       (define-key dired-mode-map [remap dired-up-directory]
                                   'dired-single-up-directory))))
-(if jmn-connected-beauty
+(if jmn-connected-extras
     (use-package all-the-icons-dired
       :after dired
       :defer t
@@ -473,33 +473,33 @@
   :config
   (setq treemacs-width 30))
 
-(use-package eglot
-  :defer 1
-  :ensure-system-package
-  ((bash-language-server . "sudo dnf install -y nodejs-bash-language-server")
-   (pyright . "pip install pyright")
-   (clangd . "sudo dnf install -y clang-tools-extra"))
-  :hook ((sh-mode . eglot-ensure)
-         (python-mode . eglot-ensure)
-         (c-mode . eglot-ensure)
-         (c++-mode . eglot-ensure))
-  :config
-  ;; make shorter ones later?
-  ;; use "M-." for xref-find-definitions
-  ;; use "M-?" for xref-find-references
+(if jmn-connected-extras
+    (use-package eglot
+      :defer 1
+      :ensure-system-package
+      ((bash-language-server . "sudo dnf install -y nodejs-bash-language-server")
+       (pyright . "pip install pyright")
+       (clangd . "sudo dnf install -y clang-tools-extra"))
+      :hook ((sh-mode . eglot-ensure)
+             (python-mode . eglot-ensure)
+             (c-mode . eglot-ensure)
+             (c++-mode . eglot-ensure))
+      :config
+      ;; make shorter ones later?
+      ;; use "M-." for xref-find-definitions
+      ;; use "M-?" for xref-find-references
   ;;; use "M-g n" and "M-g p" to go to next and previous location
-  ;; use ... for xref-pop-marker-stack
-  (define-prefix-command 'eglot-prefix)
-  (global-set-key (kbd "C-x e") 'eglot-prefix)
-  (define-key eglot-prefix (kbd "r") 'eglot-rename)
-  (define-key eglot-prefix (kbd "o") 'eglot-code-action-organize-imports)
-  (define-key eglot-prefix (kbd "h") 'eldoc)
-  (define-key eglot-prefix (kbd "d") 'eglot-find-declaration)
-  (define-key eglot-prefix (kbd "a") 'eglot-format-buffer)
-  (define-key eglot-prefix (kbd "n") 'flymake-goto-next-error)
-  (define-key eglot-prefix (kbd "p") 'flymake-goto-prev-error)
-  (define-key eglot-prefix (kbd "b") 'flymake-show-buffer-diagnostics)
-  )
+      ;; use ... for xref-pop-marker-stack
+      (define-prefix-command 'eglot-prefix)
+      (global-set-key (kbd "C-x e") 'eglot-prefix)
+      (define-key eglot-prefix (kbd "r") 'eglot-rename)
+      (define-key eglot-prefix (kbd "o") 'eglot-code-action-organize-imports)
+      (define-key eglot-prefix (kbd "h") 'eldoc)
+      (define-key eglot-prefix (kbd "d") 'eglot-find-declaration)
+      (define-key eglot-prefix (kbd "a") 'eglot-format-buffer)
+      (define-key eglot-prefix (kbd "n") 'flymake-goto-next-error)
+      (define-key eglot-prefix (kbd "p") 'flymake-goto-prev-error)
+      (define-key eglot-prefix (kbd "b") 'flymake-show-buffer-diagnostics)))
 
 (use-package cmake-mode
   :defer t
@@ -751,7 +751,7 @@
                                                 ("dsk" . -90))
                                 'auto nil 'string=)))
 
-(unless (or jmn-term (not jmn-connected-beauty))
+(unless (or jmn-term (not jmn-connected-extras))
   (use-package org-bullets
     :hook (org-mode . org-bullets-mode)
     :custom
@@ -1250,7 +1250,7 @@ f"))
 (add-to-list 'recentf-exclude
              (concat (file-name-directory jmn-config-location) "emacs.html"))
 
-(if (or jmn-pure (not jmn-connected-beauty))
+(if (or jmn-pure (not jmn-connected-extras))
     (progn
       ;; display recent files on startup
       ;; (add-hook 'after-init-hook (lambda () (recentf-open-files)))
@@ -1302,7 +1302,7 @@ f"))
 
   (tab-bar-select-tab 2))
 
-(if jmn-connected-beauty
+(if jmn-connected-extras
   (use-package dashboard
     :ensure t
     :init     (dashboard-setup-startup-hook)
