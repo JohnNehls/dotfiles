@@ -1,14 +1,27 @@
 (defconst jmn-config-location "~/dotfiles/emacs.org"
   "Location of literate org file used to automaitically tangle to init.el")
 
-(defconst jmn-gtd-directory "~/Documents/gtd/"
-  "Location of gtd org files: projects, inbox, next,  whip, journal, and habits")
+(let ((gtd-path '((gnu/linux . "~/Documents/gtd/")
+                 (windows-nt . "c:/Users/nehlsj/OneDrive/Documents/gtd/"))))
+  (defconst jmn-gtd-directory (alist-get system-type gtd-path)
+  "Location of gtd org files: projects, inbox, next,  whip, journal, and habits"))
 
 (defconst jmn-connected-systems '("lat" "dsk" "xps")
   "Systems which should download packages. Others get the 'pure' configuration.")
 
+(defconst jmn-connected-beauty nil
+  "Flag of weather to use the purely astetic packages or not on connected system")
+
+(defconst jmn-pureplus-systems '("lat")
+  "Systems which use the pure setup with the plus packages")
+
 (defconst jmn-dark-mode t
   "Do we want Emacs in a dark mode? Note: no dark-mode for windows as of now")
+
+(defconst jmn-font-height-alist '(("xps" . 110)
+                                  ("dsk" . 110)
+                                  ("lat" . 115))
+  "Set text-hight for each machine-- default will be 100")
 
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun efs/org-babel-tangle-config ()
@@ -23,15 +36,22 @@
 
 (if (member system-name jmn-connected-systems)
     (defconst jmn-pure nil "Indicating if we are pure or using packages")
-  (defconst jmn-pure t "Indicating if we are pure or using packages"))
+  (if (member system-name jmn-pureplus-systems)
+      (defconst jmn-pure "plus" "Indicating we are using pure config with plus packages")
+    (defconst jmn-pure t "Indicating if we are pure, not using any packages")))
 
 ;; flag
 (defconst jmn-term (not (display-graphic-p (selected-frame)))
   "Indicating if emacs is being run within a terminal or not")
 
 (if jmn-pure
-    (defmacro use-package (&rest _))  ;; define use-package macro to do nothing
-  (progn
+    (progn
+      (defmacro use-package (&rest _))  ;; define use-package macro to do nothing
+      (if (string= jmn-pure "plus") ;; turn on all of the plus modes
+          (progn (require 'prescient)
+                 (dolist (pluslist '(which-key-mode undo-tree-mode ws-butler-mode prescient-persist-mode ivy-mode ivy-rich-mode ivy-prescient-mode counsel-mode))
+                   (funcall pluslist 1)))))
+  (progn  ;; Connect to the internet and use use-package macros to config below
     (require 'package)
     (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                              ("elpa" . "https://elpa.gnu.org/packages/")))
@@ -131,12 +151,13 @@
   (setq undo-tree-auto-save-history nil)) ;; don't save ~undo-tree~ file
 
 ;;;; Modeline ;;;;
-(use-package all-the-icons
-  :defer 1
-  :init
-  (when (and (not (member "all-the-icons" (font-family-list))) ;; autoinstall fonts
-             (window-system))
-    (all-the-icons-install-fonts t)))
+(if jmn-connected-beauty
+    (use-package all-the-icons
+      :defer 1
+      :init
+      (when (and (not (member "all-the-icons" (font-family-list))) ;; autoinstall fonts
+                 (window-system))
+        (all-the-icons-install-fonts t))))
 
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
@@ -243,11 +264,6 @@
                                        ("\\.pdf\\'" "evince")
                                        ("\\.ipynb\\'" "code"))))
 
-(use-package all-the-icons-dired
-  :after dired
-  :defer t
-  :hook (dired-mode . all-the-icons-dired-mode))
-
 ;; sluggish mode which lists the recursive size of each folder/item in dired.
 (use-package dired-du
   :commands dired-du-mode
@@ -266,6 +282,11 @@
                                   'dired-single-buffer-mouse)
                       (define-key dired-mode-map [remap dired-up-directory]
                                   'dired-single-up-directory))))
+(if jmn-connected-beauty
+    (use-package all-the-icons-dired
+      :after dired
+      :defer t
+      :hook (dired-mode . all-the-icons-dired-mode)))
 
 ;;;; Proced ;;;;
 (defun proced-settings ()
@@ -331,10 +352,7 @@
   (interactive "nFont height (default is 100): ")
   (set-face-attribute  'default nil :height value))
 
-(jmn-set-font-height (alist-get (system-name) '(
-                                                ("xps" . 110)
-                                                ("dsk" . 110)
-                                                ("lat" . 115))
+(jmn-set-font-height (alist-get (system-name) jmn-font-height-alist
                                 100 nil 'string=)) ;; default is 100
 
 (setq text-scale-mode-step 1.05)
@@ -718,7 +736,7 @@
                                                 ("dsk" . -90))
                                 'auto nil 'string=)))
 
-(unless jmn-term
+(unless (or jmn-term (not jmn-connected-beauty))
   (use-package org-bullets
     :hook (org-mode . org-bullets-mode)
     :custom
@@ -1217,7 +1235,7 @@ f"))
 (add-to-list 'recentf-exclude
              (concat (file-name-directory jmn-config-location) "emacs.html"))
 
-(if jmn-pure
+(if (or jmn-pure (not jmn-connected-beauty))
     (progn
       ;; display recent files on startup
       ;; (add-hook 'after-init-hook (lambda () (recentf-open-files)))
@@ -1269,30 +1287,31 @@ f"))
 
   (tab-bar-select-tab 2))
 
-(use-package dashboard
-  :ensure t
-  :init     (dashboard-setup-startup-hook)
-  :bind ( "C-c d" . dashboard-open)
-  :config
-  (setq dashboard-startup-banner 2)  ;; (nil . no-banner)  ([1-5] . plain-text banners)
-  (setq dashboard-center-content 1)
-  (setq dashboard-show-shortcuts 1)  ;; show the single-character shortcuts
-  (setq dashboard-items '((recents  . 5)
-                          (bookmarks . 5)
-                          (projects . 5)
-                          (agenda . 5)
-                          (registers . 5)))
+(if jmn-connected-beauty
+  (use-package dashboard
+    :ensure t
+    :init     (dashboard-setup-startup-hook)
+    :bind ( "C-c d" . dashboard-open)
+    :config
+    (setq dashboard-startup-banner 2)  ;; (nil . no-banner)  ([1-5] . plain-text banners)
+    (setq dashboard-center-content 1)
+    (setq dashboard-show-shortcuts 1)  ;; show the single-character shortcuts
+    (setq dashboard-items '((recents  . 5)
+                            (bookmarks . 5)
+                            (projects . 5)
+                            (agenda . 5)
+                            (registers . 5)))
 
-  (setcdr (assoc 'projects dashboard-item-shortcuts) "j")
-  (setq dashboard-set-heading-icons t)
-  (setq dashboard-set-file-icons t)
-  (setq dashboard-projects-backend 'project-el)
-  (dashboard-modify-heading-icons '((recents . "file-text")))
-  (setq dashboard-set-footer nil))
+    (setcdr (assoc 'projects dashboard-item-shortcuts) "j")
+    (setq dashboard-set-heading-icons t)
+    (setq dashboard-set-file-icons t)
+    (setq dashboard-projects-backend 'project-el)
+    (dashboard-modify-heading-icons '((recents . "file-text")))
+    (setq dashboard-set-footer nil))
 
-(defun my-dashboard-hook()
-  "Needed to define these after hook for some reason"
-  (define-key dashboard-mode-map (kbd "n")  'dashboard-next-line)
-  (define-key dashboard-mode-map (kbd "p")  'dashboard-previous-line))
+  (defun my-dashboard-hook()
+    "Needed to define these after hook for some reason"
+    (define-key dashboard-mode-map (kbd "n")  'dashboard-next-line)
+    (define-key dashboard-mode-map (kbd "p")  'dashboard-previous-line))
 
-(add-hook 'dashboard-mode-hook 'my-dashboard-hook)
+  (add-hook 'dashboard-mode-hook 'my-dashboard-hook))
