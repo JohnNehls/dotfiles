@@ -518,13 +518,14 @@
   ;;        (c-mode . cmake-project-mode))
   )
 
-(use-package yasnippet
-  :defer 1
-  :config
-  (yas-global-mode 1))
+(if jmn-connected-extras
+    (use-package yasnippet
+      :defer 1
+      :config
+      (yas-global-mode 1))
 
   (use-package yasnippet-snippets
-    :after yas-minor-mode) ; load basic snippets from melpa
+    :after yas-minor-mode))  ;; load basic snippets from melpa
 
 ;; free up C-; for goto-last change
 ;; (with-eval-after-load 'flyspell
