@@ -373,8 +373,23 @@
                                        ;; +1 who knows why
                                        (number-to-string (+ 1 (current-column))))))
 
+  (defun jmn-vscode-current-project-root ()
+    (interactive)
+    (start-process-shell-command "code" nil (concat "code -r " (project-root (project-current t)))))
+
+  (defun jmn-vscode-current-buffer-in-project-root ()
+    (interactive)
+    (start-process-shell-command "code" nil (concat "code -r " (project-root (project-current t))
+                                                    " --goto "
+                                                    (buffer-file-name)
+                                                    ":"
+                                                    (number-to-string (line-number-at-pos))
+                                                    ":"
+                                                    ;; +1 who knows why
+                                                    (number-to-string (+ 1 (current-column))))))
+
 (define-key global-map (kbd "<f12>")
-            'jmn-vscode-current-buffer-file-at-point)
+            'jmn-vscode-current-buffer-in-project-root)
 
 (defun jmn-remove-M-1-9-from-mode-map (modemap)
   "remove 'M-[d]' keybinding from a mode-map"
