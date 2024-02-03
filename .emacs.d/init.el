@@ -1008,7 +1008,6 @@ f"))
 
 (use-package vterm-toggle
   :after vterm
-  :defer t
   :config
   (setq vterm-toggle-fullscreen-p nil)
   (global-set-key (kbd "C-`") 'vterm-toggle)
