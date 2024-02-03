@@ -596,13 +596,14 @@ Git-gutter-fringe displays git-gutter in the fringe
 
 ** Highlight-indent-guide
 #+begin_src emacs-lisp
-  (use-package highlight-indent-guides
-    :defer 2
-    :hook prog-mode
-    :config
-    (setq highlight-indent-guides-method 'fill)
-    (setq highlight-indent-guides-auto-odd-face-perc -7)
-    (setq highlight-indent-guides-auto-even-face-perc 7))
+  (if jmn-connected-extras
+      (use-package highlight-indent-guides
+        :defer 2
+        :hook prog-mode
+        :config
+        (setq highlight-indent-guides-method 'fill)
+        (setq highlight-indent-guides-auto-odd-face-perc -7)
+        (setq highlight-indent-guides-auto-even-face-perc 7)))
 #+end_src
 
 ** Company-Mode
@@ -679,7 +680,7 @@ Function/keybinding learning area:
         ;; make shorter ones later?
         ;; use "M-." for xref-find-definitions
         ;; use "M-?" for xref-find-references
-    ;;; use "M-g n" and "M-g p" to go to next and previous location
+        ;;; use "M-g n" and "M-g p" to go to next and previous location
         ;; use ... for xref-pop-marker-stack
         (define-prefix-command 'eglot-prefix)
         (global-set-key (kbd "C-x e") 'eglot-prefix)
@@ -890,35 +891,6 @@ Use =C-c '= to view elisp babel blocks in their own file to get completion in co
 See https://amitp.blogspot.com/2023/10/emacs-and-shellcheck.html
 
 ** Python
-*** TODO Jupyter Notebooks
-**** TODO run Jupyter in babel
-[[https://sqrtminusone.xyz/posts/2021-05-01-org-python/][Reference]] and https://github.com/jkitchin/scimax
-Cannot get zmq (Jupyter dependency)  to work currently
-#+begin_src emacs-lisp :tangle no
-  (use-package jupyter
-      :after (org))
-
-  (org-babel-do-load-languages 'org-babel-load-languages
-                               (append org-babel-load-languages
-                                       '((jupyter . t))))
-#+end_src
-
-**** TODO open notebook in Emacs
-If I use EIN, add the setting for displaying the figures inline.
-#+begin_src emacs-lisp :tangle no
-  (use-package ein
-    :commands (ein:notebooklist-open)
-    ;; :config
-    ;; (require 'ein-loaddefs)
-    ;; (require 'ein)
-    ;; (define-key ein:notebook-mode-map (kbd "<C-tab>") 'my-function)
-    )
-#+end_src
-
-**** TODO completion
-In [[https://www.youtube.com/watch?v=OB9vFu9Za8w][EIN video]], Miller says that the completion is based on =auto-complete= rather than =company=. So here we are going to try to get completion setup for =EIN=.
-Also, in [[https://github.com/millejoh/emacs-ipython-notebook#ob-ein][EIN github]], Miller says that =EIN= is an =elpy= module, so maybe we need =elpy= for completion?
-
 *** Pyvenv
 Archive: melpa
 #+begin_src emacs-lisp
@@ -964,7 +936,6 @@ For lsp, have pyright installed =pip install pyright=
   (defun my-python-mode-hook-fn ()
     (with-eval-after-load 'devdocs
       (setq-local devdocs-current-docs '("python~3.12"))))
-
 
   (add-hook 'python-mode-hook #'my-python-mode-hook-fn)
 #+end_src

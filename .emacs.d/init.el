@@ -442,13 +442,14 @@
   (set-face-background 'git-gutter-fr:deleted  (face-background 'default))
   (set-face-foreground 'git-gutter-fr:deleted  "red"))
 
-(use-package highlight-indent-guides
-  :defer 2
-  :hook prog-mode
-  :config
-  (setq highlight-indent-guides-method 'fill)
-  (setq highlight-indent-guides-auto-odd-face-perc -7)
-  (setq highlight-indent-guides-auto-even-face-perc 7))
+(if jmn-connected-extras
+    (use-package highlight-indent-guides
+      :defer 2
+      :hook prog-mode
+      :config
+      (setq highlight-indent-guides-method 'fill)
+      (setq highlight-indent-guides-auto-odd-face-perc -7)
+      (setq highlight-indent-guides-auto-even-face-perc 7)))
 
 (use-package company
   :ensure t
@@ -488,7 +489,7 @@
       ;; make shorter ones later?
       ;; use "M-." for xref-find-definitions
       ;; use "M-?" for xref-find-references
-  ;;; use "M-g n" and "M-g p" to go to next and previous location
+      ;;; use "M-g n" and "M-g p" to go to next and previous location
       ;; use ... for xref-pop-marker-stack
       (define-prefix-command 'eglot-prefix)
       (global-set-key (kbd "C-x e") 'eglot-prefix)
@@ -633,7 +634,6 @@
 (defun my-python-mode-hook-fn ()
   (with-eval-after-load 'devdocs
     (setq-local devdocs-current-docs '("python~3.12"))))
-
 
 (add-hook 'python-mode-hook #'my-python-mode-hook-fn)
 
