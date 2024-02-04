@@ -690,7 +690,7 @@
   :defer t)
 
 (defun jmn/org-mode-setup ()
-  (unless jmn-term
+  (unless (or jmn-term (version<=  emacs-version "26.1"))
     (org-indent-mode))
   (variable-pitch-mode 1)
   (visual-line-mode 1)
@@ -786,19 +786,42 @@
 (setq org-confirm-babel-evaluate nil)
 
 (with-eval-after-load 'org
-  (require 'org-tempo)  ;; not needed after org version 9.2
-  (add-to-list 'org-structure-template-alist '("la" . "src latex"))
-  (add-to-list 'org-structure-template-alist '("m" . "src makefile"))
-  (add-to-list 'org-structure-template-alist '("js" . "src js"))
-  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
-  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-  (add-to-list 'org-structure-template-alist '("py" . "src python  :results output"))
-  (add-to-list 'org-structure-template-alist '("pyim" . "src python :results file :var f=strNameWithDoubleQuotes
+  (if (version<= "27" emacs-version)
+      (progn
+        (add-to-list 'org-structure-template-alist '("la" . "src latex"))
+        (add-to-list 'org-structure-template-alist '("m" . "src makefile"))
+        (add-to-list 'org-structure-template-alist '("js" . "src js"))
+        (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+        (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+        (add-to-list 'org-structure-template-alist '("py" . "src python  :results output"))
+        (add-to-list 'org-structure-template-alist '("pyim" . "src python :results file :var f=strNameWithDoubleQuotes
 import matplotlib.pyplot as plt
 plt.savefig(f)
 f"))
-  (add-to-list 'org-structure-template-alist '("cpp" . "src C++  :includes <iostream>"))
-  (add-to-list 'org-structure-template-alist '("cppnm" . "src C++  :main no")))
+        (add-to-list 'org-structure-template-alist '("cpp" . "src C++  :includes <iostream>"))
+        (add-to-list 'org-structure-template-alist '("cppnm" . "src C++  :main no")))
+    (progn
+      (add-to-list 'org-structure-template-alist '("m" "#+BEGIN_SRC makefile
+?
+#+END_SRC"))
+      (add-to-list 'org-structure-template-alist '("js" "#+BEGIN_SRC js
+?
+#+END_SRC"))
+      (add-to-list 'org-structure-template-alist '("sh" "#+BEGIN_SRC shell
+?
+#+END_SRC"))
+      (add-to-list 'org-structure-template-alist '("el" "#+BEGIN_SRC emacs-lisp
+?
+#+END_SRC"))
+      (add-to-list 'org-structure-template-alist '("py" "#+BEGIN_SRC python
+?
+#+END_SRC"))
+      (add-to-list 'org-structure-template-alist '("cpp" "#+BEGIN_SRC C++ :includes <iostream>
+?
+#+END_SRC"))
+      (add-to-list 'org-structure-template-alist '("cppnm" "#+BEGIN_SRC C++ :main no
+?
+#+END_SRC")))))
 
 (defconst jmn-latex-scale 1.2 "scaling factor for latex fragments")
 (setq org-format-latex-options (plist-put org-format-latex-options :scale jmn-latex-scale))
@@ -1177,7 +1200,7 @@ f"))
     (set-face-background 'org-block "gray93")))
 
 (if (window-system)
-    (set-frame-height (selected-frame) 80))
+    (set-frame-height (selected-frame) 62))
 
 (if jmn-pure
     (if jmn-dark-mode
@@ -1279,38 +1302,38 @@ f"))
             tab-bar-tab-hints t)                 ; show a number on each tabs
 
       (tab-bar-mode 1)
-      (tab-bar-close-other-tabs))) ; ensures (tab-bar-mode 1) works on older systems
+      (tab-bar-close-other-tabs) ; ensures (tab-bar-mode 1) works on older systems
 
+      (defun jmn-create-my-tabs()
+        "Create my default tabs"
+        (interactive)
+        (tab-close-other)
+        (delete-other-windows)
+        (tab-bar-rename-tab "gtd")
+        (find-file (concat jmn-gtd-directory "projects.org"))
+        (jmn-agenda)
 
-(defun jmn-create-my-tabs()
-  "Create my default tabs"
-  (interactive)
-  (tab-close-other)
-  (delete-other-windows)
-  (tab-bar-rename-tab "gtd")
-  (find-file (concat jmn-gtd-directory "projects.org"))
-  (jmn-agenda)
+        (tab-bar-new-tab)
+        (tab-bar-rename-tab "workspace")
+        (switch-to-buffer "projects.org")
 
-  (tab-bar-new-tab)
-  (tab-bar-rename-tab "workspace")
-  (switch-to-buffer "projects.org")
+        (tab-bar-new-tab)
+        (if jmn-pure
+            (progn
+              (term "/bin/bash")
+              (tab-bar-rename-tab "term"))
+          (progn
+            (vterm)
+            (tab-bar-rename-tab "vterm")))
+        (delete-other-windows)
 
-  (tab-bar-new-tab)
-  (if jmn-pure
-      (progn
-        (term "/bin/bash")
-        (tab-bar-rename-tab "term"))
-    (progn
-      (vterm)
-      (tab-bar-rename-tab "vterm")))
-  (delete-other-windows)
+        (tab-bar-new-tab)
+        (tab-bar-rename-tab "config")
+        (find-file jmn-config-location)
+        (unless (eq jmn-pure nil)
+          (magit-status))
 
-  (tab-bar-new-tab)
-  (tab-bar-rename-tab "config")
-  (find-file jmn-config-location)
-  (magit-status)
-
-  (tab-bar-select-tab 2))
+        (tab-bar-select-tab 2))))
 
 (if jmn-connected-extras
   (use-package dashboard
