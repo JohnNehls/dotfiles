@@ -519,6 +519,22 @@ Clear up to allow the tab-bar keybindings.
       (define-key modemap (kbd (concat "M-" num)) nil)))
 #+end_src
 
+*** remove use-package s-expressions
+#+begin_src emacs-lisp
+  (defun remove-use-package-sexps ()
+      (interactive)
+      (save-excursion
+        (goto-char (point-min))
+        (while (re-search-forward "(use-package " nil t)
+          (backward-sexp)
+          (backward-char)
+          (kill-sexp))))
+
+  (defun remove-use-package-sexps-and-save ()
+    (interactive)
+    (remove-use-package-sexps)
+    (save-buffer))
+#+end_src
 * General Development
 ** Indentation
 Guess the indentation offset and 'indent-tabs-mode' from the file using internal heuristics.

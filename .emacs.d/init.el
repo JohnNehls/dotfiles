@@ -396,6 +396,20 @@
   (dolist (num '("1" "2" "3" "4" "5" "6" "7" "8" "9"))
     (define-key modemap (kbd (concat "M-" num)) nil)))
 
+(defun remove-use-package-sexps ()
+    (interactive)
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward "(use-package " nil t)
+        (backward-sexp)
+        (backward-char)
+        (kill-sexp))))
+
+(defun remove-use-package-sexps-and-save ()
+  (interactive)
+  (remove-use-package-sexps)
+  (save-buffer))
+
 (use-package dtrt-indent
   :hook (prog-mode . (lambda () (dtrt-indent-mode 1))))
 
