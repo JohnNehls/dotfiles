@@ -657,8 +657,17 @@
                     buffer)))
 (add-hook 'compilation-finish-functions 'bury-compile-buffer-if-successful)
 
+;;settings
 (setq-default c-basic-offset 2)
 
+;; gdb
+(with-eval-after-load 'gdb-mi
+  (setq gdb-many-windows t
+        gdb-show-main t))
+
+(advice-add 'gdb :after (lambda (&rest r) (tool-bar-mode 1)))
+
+;; mode
 (defun my-c++-mode-hook-fn ()
   (with-eval-after-load 'devdocs
     (setq-local devdocs-current-docs '("cpp"))))
@@ -1294,7 +1303,7 @@ f"))
     (progn
       (vterm)
       (tab-bar-rename-tab "vterm")))
-
+  (delete-other-windows)
 
   (tab-bar-new-tab)
   (tab-bar-rename-tab "config")
