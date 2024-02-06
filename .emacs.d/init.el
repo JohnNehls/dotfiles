@@ -1344,7 +1344,7 @@ f"))
         (tab-bar-new-tab)
         (tab-bar-rename-tab "config")
         (find-file jmn-config-location)
-        (unless (eq jmn-pure nil)
+        (unless jmn-pure
           (magit-status))
 
         (tab-bar-select-tab 2))))
