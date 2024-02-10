@@ -9,7 +9,7 @@
 (defconst jmn-connected-systems '("lat" "dsk" "xps")
   "Systems which should download packages. Others get the 'pure' configuration.")
 
-(defconst jmn-connected-extras nil
+(defconst jmn-connected-extras t
   "Flag of weather to use the purely astetic packages or not on connected system")
 
 (defconst jmn-pureplus-systems '("lat")
@@ -454,7 +454,8 @@
   :after git-gutter
   :config
   (set-face-background 'git-gutter-fr:deleted  (face-background 'default))
-  (set-face-foreground 'git-gutter-fr:deleted  "red"))
+  (set-face-foreground 'git-gutter-fr:deleted  "red")
+  )
 
 (if jmn-connected-extras
     (use-package highlight-indent-guides
@@ -1140,6 +1141,8 @@ f"))
   (load-theme 'gruvbox-dark-medium t)
   (set-face-background 'line-number
                        (face-attribute 'default :background))
+  (set-face-background 'fringe
+                       (face-attribute 'default :background))
 
   ;; (set-face-foreground 'default "gray75") ;; default "#ebdbb2"
   (set-face-foreground 'default "moccasin") ;; default "#ebdbb2"
@@ -1152,6 +1155,7 @@ f"))
   (interactive)
   (disable-theme (car custom-enabled-themes))
   (load-theme 'gruvbox-dark-hard t)
+
 
   (set-face-foreground 'default "bisque2") ;; default "#ebdbb2"
 
@@ -1176,6 +1180,11 @@ f"))
   (interactive)
   (disable-theme (car custom-enabled-themes))
   (load-theme 'gruvbox-light-medium t)
+  (set-face-background 'line-number
+                       (face-attribute 'default :background))
+  (set-face-background 'fringe
+                       (face-attribute 'default :background))
+
 
   (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" ))))
 
@@ -1184,6 +1193,11 @@ f"))
   (interactive)
   (disable-theme (car custom-enabled-themes))
   (load-theme 'gruvbox-light-hard t)
+  (set-face-background 'line-number
+                       (face-attribute 'default :background))
+  (set-face-background 'fringe
+                       (face-attribute 'default :background))
+
 
   (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
                             (org-block . "#fbf1c7")))) ;; default "#f9f5d7"
@@ -1193,6 +1207,11 @@ f"))
   (interactive)
   (disable-theme (car custom-enabled-themes))
   (load-theme 'gruvbox-light-soft t)
+  (set-face-background 'line-number
+                       (face-attribute 'default :background))
+  (set-face-background 'fringe
+                       (face-attribute 'default :background))
+
 
   (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
                             (org-block . "#ebdbb2")))) ;; default "#f9f5d7"
@@ -1211,23 +1230,22 @@ f"))
 
 (defun jmn-load-pure-light-theme()
   (with-eval-after-load 'org
-    (set-face-background 'org-block "gray93")))
+    (set-face-background 'org-block "gray93")
+    (setq org-todo-keyword-faces
+          `(("NEXT" . "orange")
+            ("HOLD" . "Black")
+            ("IGNORE" . "gray60")))))
 
 (if (window-system)
     (set-frame-height (selected-frame) 62))
 
-(if jmn-pure
-    (if jmn-dark-mode
-        (if (eq system-type 'gnu/linux)  ;; pure dark linux
-            (jmn-load-pure-dark-theme)
-          (progn ;; pure dark windows
-            (print "No dark-mode for windows- setting light mode")
-            (jmn-load-pure-light-theme)))
-      (jmn-load-pure-light-theme))  ;; pure light
-
-  (if jmn-dark-mode  ;; non-pure and dark
-      (jmn-load-gruvbox-dark-hard)
-    (jmn-load-gruvbox-light-medium)))  ;; non-pure and light
+(if jmn-dark-mode
+    (if (eq system-type 'gnu/linux)
+        (if jmn-pure
+            (jmn-load-pure-dark-theme)  ;; dark, linux, pure
+          (jmn-load-gruvbox-dark-hard))  ;; dark, linux, connected
+      (jmn-load-pure-light-theme))  ;; dark, windows
+  (jmn-load-pure-light-theme))  ;; non-dark
 
 (if (eq system-type 'gnu/linux)
     (setq shell-command-switch "-ic"))  ;; add -i so it loads .bashrc (aliases!)
@@ -1369,11 +1387,11 @@ f"))
     (setq dashboard-set-file-icons t)
     (setq dashboard-projects-backend 'project-el)
     (dashboard-modify-heading-icons '((recents . "file-text")))
-    (setq dashboard-set-footer nil))
+    (setq dashboard-set-footer nil)))
 
   (defun my-dashboard-hook()
     "Needed to define these after hook for some reason"
     (define-key dashboard-mode-map (kbd "n")  'dashboard-next-line)
     (define-key dashboard-mode-map (kbd "p")  'dashboard-previous-line))
 
-  (add-hook 'dashboard-mode-hook 'my-dashboard-hook))
+  (add-hook 'dashboard-mode-hook 'my-dashboard-hook)
