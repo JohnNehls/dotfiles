@@ -117,8 +117,10 @@ Use-package is macro that is used like a package manager. [[https://github.com/j
       (repeat-mode 1))                 ; multi-key sequences can be repeated
 
   ;; hooks
-  (if jmn-pure
-      (add-hook 'before-save-hook 'whitespace-cleanup)); non-pure uses ws-butler
+  ;; This modifies too much and makes git/diffs difficult-- need to find better solution
+  ;; (if jmn-pure
+  ;;     (add-hook 'before-save-hook 'whitespace-cleanup)); non-pure uses ws-butler
+
   (unless (eq system-type 'windows-nt)
     (add-hook 'text-mode-hook 'flyspell-mode))	; enable spellcheck on text mode
 

@@ -92,8 +92,10 @@
     (repeat-mode 1))                 ; multi-key sequences can be repeated
 
 ;; hooks
-(if jmn-pure
-    (add-hook 'before-save-hook 'whitespace-cleanup)); non-pure uses ws-butler
+;; This modifies too much and makes git/diffs difficult-- need to find better solution
+;; (if jmn-pure
+;;     (add-hook 'before-save-hook 'whitespace-cleanup)); non-pure uses ws-butler
+
 (unless (eq system-type 'windows-nt)
   (add-hook 'text-mode-hook 'flyspell-mode))	; enable spellcheck on text mode
 
@@ -454,8 +456,7 @@
   :after git-gutter
   :config
   (set-face-background 'git-gutter-fr:deleted  (face-background 'default))
-  (set-face-foreground 'git-gutter-fr:deleted  "red")
-  )
+  (set-face-foreground 'git-gutter-fr:deleted  "red"))
 
 (if jmn-connected-extras
     (use-package highlight-indent-guides
@@ -1141,8 +1142,6 @@ f"))
   (load-theme 'gruvbox-dark-medium t)
   (set-face-background 'line-number
                        (face-attribute 'default :background))
-  (set-face-background 'fringe
-                       (face-attribute 'default :background))
 
   ;; (set-face-foreground 'default "gray75") ;; default "#ebdbb2"
   (set-face-foreground 'default "moccasin") ;; default "#ebdbb2"
@@ -1155,7 +1154,6 @@ f"))
   (interactive)
   (disable-theme (car custom-enabled-themes))
   (load-theme 'gruvbox-dark-hard t)
-
 
   (set-face-foreground 'default "bisque2") ;; default "#ebdbb2"
 
@@ -1180,11 +1178,6 @@ f"))
   (interactive)
   (disable-theme (car custom-enabled-themes))
   (load-theme 'gruvbox-light-medium t)
-  (set-face-background 'line-number
-                       (face-attribute 'default :background))
-  (set-face-background 'fringe
-                       (face-attribute 'default :background))
-
 
   (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" ))))
 
@@ -1193,11 +1186,6 @@ f"))
   (interactive)
   (disable-theme (car custom-enabled-themes))
   (load-theme 'gruvbox-light-hard t)
-  (set-face-background 'line-number
-                       (face-attribute 'default :background))
-  (set-face-background 'fringe
-                       (face-attribute 'default :background))
-
 
   (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
                             (org-block . "#fbf1c7")))) ;; default "#f9f5d7"
@@ -1207,11 +1195,6 @@ f"))
   (interactive)
   (disable-theme (car custom-enabled-themes))
   (load-theme 'gruvbox-light-soft t)
-  (set-face-background 'line-number
-                       (face-attribute 'default :background))
-  (set-face-background 'fringe
-                       (face-attribute 'default :background))
-
 
   (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
                             (org-block . "#ebdbb2")))) ;; default "#f9f5d7"
