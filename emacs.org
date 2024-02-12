@@ -527,7 +527,8 @@ Clear up to allow the tab-bar keybindings.
       (interactive)
       (save-excursion
         (goto-char (point-min))
-        (while (re-search-forward "(use-package " nil t)
+        ;; break up the string so it is not replaced here
+        (while (re-search-forward (concat "(" "use-package ") nil t)
           (backward-sexp)
           (backward-char)
           (kill-sexp))))
@@ -1143,13 +1144,14 @@ Either start a source block with  =<[template]= or =C-c C-,= to select from org-
 Notes:
 Use # -*- org-src-preserve-indentation: t; -*- when doing tangle/detangle with python
 #+begin_src emacs-lisp
-  (org-babel-do-load-languages 'org-babel-load-languages
-                               (append org-babel-load-languages
-                                       '((shell  . t)
-                                         (python . t)
-                                         (makefile . t)
-                                         (latex  . t)
-                                         (C      . t))))
+  (with-eval-after-load org'
+    (org-babel-do-load-languages 'org-babel-load-languages
+                                 (append org-babel-load-languages
+                                         '((shell  . t)
+                                           (python . t)
+                                           (makefile . t)
+                                           (latex  . t)
+                                           (C      . t)))))
 
   (setq org-confirm-babel-evaluate nil)
 
@@ -1199,8 +1201,9 @@ Note: I had to install texlive dependencies for latex framents to work. I found 
 
 *Font size*:
 #+begin_src emacs-lisp
-  (defconst jmn-latex-scale 1.2 "scaling factor for latex fragments")
-  (setq org-format-latex-options (plist-put org-format-latex-options :scale jmn-latex-scale))
+  (with-eval-after-load 'org
+    (defconst jmn-latex-scale 1.2 "scaling factor for latex fragments")
+    (setq org-format-latex-options (plist-put org-format-latex-options :scale jmn-latex-scale)))
 #+end_src
 
 Create a function to align the size of displayed latex framents with overall org-mode font size.
@@ -1361,7 +1364,8 @@ File holding habits must be added to =org-agenda-files= above
 - habits must have the =:STYLE: habit= property
 #+begin_src emacs-lisp
   ;; org habit;;
-  (add-to-list 'org-modules 'org-habit)
+  (with-eval-after-load 'org
+    (add-to-list 'org-modules 'org-habit))
   ;;(require 'org-habit)
   (with-eval-after-load 'org-habit
     (setq org-habit-graph-column

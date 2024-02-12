@@ -15,7 +15,7 @@
 (defconst jmn-pureplus-systems '("lat")
   "Systems which use the pure setup with the plus packages")
 
-(defconst jmn-dark-mode t
+(defconst jmn-dark-mode nil
   "Do we want Emacs in a dark mode? Note: no dark-mode for windows as of now")
 
 (defconst jmn-font-height-alist '(("xps" . 110)
@@ -402,7 +402,8 @@
     (interactive)
     (save-excursion
       (goto-char (point-min))
-      (while (re-search-forward "(use-package " nil t)
+      ;; break up the string so it is not replaced here
+      (while (re-search-forward (concat "(" "use-package ") nil t)
         (backward-sexp)
         (backward-char)
         (kill-sexp))))
@@ -791,13 +792,14 @@
 (use-package visual-fill-column
   :hook (org-mode . jmn/org-mode-visual-fill))
 
-(org-babel-do-load-languages 'org-babel-load-languages
-                             (append org-babel-load-languages
-                                     '((shell  . t)
-                                       (python . t)
-                                       (makefile . t)
-                                       (latex  . t)
-                                       (C      . t))))
+(with-eval-after-load org'
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               (append org-babel-load-languages
+                                       '((shell  . t)
+                                         (python . t)
+                                         (makefile . t)
+                                         (latex  . t)
+                                         (C      . t)))))
 
 (setq org-confirm-babel-evaluate nil)
 
@@ -839,8 +841,9 @@ f"))
 ?
 #+END_SRC")))))
 
-(defconst jmn-latex-scale 1.2 "scaling factor for latex fragments")
-(setq org-format-latex-options (plist-put org-format-latex-options :scale jmn-latex-scale))
+(with-eval-after-load 'org
+  (defconst jmn-latex-scale 1.2 "scaling factor for latex fragments")
+  (setq org-format-latex-options (plist-put org-format-latex-options :scale jmn-latex-scale)))
 
 (defun update-org-latex-fragments ()
   (org-latex-preview '(64))
@@ -961,7 +964,8 @@ f"))
 (setq org-agenda-todo-ignore-scheduled 'all) ;; cant get it to work for deadlines
 
 ;; org habit;;
-(add-to-list 'org-modules 'org-habit)
+(with-eval-after-load 'org
+  (add-to-list 'org-modules 'org-habit))
 ;;(require 'org-habit)
 (with-eval-after-load 'org-habit
   (setq org-habit-graph-column
