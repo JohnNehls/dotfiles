@@ -1207,25 +1207,37 @@ f"))
     (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
                               (org-block . "#ebdbb2"))))) ;; default "#f9f5d7"
 
+(defun jmn-set-tab-background-to-default ()
+  (dolist (face '(tab-bar tab-bar-tab tab-bar-tab-inactive))
+    (set-face-attribute  face nil
+                         :foreground (face-foreground 'default)
+                         :background (face-background 'default)
+                         :weight 'regular)))
+
 (defun jmn-load-pure-dark-theme()
   (load-theme 'wombat)
   (with-eval-after-load 'org
-    (set-face-background 'org-block "gray8"))
+    (set-face-background 'org-block "gray10")
+    (setq org-todo-keyword-faces
+          `(("TODO" . "Pink")
+            ("NEXT" . "gold2")
+            ("HOLD" . "orange3")
+            ("IGNORE" . "#99968b"))))
   (with-eval-after-load 'tab-bar
-    (dolist (face '(tab-bar tab-bar-tab tab-bar-tab-inactive))
-      (set-face-attribute  face nil
-                           :foreground (face-foreground 'default)
-                           :background (face-background 'default)
-                           :weight 'regular))
+    (jmn-set-tab-background-to-default)
     (set-face-background 'tab-bar-tab "gray25")))
 
 (defun jmn-load-pure-light-theme()
   (with-eval-after-load 'org
     (set-face-background 'org-block "gray93")
     (setq org-todo-keyword-faces
-          `(("NEXT" . "orange")
+          `(("TODO" . "Red1")
+            ("NEXT" . "orange")
             ("HOLD" . "Black")
-            ("IGNORE" . "gray60")))))
+            ("IGNORE" . "gray60"))))
+  (with-eval-after-load 'tab-bar
+    (jmn-set-tab-background-to-default)
+    (set-face-background 'tab-bar-tab "darkseagreen2")))
 
 (if (window-system)
     (set-frame-height (selected-frame) 62))
@@ -1332,24 +1344,28 @@ f"))
         (interactive)
         (tab-close-other)
         (delete-other-windows)
+        ;; TAB 1
         (tab-bar-rename-tab "gtd")
         (find-file (concat jmn-gtd-directory "projects.org"))
         (jmn-agenda)
 
+        ;; TAB 2
         (tab-bar-new-tab)
         (tab-bar-rename-tab "workspace")
         (switch-to-buffer "projects.org")
 
-        (tab-bar-new-tab)
-        (if jmn-pure
-            (progn
-              (term "/bin/bash")
-              (tab-bar-rename-tab "term"))
-          (progn
-            (vterm)
-            (tab-bar-rename-tab "vterm")))
-        (delete-other-windows)
+        ;; ;; TAB
+        ;; (tab-bar-new-tab)
+        ;; (if jmn-pure
+        ;;     (progn
+        ;;       (term "/bin/bash")
+        ;;       (tab-bar-rename-tab "term"))
+        ;;   (progn
+        ;;     (vterm)
+        ;;     (tab-bar-rename-tab "vterm")))
+        ;; (delete-other-windows)
 
+        ;; TAB 2
         (tab-bar-new-tab)
         (tab-bar-rename-tab "config")
         (find-file jmn-config-location)
