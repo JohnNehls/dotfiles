@@ -1144,7 +1144,7 @@ Either start a source block with  =<[template]= or =C-c C-,= to select from org-
 Notes:
 Use # -*- org-src-preserve-indentation: t; -*- when doing tangle/detangle with python
 #+begin_src emacs-lisp
-  (with-eval-after-load org'
+  (with-eval-after-load 'org
     (org-babel-do-load-languages 'org-babel-load-languages
                                  (append org-babel-load-languages
                                          '((shell  . t)
@@ -1156,6 +1156,7 @@ Use # -*- org-src-preserve-indentation: t; -*- when doing tangle/detangle with p
   (setq org-confirm-babel-evaluate nil)
 
   (with-eval-after-load 'org
+    (require 'org-tempo) ;; needed for <sh to complete
     (if (version<= "27" emacs-version)
         (progn
           (add-to-list 'org-structure-template-alist '("la" . "src latex"))
@@ -1357,6 +1358,10 @@ Following the tutorial [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode
          (find-file (concat jmn-gtd-directory "someday.org")))
 
   (setq org-agenda-todo-ignore-scheduled 'all) ;; cant get it to work for deadlines
+#+end_src
+*** hook
+#+begin_src emacs-lisp
+  (add-hook 'org-agenda-mode-hook 'hl-line-mode)
 #+end_src
 
 ** Habits
@@ -1589,95 +1594,95 @@ Helpful functions
 ** Theme Packages
 *** Gruvbox
 #+begin_src emacs-lisp
-    (use-package gruvbox-theme)
+  (use-package gruvbox-theme)
 
-    (defun jmn-set-gruv-org-faces (props)
-      "Function used by all gruvbox themes for setting or faces"
+  (defun jmn-set-gruv-org-faces (props)
+    "Function used by all gruvbox themes for setting or faces"
 
-      (with-eval-after-load 'org
-        (set-face-foreground 'org-priority (face-foreground font-lock-constant-face))
-        (set-face-foreground 'org-agenda-done (alist-get 'done-color props))
-        (set-face-foreground 'org-headline-done (alist-get 'done-color props))
-        (set-face-foreground 'org-done (alist-get 'done-color props))
+    (set-face-foreground 'org-priority (face-foreground font-lock-constant-face))
+    (set-face-foreground 'org-agenda-done (alist-get 'done-color props))
+    (set-face-foreground 'org-headline-done (alist-get 'done-color props))
+    (set-face-foreground 'org-done (alist-get 'done-color props))
 
-        (set-face-attribute 'org-block-begin-line nil :inherit 'font-lock-comment-face)
-        (set-face-attribute 'org-block-end-line nil :inherit 'font-lock-comment-face)
-        (set-face-background 'org-block-begin-line (face-background `default))
-        (set-face-background 'org-block-end-line (face-background `default))
+    (set-face-attribute 'org-block-begin-line nil :inherit 'font-lock-comment-face)
+    (set-face-attribute 'org-block-end-line nil :inherit 'font-lock-comment-face)
+    (set-face-background 'org-block-begin-line (face-background `default))
+    (set-face-background 'org-block-end-line (face-background `default))
 
-        (setq org-todo-keyword-faces
-              `(("NEXT" . ,(face-foreground font-lock-function-name-face))
-                ("HOLD" . ,(face-foreground font-lock-builtin-face))
-                ("DONE" . ,(alist-get 'done-color props))))
+    (setq org-todo-keyword-faces
+          `(("NEXT" . ,(face-foreground font-lock-function-name-face))
+            ("HOLD" . ,(face-foreground font-lock-builtin-face))
+            ("DONE" . ,(alist-get 'done-color props))))
 
-        (if (alist-get 'org-block props)
-            (set-face-background 'org-block (alist-get 'org-block props)))))
-
-
-    (defun jmn-load-gruvbox-dark-medium ()
-      "Theme for dark time"
-      (interactive)
-      (disable-theme (car custom-enabled-themes))
-      (load-theme 'gruvbox-dark-medium t)
-      (set-face-background 'line-number
-                           (face-attribute 'default :background))
-
-      ;; (set-face-foreground 'default "gray75") ;; default "#ebdbb2"
-      (set-face-foreground 'default "moccasin") ;; default "#ebdbb2"
-      (set-face-foreground 'font-lock-comment-face  "#98be65") ;; default "#ebdbb2"
-      (jmn-set-gruv-org-faces '((done-color . "gray35" ))))
+    (if (alist-get 'org-block props)
+        (set-face-background 'org-block (alist-get 'org-block props))))
 
 
-    (defun jmn-load-gruvbox-dark-hard ()
-      "Theme for very dark time"
-      (interactive)
-      (disable-theme (car custom-enabled-themes))
-      (load-theme 'gruvbox-dark-hard t)
+  (defun jmn-load-gruvbox-dark-medium ()
+    "Theme for dark time"
+    (interactive)
+    (disable-theme (car custom-enabled-themes))
+    (load-theme 'gruvbox-dark-medium t)
+    (set-face-background 'line-number
+                         (face-attribute 'default :background))
 
-      (set-face-foreground 'default "bisque2") ;; default "#ebdbb2"
+    ;; (set-face-foreground 'default "gray75") ;; default "#ebdbb2"
+    (set-face-foreground 'default "moccasin") ;; default "#ebdbb2"
+    (set-face-foreground 'font-lock-comment-face  "#98be65") ;; default "#ebdbb2"
+    (with-eval-after-load 'org
+      (jmn-set-gruv-org-faces '((done-color . "gray35" )))))
 
-      (set-face-background 'mode-line-inactive "gray22")
-      (set-face-background 'mode-line-active   "gray35")
 
-      (set-face-background 'line-number
-                           (face-attribute 'default :background))
-      (set-face-background 'fringe
-                           (face-attribute 'default :background))
+  (defun jmn-load-gruvbox-dark-hard ()
+    "Theme for very dark time"
+    (interactive)
+    (disable-theme (car custom-enabled-themes))
+    (load-theme 'gruvbox-dark-hard t)
 
-      (set-face-foreground 'font-lock-comment-face  "#98be65") ;; default "#ebdbb2"
-      (set-face-foreground 'font-lock-string-face  "LightGoldenrod3")
-      (set-face-foreground 'font-lock-builtin-face  "Orange3")
+    (set-face-foreground 'default "bisque2") ;; default "#ebdbb2"
+
+    (set-face-background 'mode-line-inactive "gray22")
+    (set-face-background 'mode-line-active   "gray35")
+
+    (set-face-background 'line-number
+                         (face-attribute 'default :background))
+    (set-face-background 'fringe
+                         (face-attribute 'default :background))
+
+    (set-face-foreground 'font-lock-comment-face  "#98be65") ;; default "#ebdbb2"
+    (set-face-foreground 'font-lock-string-face  "LightGoldenrod3")
+    (set-face-foreground 'font-lock-builtin-face  "Orange3")
+    (with-eval-after-load 'org
       (jmn-set-gruv-org-faces '((done-color . "gray35" )
                                 (org-block-begin-line . "gray14")
                                 (org-block-end-line . "gray14")
-                                (org-block . "gray7"))))
+                                (org-block . "gray7")))))
 
-    (defun jmn-load-gruvbox-light-medium()
-      "Theme for light time"
-      (interactive)
-      (disable-theme (car custom-enabled-themes))
-      (load-theme 'gruvbox-light-medium t)
+  (defun jmn-load-gruvbox-light-medium()
+    "Theme for light time"
+    (interactive)
+    (disable-theme (car custom-enabled-themes))
+    (load-theme 'gruvbox-light-medium t)
+    (with-eval-after-load 'org
+      (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )))))
 
-      (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" ))))
-
-    (defun jmn-load-gruvbox-light-hard()
-      "Theme for very light time"
-      (interactive)
-      (disable-theme (car custom-enabled-themes))
-      (load-theme 'gruvbox-light-hard t)
-
+  (defun jmn-load-gruvbox-light-hard()
+    "Theme for very light time"
+    (interactive)
+    (disable-theme (car custom-enabled-themes))
+    (load-theme 'gruvbox-light-hard t)
+    (with-eval-after-load 'org
       (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
-                                (org-block . "#fbf1c7")))) ;; default "#f9f5d7"
+                                (org-block . "#fbf1c7"))))) ;; default "#f9f5d7"
 
-      (defun jmn-load-gruvbox-light-soft()
-      "Theme for very light time"
-      (interactive)
-      (disable-theme (car custom-enabled-themes))
-      (load-theme 'gruvbox-light-soft t)
-
+  (defun jmn-load-gruvbox-light-soft()
+    "Theme for very light time"
+    (interactive)
+    (disable-theme (car custom-enabled-themes))
+    (load-theme 'gruvbox-light-soft t)
+    (with-eval-after-load 'org
       (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
-                                (org-block . "#ebdbb2")))) ;; default "#f9f5d7"
-
+                                (org-block . "#ebdbb2"))))) ;; default "#f9f5d7"
 #+end_src
 
 ** Pure Themes
