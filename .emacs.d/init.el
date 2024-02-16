@@ -398,20 +398,33 @@
   (dolist (num '("1" "2" "3" "4" "5" "6" "7" "8" "9"))
     (define-key modemap (kbd (concat "M-" num)) nil)))
 
-(defun remove-use-package-sexps ()
-    (interactive)
-    (save-excursion
-      (goto-char (point-min))
-      ;; break up the string so it is not replaced here
-      (while (re-search-forward (concat "(" "use-package ") nil t)
-        (backward-sexp)
-        (backward-char)
-        (kill-sexp))))
+(defun remove-function-sexps (functionName)
+     (save-excursion
+       (goto-char (point-min))
+       ;; break up the string so it is not replaced here
+       (while (re-search-forward (concat "(" functionName) nil t)
+         (backward-sexp)
+         (backward-char)
+         (kill-sexp))))
 
-(defun remove-use-package-sexps-and-save ()
-  (interactive)
-  (remove-use-package-sexps)
-  (save-buffer))
+(defun remove-if-var-sexps (varName)
+     (save-excursion
+       (goto-char (point-min))
+       ;; break up the string so it is not replaced here
+       (while (re-search-forward (concat "(if " varName) nil t)
+         (backward-sexp)
+         (backward-sexp)
+         (backward-char)
+         (kill-sexp))))
+
+ (defun purify-my-config-and-save ()
+   (interactive)
+   (find-file "~/.emacs.d/init.el")
+   (remove-function-sexps "use-package")
+   (remove-if-var-sexps "jmn-connected-extras")
+   (set-visited-file-name "~/.emacs.d/pure_init.el")
+   (save-buffer)
+   (kill-current-buffer))
 
 (use-package dtrt-indent
   :hook (prog-mode . (lambda () (dtrt-indent-mode 1))))
@@ -699,9 +712,9 @@
 (add-to-list 'auto-mode-alist '("\\.m$" . octave-mode))
 
 (use-package markdown-mode
-   :defer t
-   :hook (markdown-mode-hook . (lambda ()
-                                 (flyspell-mode))))
+  :defer t
+  :hook ((markdown-mode-hook .  flyspell-mode)
+         (markdown-mode-hook .  visual-line-mode)))
 
 (use-package  markdown-preview-mode
   :defer t)
@@ -804,9 +817,10 @@
 (setq org-confirm-babel-evaluate nil)
 
 (with-eval-after-load 'org
-  (require 'org-tempo) ;; needed for <sh to complete
+
   (if (version<= "27" emacs-version)
       (progn
+        (require 'org-tempo) ;; needed for <sh to complete on new systems -- works without on v 26.1
         (add-to-list 'org-structure-template-alist '("la" . "src latex"))
         (add-to-list 'org-structure-template-alist '("m" . "src makefile"))
         (add-to-list 'org-structure-template-alist '("js" . "src js"))
@@ -892,8 +906,11 @@ f"))
 (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "HOLD(h)" "|"
                                     "DONE(d)" "IGNORE(i)")))
 
-(require 'find-lisp) ;; may not be needed
-(setq org-agenda-files (find-lisp-find-files jmn-gtd-directory "\.org$"))
+(require 'find-lisp) ;; may not be needed"\\.\\(org\\|org_archived\\)$"
+
+; use "\.org$" or ".*\\.\\(org\\|org_archived\\)$" exclude or include archives
+(setq org-agenda-files (find-lisp-find-files jmn-gtd-directory
+                                              ".*\\.\\(org\\|org_archive\\)$"))
 
 ;; level/maxlevel = order in hierarchy
 (setq org-refile-targets
