@@ -15,7 +15,7 @@
 (defconst jmn-pureplus-systems '("lat")
   "Systems which use the pure setup with the plus packages")
 
-(defconst jmn-dark-mode t
+(defconst jmn-dark-mode nil
   "Do we want Emacs in a dark mode? Note: no dark-mode for windows as of now")
 
 (defconst jmn-font-height-alist '(("xps" . 110)
@@ -502,6 +502,7 @@
   :defer t
   :bind (("C-c t" . treemacs ))
   :config
+  (treemacs-project-follow-mode t) ;; open root of selected file in treemacs
   (setq treemacs-width 30))
 
 (if jmn-connected-extras
@@ -908,9 +909,9 @@ f"))
 
 (require 'find-lisp) ;; may not be needed"\\.\\(org\\|org_archived\\)$"
 
-; use "\.org$" or ".*\\.\\(org\\|org_archived\\)$" exclude or include archives
+; use "\.org$" or "\\.\\(org\\|org_archived\\)$" exclude or include archives
 (setq org-agenda-files (find-lisp-find-files jmn-gtd-directory
-                                              ".*\\.\\(org\\|org_archive\\)$"))
+                                              ".*\\.\\(org\\|org_archive\\)$"))               ;; "\\.\\(org\\|org_archive\\)$"))
 
 ;; level/maxlevel = order in hierarchy
 (setq org-refile-targets
@@ -1369,7 +1370,9 @@ f"))
         ;; TAB 2
         (tab-bar-new-tab)
         (tab-bar-rename-tab "workspace")
-        (switch-to-buffer "projects.org")
+        (dired "/home/ape/Programming/projects/RDM/basics")
+        (unless jmn-pure
+          (magit-status))
 
         ;; ;; TAB
         ;; (tab-bar-new-tab)
@@ -1382,7 +1385,7 @@ f"))
         ;;     (tab-bar-rename-tab "vterm")))
         ;; (delete-other-windows)
 
-        ;; TAB 2
+        ;; TAB N
         (tab-bar-new-tab)
         (tab-bar-rename-tab "config")
         (find-file jmn-config-location)
