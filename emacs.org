@@ -1834,6 +1834,45 @@ source: https://github.com/syl20bnr/spacemacs/issues/7262
       (add-hook 'window-setup-hook 'jmn-set-background-unspecified))
 #+end_src
 
+** Org LaTeX Preview
+For unknown reasons I must change =("dvipng -D %D -T tight -o %O %f")= to =("dvipng -D %D -T tight -o %O %F")= to preview LaTeX in org-mode. All of the code below is used only to make this one small change.
+
+#+begin_src emacs-lisp
+  (setq org-preview-latex-process-alist
+        '((dvipng :programs
+                  ("latex" "dvipng")
+                  :description "dvi > png" :message "you need to install the programs: latex and dvipng." :image-input-type "dvi" :image-output-type "png" :image-size-adjust
+                  (1.0 . 1.0)
+                  :latex-compiler
+                  ("latex -interaction nonstopmode -output-directory %o %f")
+                  :image-converter
+                  ("dvipng -D %D -T tight -o %O %F")
+                  :transparent-image-converter
+                  ("dvipng -D %D -T tight -bg Transparent -o %O %f"))
+          (dvisvgm :programs
+                   ("latex" "dvisvgm")
+                   :description "dvi > svg" :message "you need to install the programs: latex and dvisvgm." :image-input-type "dvi" :image-output-type "svg" :image-size-adjust
+                   (1.7 . 1.5)
+                   :latex-compiler
+                   ("latex -interaction nonstopmode -output-directory %o %f")
+                   :image-converter
+                   ("dvisvgm %f --no-fonts --exact-bbox --scale=%S --output=%O"))
+          (imagemagick :programs
+                       ("latex" "convert")
+                       :description "pdf > png" :message "you need to install the programs: latex and imagemagick." :image-input-type "pdf" :image-output-type "png" :image-size-adjust
+                       (1.0 . 1.0)
+                       :latex-compiler
+                       ("pdflatex -interaction nonstopmode -output-directory %o %f")
+                       :image-converter
+                       ("convert -density %D -trim -antialias %f -quality 100 %O"))))
+#+end_src
+
+** Setting Org-figures width
+- Won't work with =#+ATTR_ORG :width 600=
+- This will set it globally for the time being
+#+begin_src emacs-lisp
+(setq org-image-actual-width 600)
+#+end_src
 * Startup and Tabs
 ** Recentf
 Recentf is needed for recent files on the dashboard.
