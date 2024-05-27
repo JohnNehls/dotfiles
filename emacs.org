@@ -1212,16 +1212,16 @@ Note: I had to install texlive dependencies for latex framents to work. I found 
 - =sudo dnf install texlive-scheme-full=
 -  texlive-ulem
 
-*Font size*:
+*** Set in-line LaTeX's relative font size
 #+begin_src emacs-lisp
   (with-eval-after-load 'org
-    (defconst jmn-latex-scale 1.2 "scaling factor for latex fragments")
+    (defconst jmn-latex-scale 1.1 "scaling factor for latex fragments")
     (setq org-format-latex-options (plist-put org-format-latex-options :scale jmn-latex-scale)))
 #+end_src
 
+*** In-line LaTeX size when buffer scale is changed
 Create a function to align the size of displayed latex framents with overall org-mode font size.
-
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (defun update-org-latex-fragments ()
     (org-latex-preview '(64))
     (plist-put org-format-latex-options :scale
@@ -1231,6 +1231,7 @@ Create a function to align the size of displayed latex framents with overall org
 #+end_src
 
 *** org-fragtog
+Automatically toggle between displaying and editing LaTeX depending on the cursor's position.
 #+begin_src emacs-lisp
   (unless jmn-pure
     (use-package org-fragtog

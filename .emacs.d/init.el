@@ -104,14 +104,6 @@
 (setq auto-revert-use-notify nil)		; don't notify?
 (setq auto-revert-verbose nil)			;
 
-;; Set scratch buffer to be in org-mode and modify initial message ;; I don't want this anymore
-(setq initial-major-mode 'org-mode)
-(setq initial-scratch-message "* *Scratch Buffer*\n\n")
-
-;; ;; Open text files in Org-Mode
-;; (add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode))
-;; (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
-
 ;; Buffer Menu
 (add-hook 'Buffer-menu-mode-hook 'hl-line-mode)
 
@@ -774,8 +766,8 @@
 
 (with-eval-after-load 'org
   (jmn/org-font-setup)
-  ;; (unless (or jmn-term jmn-pure)
-  ;;   (setq org-ellipsis " ▾"))
+  (unless (or jmn-term jmn-pure)
+    (setq org-ellipsis " ▾"))
   (setq org-hide-emphasis-markers t
         org-src-fontify-natively t
         org-fontify-quote-and-verse-blocks t
@@ -863,15 +855,13 @@ f"))
 #+END_SRC")))))
 
 (with-eval-after-load 'org
-  (defconst jmn-latex-scale 1.2 "scaling factor for latex fragments")
+  (defconst jmn-latex-scale 1.1 "scaling factor for latex fragments")
   (setq org-format-latex-options (plist-put org-format-latex-options :scale jmn-latex-scale)))
 
-(defun update-org-latex-fragments ()
-  (org-latex-preview '(64))
-  (plist-put org-format-latex-options :scale
-             (+ jmn-latex-scale  (* 0.3 text-scale-mode-amount)))
-  (org-latex-preview '(16)))
-(add-hook 'text-scale-mode-hook 'update-org-latex-fragments)
+(unless jmn-pure
+  (use-package org-fragtog
+    :hook
+    (org-mode . org-fragtog-mode)))
 
 (global-set-key (kbd "C-c x") #'org-html-export-to-html)
 (global-set-key (kbd "C-c s") #'org-store-link)
@@ -1326,6 +1316,36 @@ f"))
 (if jmn-term
     (add-hook 'window-setup-hook 'jmn-set-background-unspecified))
 
+(setq org-preview-latex-process-alist
+      '((dvipng :programs
+                ("latex" "dvipng")
+                :description "dvi > png" :message "you need to install the programs: latex and dvipng." :image-input-type "dvi" :image-output-type "png" :image-size-adjust
+                (1.0 . 1.0)
+                :latex-compiler
+                ("latex -interaction nonstopmode -output-directory %o %f")
+                :image-converter
+                ("dvipng -D %D -T tight -o %O %F")
+                :transparent-image-converter
+                ("dvipng -D %D -T tight -bg Transparent -o %O %f"))
+        (dvisvgm :programs
+                 ("latex" "dvisvgm")
+                 :description "dvi > svg" :message "you need to install the programs: latex and dvisvgm." :image-input-type "dvi" :image-output-type "svg" :image-size-adjust
+                 (1.7 . 1.5)
+                 :latex-compiler
+                 ("latex -interaction nonstopmode -output-directory %o %f")
+                 :image-converter
+                 ("dvisvgm %f --no-fonts --exact-bbox --scale=%S --output=%O"))
+        (imagemagick :programs
+                     ("latex" "convert")
+                     :description "pdf > png" :message "you need to install the programs: latex and imagemagick." :image-input-type "pdf" :image-output-type "png" :image-size-adjust
+                     (1.0 . 1.0)
+                     :latex-compiler
+                     ("pdflatex -interaction nonstopmode -output-directory %o %f")
+                     :image-converter
+                     ("convert -density %D -trim -antialias %f -quality 100 %O"))))
+
+(setq org-image-actual-width 600)
+
 (recentf-mode 1) ;; needed for recent files in dashboard
 (setq recentf-max-menu-items 25) ;; max number of entries
 (run-at-time nil (* 5 60) 'recentf-save-list) ;; save recent files periodically
@@ -1405,6 +1425,8 @@ f"))
     :init     (dashboard-setup-startup-hook)
     :bind ( "C-c d" . dashboard-open)
     :config
+    (setq dashboard-banner-logo-title "Habits, not goals.")
+
     (setq dashboard-startup-banner 2)  ;; (nil . no-banner)  ([1-5] . plain-text banners)
     (setq dashboard-center-content 1)
     (setq dashboard-show-shortcuts 1)  ;; show the single-character shortcuts
@@ -1427,3 +1449,4 @@ f"))
     (define-key dashboard-mode-map (kbd "p")  'dashboard-previous-line))
 
   (add-hook 'dashboard-mode-hook 'my-dashboard-hook)
+  (add-hook 'dashboard-mode-hook 'hl-line-mode)
