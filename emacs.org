@@ -129,13 +129,8 @@ Use-package is macro that is used like a package manager. [[https://github.com/j
   (setq auto-revert-use-notify nil)		; don't notify?
   (setq auto-revert-verbose nil)			;
 
-  ;; Set scratch buffer to be in org-mode and modify initial message
-  (setq initial-major-mode 'org-mode)
-  (setq initial-scratch-message "**Scratch Buffer**\n\n")
-
-  ;; Open text files in Org-Mode
-  ;; (add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode))
-  ;; (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
+  ;; Buffer Menu
+  (add-hook 'Buffer-menu-mode-hook 'hl-line-mode)
 #+end_src
 
 *** Backup files
@@ -309,7 +304,9 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
 - M-x du  shows the size of the files in the buffer (toggle for human readable)
 #+begin_src emacs-lisp
   ;;;; Dired ;;;;
-  (add-hook 'dired-mode-mode 'dired-hide-details-mode) ;; hide default -- '(' to toggle
+  ;; (add-hook 'dired-mode-hook 'dired-hide-details-mode) ;; hide default -- '(' to toggle
+  (add-hook 'dired-mode-hook 'hl-line-mode)
+
   (with-eval-after-load 'dired
     (setq dired-listing-switches "-agho --group-directories-first" )
     (setq find-ls-option '("-print0 | xargs -0 ls -agho" . ""))
@@ -1233,6 +1230,14 @@ Create a function to align the size of displayed latex framents with overall org
   (add-hook 'text-scale-mode-hook 'update-org-latex-fragments)
 #+end_src
 
+*** org-fragtog
+#+begin_src emacs-lisp
+  (unless jmn-pure
+    (use-package org-fragtog
+      :hook
+      (org-mode . org-fragtog-mode)))
+#+end_src
+
 ** Keybindings
 #+begin_src emacs-lisp
   (global-set-key (kbd "C-c x") #'org-html-export-to-html)
@@ -1921,6 +1926,8 @@ Dash board for initial startup of emacs. [[https://github.com/emacs-dashboard/em
       :init     (dashboard-setup-startup-hook)
       :bind ( "C-c d" . dashboard-open)
       :config
+      (setq dashboard-banner-logo-title "Habits, not goals.")
+
       (setq dashboard-startup-banner 2)  ;; (nil . no-banner)  ([1-5] . plain-text banners)
       (setq dashboard-center-content 1)
       (setq dashboard-show-shortcuts 1)  ;; show the single-character shortcuts
@@ -1943,6 +1950,8 @@ Dash board for initial startup of emacs. [[https://github.com/emacs-dashboard/em
       (define-key dashboard-mode-map (kbd "p")  'dashboard-previous-line))
 
     (add-hook 'dashboard-mode-hook 'my-dashboard-hook)
+    (add-hook 'dashboard-mode-hook 'hl-line-mode)
+
 #+end_src
 * Localwords                                                       :noexport:
 #  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell  Dired dracula clangd ui Grammarly workspaces commenter Pyright CMake Flyspell Pyvenv treemacs shellcheck Linum Proced Hacky GTD

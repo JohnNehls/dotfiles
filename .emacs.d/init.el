@@ -104,13 +104,16 @@
 (setq auto-revert-use-notify nil)		; don't notify?
 (setq auto-revert-verbose nil)			;
 
-;; Set scratch buffer to be in org-mode and modify initial message
+;; Set scratch buffer to be in org-mode and modify initial message ;; I don't want this anymore
 (setq initial-major-mode 'org-mode)
-(setq initial-scratch-message "**Scratch Buffer**\n\n")
+(setq initial-scratch-message "* *Scratch Buffer*\n\n")
 
-;; Open text files in Org-Mode
+;; ;; Open text files in Org-Mode
 ;; (add-to-list 'auto-mode-alist '("\\.text\\'" . org-mode))
 ;; (add-to-list 'auto-mode-alist '("\\.txt\\'" . org-mode))
+
+;; Buffer Menu
+(add-hook 'Buffer-menu-mode-hook 'hl-line-mode)
 
 (setq backup-directory-alist
       '( ("." . "~/.emacs.d/filebackups")))
@@ -244,7 +247,9 @@
 (global-set-key (kbd "C-c =") 'vc-diff) ;; also bound to "C-x v ="
 
 ;;;; Dired ;;;;
-(add-hook 'dired-mode-mode 'dired-hide-details-mode) ;; hide default -- '(' to toggle
+;; (add-hook 'dired-mode-hook 'dired-hide-details-mode) ;; hide default -- '(' to toggle
+(add-hook 'dired-mode-hook 'hl-line-mode)
+
 (with-eval-after-load 'dired
   (setq dired-listing-switches "-agho --group-directories-first" )
   (setq find-ls-option '("-print0 | xargs -0 ls -agho" . ""))
@@ -769,8 +774,8 @@
 
 (with-eval-after-load 'org
   (jmn/org-font-setup)
-  (unless (or jmn-term jmn-pure)
-    (setq org-ellipsis " ▾"))
+  ;; (unless (or jmn-term jmn-pure)
+  ;;   (setq org-ellipsis " ▾"))
   (setq org-hide-emphasis-markers t
         org-src-fontify-natively t
         org-fontify-quote-and-verse-blocks t
