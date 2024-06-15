@@ -106,6 +106,7 @@
 
 ;; Buffer Menu
 (add-hook 'Buffer-menu-mode-hook 'hl-line-mode)
+(add-hook 'bookmark-bmenu-mode-hook 'hl-line-mode)
 
 (setq backup-directory-alist
       '( ("." . "~/.emacs.d/filebackups")))
