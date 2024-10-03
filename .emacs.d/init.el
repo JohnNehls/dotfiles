@@ -15,7 +15,7 @@
 (defconst jmn-pureplus-systems '("lat")
   "Systems which use the pure setup with the plus packages")
 
-(defconst jmn-dark-mode nil
+(defconst jmn-dark-mode t
   "Do we want Emacs in a dark mode? Note: no dark-mode for windows as of now")
 
 (defconst jmn-font-height-alist '(("xps" . 110)
@@ -560,7 +560,10 @@
 
 ;; free up C-; for evil-nerd-commenter
 (with-eval-after-load 'flyspell
-    (define-key flyspell-mode-map (kbd "C-;") nil))
+  (define-key flyspell-mode-map (kbd "C-;") nil))
+   ;; (progn
+   ;;   (define-key flyspell-mode-map (kbd "C-;") nil)
+   ;;   (define-key flyspell-mode-map (kbd "M-;") flyspell-auto-correct-previous-word)))
 
 (use-package evil-nerd-commenter
 :bind ("C-;". evilnc-comment-or-uncomment-lines))
@@ -1256,7 +1259,7 @@ f"))
     (set-face-background 'tab-bar-tab "darkseagreen2")))
 
 (if (window-system)
-    (set-frame-height (selected-frame) 62))
+    (set-frame-height (selected-frame) 52))
 
 (if jmn-dark-mode
     (if (eq system-type 'gnu/linux)
@@ -1399,7 +1402,7 @@ f"))
         ;; TAB 2
         (tab-bar-new-tab)
         (tab-bar-rename-tab "workspace")
-        (dired "/home/ape/Programming/projects/RDM/basics")
+        (dired "/home/ape/Programming/projects/RDM/RSP")
         (unless jmn-pure
           (magit-status))
 

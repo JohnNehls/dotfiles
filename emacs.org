@@ -25,7 +25,7 @@ Hopefully only need to change these to get setup on a new machine.
   (defconst jmn-pureplus-systems '("lat")
     "Systems which use the pure setup with the plus packages")
 
-  (defconst jmn-dark-mode nil
+  (defconst jmn-dark-mode t
     "Do we want Emacs in a dark mode? Note: no dark-mode for windows as of now")
 
   (defconst jmn-font-height-alist '(("xps" . 110)
@@ -776,7 +776,10 @@ Archive: elpa, melpa
 #+begin_src emacs-lisp
   ;; free up C-; for evil-nerd-commenter
   (with-eval-after-load 'flyspell
-      (define-key flyspell-mode-map (kbd "C-;") nil))
+    (define-key flyspell-mode-map (kbd "C-;") nil))
+     ;; (progn
+     ;;   (define-key flyspell-mode-map (kbd "C-;") nil)
+     ;;   (define-key flyspell-mode-map (kbd "M-;") flyspell-auto-correct-previous-word)))
 #+end_src
 
 ** TODO Evil nerd commenter
@@ -1750,7 +1753,7 @@ Helpful functions
 ** Frame Height
 #+begin_src emacs-lisp
   (if (window-system)
-      (set-frame-height (selected-frame) 62))
+      (set-frame-height (selected-frame) 52))
 #+end_src
 ** Default and time switches
 #+begin_src emacs-lisp
@@ -1810,19 +1813,20 @@ Major changes for windows. Small changes also exist in the rest of the config.
 ** Keep transparency when toggling to full-screen in Emacs 29+
 Was needed at one point-- keeping just in case it is need in the future.
 #+begin_src emacs-lisp
-  (if (version<= "29" emacs-version)
-      (progn
-        (defun toggle-full-screen-with-transparency ()
-          "Toggle full screen and adjust frame transparency."
-          (interactive)
-          (let ((current-alpha (frame-parameter nil 'alpha-background)))
-            (transparency 100)
-            (toggle-frame-fullscreen)
-            (sit-for 0.7)
-            (transparency current-alpha)
-            ))
-        (global-unset-key (kbd "<f11>"))
-        (global-set-key (kbd "<f11>") 'toggle-full-screen-with-transparency)))
+    (if (version<= "29" emacs-version)
+        (progn
+          (defun toggle-full-screen-with-transparency ()
+            "Toggle full screen and adjust frame transparency."
+            (interactive)
+            (let ((current-alpha (frame-parameter nil 'alpha-background)))
+              (transparency 100)
+              (toggle-frame-fullscreen)
+              (sit-for 0.7)
+              (transparency current-alpha)
+              ))
+          ;; (global-unset-key (kbd "<f11>"))
+          ;; (global-set-key (kbd "<f11>") 'toggle-full-screen-with-transparency)
+          ))
 #+end_src
 
 ** Transparency in term (=emacs -nw=)
@@ -1933,7 +1937,7 @@ Recentf is needed for recent files on the dashboard.
           ;; TAB 2
           (tab-bar-new-tab)
           (tab-bar-rename-tab "workspace")
-          (dired "/home/ape/Programming/projects/RDM/basics")
+          (dired "/home/ape/Programming/projects/RDM/RSP")
           (unless jmn-pure
             (magit-status))
 
