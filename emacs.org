@@ -327,7 +327,10 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
                                          ("\\.html\\'" "firefox")
                                          ("\\.epub\\'" "ebook-viewer")
                                          ("\\.pdf\\'" "evince")
-                                         ("\\.ipynb\\'" "code"))))
+                                         ("\\.ipynb\\'" "code")
+                                         ("\\.py\\'" "python")
+                                         ("\\.sh\\'" "bash"))))
+
 
   ;; sluggish mode which lists the recursive size of each folder/item in dired.
   (use-package dired-du
@@ -579,8 +582,7 @@ Archive: melpa
   (use-package rainbow-delimiters
     :defer t
     :hook ((prog-mode . rainbow-delimiters-mode)
-      (org-mode . (lambda () (rainbow-delimiters-mode 0))))
-    )
+      (org-mode . (lambda () (rainbow-delimiters-mode 0)))))
 #+end_src
 
 *** Smartparens
@@ -772,16 +774,16 @@ Archive: elpa, melpa
 =C-,=    flyspell-goto-next-error
 =C-.=    flyspell-auto-correct-word
 #+begin_src emacs-lisp
-  ;; free up C-; for goto-last change
-  ;; (with-eval-after-load 'flyspell
-  ;;     (define-key flyspell-mode-map (kbd "C-;") nil))
+  ;; free up C-; for evil-nerd-commenter
+  (with-eval-after-load 'flyspell
+      (define-key flyspell-mode-map (kbd "C-;") nil))
 #+end_src
 
 ** TODO Evil nerd commenter
 Archive: melpa
 #+begin_src emacs-lisp
   (use-package evil-nerd-commenter
-  :bind ("M-;". evilnc-comment-or-uncomment-lines))
+  :bind ("C-;". evilnc-comment-or-uncomment-lines))
 #+end_src
 
 ** Tree Sitter Highlighting

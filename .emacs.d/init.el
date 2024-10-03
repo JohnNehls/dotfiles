@@ -262,7 +262,10 @@
                                        ("\\.html\\'" "firefox")
                                        ("\\.epub\\'" "ebook-viewer")
                                        ("\\.pdf\\'" "evince")
-                                       ("\\.ipynb\\'" "code"))))
+                                       ("\\.ipynb\\'" "code")
+                                       ("\\.py\\'" "python")
+                                       ("\\.sh\\'" "bash"))))
+
 
 ;; sluggish mode which lists the recursive size of each folder/item in dired.
 (use-package dired-du
@@ -439,8 +442,7 @@
 (use-package rainbow-delimiters
   :defer t
   :hook ((prog-mode . rainbow-delimiters-mode)
-    (org-mode . (lambda () (rainbow-delimiters-mode 0))))
-  )
+    (org-mode . (lambda () (rainbow-delimiters-mode 0)))))
 
 (use-package smartparens
   :hook (prog-mode . smartparens-mode))
@@ -556,12 +558,12 @@
   (use-package yasnippet-snippets
     :after yas-minor-mode))  ;; load basic snippets from melpa
 
-;; free up C-; for goto-last change
-;; (with-eval-after-load 'flyspell
-;;     (define-key flyspell-mode-map (kbd "C-;") nil))
+;; free up C-; for evil-nerd-commenter
+(with-eval-after-load 'flyspell
+    (define-key flyspell-mode-map (kbd "C-;") nil))
 
 (use-package evil-nerd-commenter
-:bind ("M-;". evilnc-comment-or-uncomment-lines))
+:bind ("C-;". evilnc-comment-or-uncomment-lines))
 
 (use-package tree-sitter-langs
   :hook ((sh-mode . tree-sitter-hl-mode)
@@ -1305,8 +1307,9 @@ f"))
           (sit-for 0.7)
           (transparency current-alpha)
           ))
-      (global-unset-key (kbd "<f11>"))
-      (global-set-key (kbd "<f11>") 'toggle-full-screen-with-transparency)))
+      ;; (global-unset-key (kbd "<f11>"))
+      ;; (global-set-key (kbd "<f11>") 'toggle-full-screen-with-transparency)
+      ))
 
 (defun jmn-set-background-unspecified ()
   "Set background of buffer and line numbers to unspecified"
@@ -1454,17 +1457,3 @@ f"))
 
 (unless jmn-pure
 (use-package hnreader))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(gnus-secondary-select-methods 'nil)
- '(gnus-select-method '(nnnil ""))
- '(package-selected-packages nil))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
