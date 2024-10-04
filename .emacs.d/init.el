@@ -582,6 +582,9 @@
 (use-package yaml-mode
   :defer t)
 
+(use-package toml-mode
+  :defer t)
+
 (use-package dockerfile-mode
   :defer t)
 

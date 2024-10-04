@@ -1,4 +1,12 @@
-#+title: pycodestyle configuration and linting notes
+* Linting Python
+
+** Ruff
+configuration file [[file:ruff.toml][ruff.toml]]
+#+begin_src shell
+    ruff check . --fix
+    ruff format
+#+end_src
+** pycodestyle configuration and linting notes
 
 https://pycodestyle.pycqa.org/en/latest/intro.html
 
@@ -10,16 +18,22 @@ https://pycodestyle.pycqa.org/en/latest/intro.html
   statistics = True
 #+end_src
 
-* autopep8
+** autopep8
 Can then use autopep8 to format the file.
 - uses pycodestyle configuration from above
 https://pypi.org/project/autopep8/
 
+*** install
 #+begin_src shell
- autopep8 --in-place --aggressive --aggressive <filename>
+sudo dnf install python3-autopep8
 #+end_src
 
-* flake8
+*** running
+#+begin_src shell
+ autopep8 --in-place --aggressive <filename>
+#+end_src
+
+** flake8
 Or we can use flake8 to report issues (can it modify the file?)
 
 #+begin_src shell
