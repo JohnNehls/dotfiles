@@ -661,10 +661,15 @@
               '(pyvenv-virtual-env-name ("[venv:" pyvenv-virtual-env-name "] ")))
         (pyvenv-mode t))
 
-;;;; Python-mode ;;;;
 (with-eval-after-load 'python
+  ;; if emacs is not run from a terminal, we need to add the PYTHONPATH set in .bashrc
+  (unless (getenv "PYTHONPATH")
+    (setenv "PYTHONPATH" (shell-command-to-string "$SHELL --login -c 'echo -n $PYTHONPATH'")))
+  ;; allow completion
   (setq python-shell-completion-native-enable 1)
+  ;; keybindings
   (define-key python-mode-map (kbd "C-RET") 'python-shell-send-statement)
+  ;; use ipython for interpreter if it exists
   (if (executable-find "ipython")
       (progn (setq python-shell-interpreter "ipython")
              (setq python-shell-interpreter-args "-i --simple-prompt"))))
@@ -776,7 +781,8 @@
 (with-eval-after-load 'org
   (jmn/org-font-setup)
   (unless (or jmn-term jmn-pure)
-    (setq org-ellipsis " ▾"))
+    (progn (setq org-ellipsis " ▾")
+           (set-face-underline 'org-ellipsis nil)))
   (setq org-hide-emphasis-markers t
         org-src-fontify-natively t
         org-fontify-quote-and-verse-blocks t
