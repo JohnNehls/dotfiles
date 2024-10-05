@@ -462,8 +462,8 @@
 
 (use-package git-gutter
   :hook ((prog-mode . git-gutter-mode)
-         (org-mode . git-gutter-mode)
-         (text-mode . git-gutter-mode))
+         ;; (text-mode . git-gutter-mode) ;; effects org-ellipsis
+         )
   :config (setq git-gutter:update-interval 0.02))
 
 (use-package git-gutter-fringe
