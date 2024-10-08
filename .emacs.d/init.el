@@ -15,7 +15,7 @@
 (defconst jmn-pureplus-systems '("lat")
   "Systems which use the pure setup with the plus packages")
 
-(defconst jmn-dark-mode t
+(defconst jmn-dark-mode nil
   "Do we want Emacs in a dark mode? Note: no dark-mode for windows as of now")
 
 (defconst jmn-font-height-alist '(("xps" . 110)
@@ -1268,7 +1268,7 @@ f"))
     (set-face-background 'tab-bar-tab "darkseagreen2")))
 
 (if (window-system)
-    (set-frame-height (selected-frame) 52))
+    (set-frame-height (selected-frame) 53))
 
 (if jmn-dark-mode
     (if (eq system-type 'gnu/linux)
