@@ -553,6 +553,14 @@ Clear up to allow the tab-bar keybindings.
      (kill-current-buffer))
 #+end_src
 
+** Emacs in the terminal
+#+begin_src emacs-lisp
+    (if jmn-term
+        (progn
+          (xterm-mouse-mode 1)
+          (setopt mode-line-end-spaces nil)  ;; Only matters for jmn-pure, doom-modeline is uneffected
+          (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))))
+#+end_src
 * General Development
 ** Indentation
 Guess the indentation offset and 'indent-tabs-mode' from the file using internal heuristics.
@@ -1621,6 +1629,10 @@ Need to install: cmake, libtool
 #+end_src
 
 * Theme and Frame
+To modify a theme it is helpful to use:
+- =list-faces-display= to show the fonts used showing an example of how they look
+- =describe-face= to show the font under the cursor
+
 ** Setup and helpers
 Helpful functions
 #+begin_src emacs-lisp
@@ -1635,6 +1647,7 @@ Helpful functions
 
 ** Theme Packages
 *** Gruvbox
+**** Overall setup
 #+begin_src emacs-lisp
   (use-package gruvbox-theme)
 
@@ -1658,8 +1671,10 @@ Helpful functions
 
     (if (alist-get 'org-block props)
         (set-face-background 'org-block (alist-get 'org-block props))))
-
-
+#+end_src
+**** Darks
+***** dark medium
+#+begin_src emacs-lisp
   (defun jmn-load-gruvbox-dark-medium ()
     "Theme for dark time"
     (interactive)
@@ -1673,15 +1688,19 @@ Helpful functions
     (set-face-foreground 'font-lock-comment-face  "#98be65") ;; default "#ebdbb2"
     (with-eval-after-load 'org
       (jmn-set-gruv-org-faces '((done-color . "gray35" )))))
-
-
+#+end_src
+***** dark hard
+#+begin_src emacs-lisp
   (defun jmn-load-gruvbox-dark-hard ()
     "Theme for very dark time"
     (interactive)
     (disable-theme (car custom-enabled-themes))
     (load-theme 'gruvbox-dark-hard t)
 
-    (set-face-foreground 'default "bisque2") ;; default "#ebdbb2"
+    ;; (set-face-foreground 'default "bisque2") ;; default "#ebdbb2"
+    ;; (set-face-foreground 'font-lock-comment-face  "#98be65") ;; default "#ebdbb2"
+    ;; (set-face-foreground 'font-lock-string-face  "LightGoldenrod3")
+
 
     (set-face-background 'mode-line-inactive "gray22")
     (set-face-background 'mode-line-active   "gray35")
@@ -1691,15 +1710,39 @@ Helpful functions
     (set-face-background 'fringe
                          (face-attribute 'default :background))
 
-    (set-face-foreground 'font-lock-comment-face  "#98be65") ;; default "#ebdbb2"
-    (set-face-foreground 'font-lock-string-face  "LightGoldenrod3")
-    (set-face-foreground 'font-lock-builtin-face  "Orange3")
     (with-eval-after-load 'org
       (jmn-set-gruv-org-faces '((done-color . "gray35" )
-                                (org-block-begin-line . "gray14")
-                                (org-block-end-line . "gray14")
-                                (org-block . "gray7")))))
+                                (org-block . "gray11")))))
+#+end_src
+***** dark hardest
+#+begin_src emacs-lisp
+  (defun jmn-load-gruvbox-dark-hardest ()
+    "Theme for very darkest of times"
+    (interactive)
+    (disable-theme (car custom-enabled-themes))
+    (load-theme 'gruvbox-dark-hard t)
 
+    (set-face-background 'default "gray7")
+    (set-face-foreground 'link  "#83a598") ;; 'tree-sitter-hl-face:function.call inherits
+
+    (set-face-background 'line-number
+                         (face-attribute 'default :background))
+    (set-face-background 'fringe
+                         (face-attribute 'default :background))
+
+    (with-eval-after-load 'tree-sitter-hl
+      (set-face-foreground 'tree-sitter-hl-face:variable "#FFA500") ;; was blue, set to aqua
+      (set-face-foreground 'tree-sitter-hl-face:variable.parameter
+                           (face-attribute 'default :foreground))
+      (set-face-foreground 'tree-sitter-hl-face:label  "#d65d0e"))
+
+    (with-eval-after-load 'org
+      (jmn-set-gruv-org-faces '(
+                                (done-color . "gray35" )
+                                (org-block . "gray3")))))
+#+end_src
+**** Lights
+#+begin_src emacs-lisp
   (defun jmn-load-gruvbox-light-medium()
     "Theme for light time"
     (interactive)
@@ -1773,7 +1816,7 @@ Helpful functions
       (if (eq system-type 'gnu/linux)
           (if jmn-pure
               (jmn-load-pure-dark-theme)  ;; dark, linux, pure
-            (jmn-load-gruvbox-dark-hard))  ;; dark, linux, connected
+            (jmn-load-gruvbox-dark-hardest))  ;; dark, linux, connected
         (jmn-load-pure-light-theme))  ;; dark, windows
     (jmn-load-pure-light-theme))  ;; non-dark
 #+end_src
@@ -1949,7 +1992,7 @@ Recentf is needed for recent files on the dashboard.
           ;; TAB 2
           (tab-bar-new-tab)
           (tab-bar-rename-tab "workspace")
-          (dired "/home/ape/Programming/projects/RDM/RSP")
+          (dired "/home/ape/Programming/projects/radar/radar-signal-processing")
           (unless jmn-pure
             (magit-status))
 

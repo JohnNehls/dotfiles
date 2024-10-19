@@ -427,6 +427,12 @@
    (save-buffer)
    (kill-current-buffer))
 
+(if jmn-term
+    (progn
+      (xterm-mouse-mode 1)
+      (setopt mode-line-end-spaces nil)  ;; Only matters for jmn-pure, doom-modeline is uneffected
+      (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))))
+
 (use-package dtrt-indent
   :hook (prog-mode . (lambda () (dtrt-indent-mode 1))))
 
@@ -1168,7 +1174,6 @@ f"))
   (if (alist-get 'org-block props)
       (set-face-background 'org-block (alist-get 'org-block props))))
 
-
 (defun jmn-load-gruvbox-dark-medium ()
   "Theme for dark time"
   (interactive)
@@ -1183,14 +1188,16 @@ f"))
   (with-eval-after-load 'org
     (jmn-set-gruv-org-faces '((done-color . "gray35" )))))
 
-
 (defun jmn-load-gruvbox-dark-hard ()
   "Theme for very dark time"
   (interactive)
   (disable-theme (car custom-enabled-themes))
   (load-theme 'gruvbox-dark-hard t)
 
-  (set-face-foreground 'default "bisque2") ;; default "#ebdbb2"
+  ;; (set-face-foreground 'default "bisque2") ;; default "#ebdbb2"
+  ;; (set-face-foreground 'font-lock-comment-face  "#98be65") ;; default "#ebdbb2"
+  ;; (set-face-foreground 'font-lock-string-face  "LightGoldenrod3")
+
 
   (set-face-background 'mode-line-inactive "gray22")
   (set-face-background 'mode-line-active   "gray35")
@@ -1200,14 +1207,34 @@ f"))
   (set-face-background 'fringe
                        (face-attribute 'default :background))
 
-  (set-face-foreground 'font-lock-comment-face  "#98be65") ;; default "#ebdbb2"
-  (set-face-foreground 'font-lock-string-face  "LightGoldenrod3")
-  (set-face-foreground 'font-lock-builtin-face  "Orange3")
   (with-eval-after-load 'org
     (jmn-set-gruv-org-faces '((done-color . "gray35" )
-                              (org-block-begin-line . "gray14")
-                              (org-block-end-line . "gray14")
-                              (org-block . "gray7")))))
+                              (org-block . "gray11")))))
+
+(defun jmn-load-gruvbox-dark-hardest ()
+  "Theme for very darkest of times"
+  (interactive)
+  (disable-theme (car custom-enabled-themes))
+  (load-theme 'gruvbox-dark-hard t)
+
+  (set-face-background 'default "gray7")
+  (set-face-foreground 'link  "#83a598") ;; 'tree-sitter-hl-face:function.call inherits
+
+  (set-face-background 'line-number
+                       (face-attribute 'default :background))
+  (set-face-background 'fringe
+                       (face-attribute 'default :background))
+
+  (with-eval-after-load 'tree-sitter-hl
+    (set-face-foreground 'tree-sitter-hl-face:variable "#FFA500") ;; was blue, set to aqua
+    (set-face-foreground 'tree-sitter-hl-face:variable.parameter
+                         (face-attribute 'default :foreground))
+    (set-face-foreground 'tree-sitter-hl-face:label  "#d65d0e"))
+
+  (with-eval-after-load 'org
+    (jmn-set-gruv-org-faces '(
+                              (done-color . "gray35" )
+                              (org-block . "gray3")))))
 
 (defun jmn-load-gruvbox-light-medium()
   "Theme for light time"
@@ -1274,7 +1301,7 @@ f"))
     (if (eq system-type 'gnu/linux)
         (if jmn-pure
             (jmn-load-pure-dark-theme)  ;; dark, linux, pure
-          (jmn-load-gruvbox-dark-hard))  ;; dark, linux, connected
+          (jmn-load-gruvbox-dark-hardest))  ;; dark, linux, connected
       (jmn-load-pure-light-theme))  ;; dark, windows
   (jmn-load-pure-light-theme))  ;; non-dark
 
@@ -1411,7 +1438,7 @@ f"))
         ;; TAB 2
         (tab-bar-new-tab)
         (tab-bar-rename-tab "workspace")
-        (dired "/home/ape/Programming/projects/RDM/RSP")
+        (dired "/home/ape/Programming/projects/radar/radar-signal-processing")
         (unless jmn-pure
           (magit-status))
 
