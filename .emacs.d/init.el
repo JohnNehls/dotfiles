@@ -15,7 +15,7 @@
 (defconst jmn-pureplus-systems '("lat")
   "Systems which use the pure setup with the plus packages")
 
-(defconst jmn-dark-mode nil
+(defconst jmn-dark-mode t
   "Do we want Emacs in a dark mode? Note: no dark-mode for windows as of now")
 
 (defconst jmn-font-height-alist '(("xps" . 110)
@@ -71,8 +71,6 @@
 ;; allows us to make sure environment packages are installed
 (use-package use-package-ensure-system-package
   :ensure t)
-
-;; update your packages with=M-x auto-package-update-now= to update right now.
 
 ;;;; Basic ;;;;
 (setq inhibit-startup-message t)		; inhibit startup message
@@ -258,6 +256,8 @@
                                        ("\\.iso\\'" "vlc")
                                        ("\\.webm\\'" "vlc")
                                        ("\\.mkv\\'" "vlc")
+                                       ("\\.odt\\'" "libreoffice")
+                                       ("\\.docx\\'" "libreoffice")
                                        ("\\.mp3\\'" "rhythmbox")
                                        ("\\.html\\'" "firefox")
                                        ("\\.epub\\'" "ebook-viewer")
@@ -1117,7 +1117,8 @@ f"))
   :ensure-system-package ((cmake . "sudo dnf install -y cmake")
                           (libtool . "sudo dnf install -y libtool" )) ;; compilation
   :defer t
-  :bind (:map vterm-mode-map ("C-o" . other-window))
+  :bind (("C-`". vterm)  ;; gets overwriteent by vterm-toggle
+         (:map vterm-mode-map ("C-o" . other-window)))
   :config
   (jmn-remove-M-1-9-from-mode-map vterm-mode-map)
   (setq vterm-max-scrollback 10000)
@@ -1463,28 +1464,38 @@ f"))
         (tab-bar-select-tab 2))))
 
 (if jmn-connected-extras
-  (use-package dashboard
-    :ensure t
-    :init     (dashboard-setup-startup-hook)
-    :bind ( "C-c d" . dashboard-open)
-    :config
-    (setq dashboard-banner-logo-title "Habits, not goals.")
+    (use-package dashboard
+      :ensure t
+      :init (dashboard-setup-startup-hook)
+      :bind ("C-c d" . dashboard-open)
+      :config
+      (setq dashboard-banner-logo-title "Habits, not goals.")
 
-    (setq dashboard-startup-banner 2)  ;; (nil . no-banner)  ([1-5] . plain-text banners)
-    (setq dashboard-center-content 1)
-    (setq dashboard-show-shortcuts 1)  ;; show the single-character shortcuts
-    (setq dashboard-items '((recents  . 5)
-                            (bookmarks . 5)
-                            (projects . 5)
-                            (agenda . 5)
-                            (registers . 5)))
+      (setq dashboard-startup-banner 2)  ;; (nil . no-banner)  ([1-5] . plain-text banners)
+      (setq dashboard-center-content 1)
+      (setq dashboard-show-shortcuts 1)  ;; show the single-character shortcuts
+      (setq dashboard-items '((recents  . 5)
+                              (bookmarks . 5)
+                              (projects . 5)
+                              (agenda . 5)
+                              (registers . 5)))
 
-    (setcdr (assoc 'projects dashboard-item-shortcuts) "j")
-    (setq dashboard-set-heading-icons t)
-    (setq dashboard-set-file-icons t)
-    (setq dashboard-projects-backend 'project-el)
-    (dashboard-modify-heading-icons '((recents . "file-text")))
-    (setq dashboard-set-footer nil)))
+      (setcdr (assoc 'projects dashboard-item-shortcuts) "j")
+      (setq dashboard-set-heading-icons t)
+      (setq dashboard-set-file-icons t)
+      (setq dashboard-projects-backend 'project-el)
+      (dashboard-modify-heading-icons '((recents . "file-text")))
+      (setq dashboard-set-footer nil)
+      (setq dashboard-startupify-list
+            '(dashboard-insert-banner
+              dashboard-insert-newline
+              dashboard-insert-banner-title
+              dashboard-insert-newline
+              dashboard-insert-init-info
+              dashboard-insert-items
+              dashboard-insert-newline
+              ;;dashboard-insert-footer
+              )))
 
   (defun my-dashboard-hook()
     "Needed to define these after hook for some reason"
@@ -1492,7 +1503,7 @@ f"))
     (define-key dashboard-mode-map (kbd "p")  'dashboard-previous-line))
 
   (add-hook 'dashboard-mode-hook 'my-dashboard-hook)
-  (add-hook 'dashboard-mode-hook 'hl-line-mode)
+  (add-hook 'dashboard-mode-hook 'hl-line-mode))
 
 (unless jmn-pure
 (use-package hnreader))
