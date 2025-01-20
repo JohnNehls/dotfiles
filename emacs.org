@@ -1601,7 +1601,8 @@ Need to install: cmake, libtool
     :ensure-system-package ((cmake . "sudo dnf install -y cmake")
                             (libtool . "sudo dnf install -y libtool" )) ;; compilation
     :defer t
-    :bind (:map vterm-mode-map ("C-o" . other-window))
+    :bind (("C-`". vterm)  ;; gets overwriteent by vterm-toggle
+           (:map vterm-mode-map ("C-o" . other-window)))
     :config
     (jmn-remove-M-1-9-from-mode-map vterm-mode-map)
     (setq vterm-max-scrollback 10000)
