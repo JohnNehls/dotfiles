@@ -189,7 +189,9 @@
 ;; f12 is clear by default
 
 ;; See recentfiles
-(global-set-key (kbd "<f5>") 'recentf-open-files)
+(global-set-key (kbd "<f5>") 'compile)
+;; See recentfiles
+(global-set-key (kbd "<f6>") 'recentf-open-files)
 
 ;; writing/editing
 (global-set-key (kbd "<f9>") 'ispell-word)
