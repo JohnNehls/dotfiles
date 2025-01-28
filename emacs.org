@@ -714,16 +714,19 @@ Function/keybinding learning area:
         :ensure-system-package
         ((bash-language-server . "sudo dnf install -y nodejs-bash-language-server")
          (pyright . "pip install pyright")
-         (clangd . "sudo dnf install -y clang-tools-extra"))
+         (clangd . "sudo dnf install -y clang-tools-extra")
+         (texlab . "cargo install --git https://github.com/latex-lsp/texlab --locked --tag v5.22.0") ;; ensure texlab is added to bash PATH
+         )
         :hook ((sh-mode . eglot-ensure)
                (python-mode . eglot-ensure)
                (c-mode . eglot-ensure)
-               (c++-mode . eglot-ensure))
+               (c++-mode . eglot-ensure)
+               (latex-mode . eglot-ensure))
         :config
         ;; make shorter ones later?
         ;; use "M-." for xref-find-definitions
         ;; use "M-?" for xref-find-references
-        ;;; use "M-g n" and "M-g p" to go to next and previous location
+        ;; use "M-g n" and "M-g p" to go to next and previous location
         ;; use ... for xref-pop-marker-stack
         (define-prefix-command 'eglot-prefix)
         (global-set-key (kbd "C-x e") 'eglot-prefix)
