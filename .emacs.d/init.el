@@ -429,7 +429,7 @@
    (save-buffer)
    (kill-current-buffer))
 
-(if jmn-term
+(if (and jmn-term (version<= "29" emacs-version))
     (progn
       (xterm-mouse-mode 1)
       (setopt mode-line-end-spaces nil)  ;; Only matters for jmn-pure, doom-modeline is uneffected
