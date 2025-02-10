@@ -77,13 +77,15 @@
 (defun jmn-install-plus-packages()
   (interactive)
   (jmn-connect-to-repositories)
-  (dolist (pluslist '(which-key undo-tree ws-butler prescient ivy ivy-rich ivy-prescient counsel))
+  (dolist (pluslist '(which-key undo-tree ws-butler prescient ivy ivy-rich ivy-prescient counsel htmlize evil-nerd-commenter))
     (package-install pluslist 1)))
 
 (if (string= jmn-pure "plus") ;; turn on all of the plus modes
     (progn (require 'prescient)
            (dolist (pluslist '(which-key-mode undo-tree-mode ws-butler-mode prescient-persist-mode ivy-mode ivy-rich-mode ivy-prescient-mode counsel-mode))
-             (funcall pluslist 1))))
+             (funcall pluslist 1))
+           ;; evil nerd commenter
+           (global-set-key (kbd "C-;") 'evilnc-comment-or-uncomment-lines)))
 
 ;;;; Basic ;;;;
 (setq inhibit-startup-message t)		; inhibit startup message
@@ -415,6 +417,7 @@
     (define-key modemap (kbd (concat "M-" num)) nil)))
 
 (defun remove-function-sexps (functionName)
+   "Remove all sexps with the input car in the current buffer."
      (save-excursion
        (goto-char (point-min))
        ;; break up the string so it is not replaced here
@@ -424,6 +427,7 @@
          (kill-sexp))))
 
 (defun remove-if-var-sexps (varName)
+  "Remove all sexps which start with 'if input' in the current buffer."
      (save-excursion
        (goto-char (point-min))
        ;; break up the string so it is not replaced here
@@ -433,7 +437,8 @@
          (backward-char)
          (kill-sexp))))
 
- (defun purify-my-config-and-save ()
+ (defun jmn-purify-my-config-and-save ()
+   "Create a 'pure' configuration file '~/.emacs.d/pure_init.el' by removing impure configuration sexps."
    (interactive)
    (find-file "~/.emacs.d/init.el")
    (remove-function-sexps "use-package")

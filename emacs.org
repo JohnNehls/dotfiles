@@ -102,7 +102,7 @@ Code above is for pure (offline) and non-pure (online). The below is for a pure 
   (defun jmn-install-plus-packages()
     (interactive)
     (jmn-connect-to-repositories)
-    (dolist (pluslist '(which-key undo-tree ws-butler prescient ivy ivy-rich ivy-prescient counsel))
+    (dolist (pluslist '(which-key undo-tree ws-butler prescient ivy ivy-rich ivy-prescient counsel htmlize evil-nerd-commenter))
       (package-install pluslist 1)))
 #+end_src
 
@@ -111,7 +111,9 @@ If it fails here, we need to add the packages to =~/.emacs.d/elpa=
   (if (string= jmn-pure "plus") ;; turn on all of the plus modes
       (progn (require 'prescient)
              (dolist (pluslist '(which-key-mode undo-tree-mode ws-butler-mode prescient-persist-mode ivy-mode ivy-rich-mode ivy-prescient-mode counsel-mode))
-               (funcall pluslist 1))))
+               (funcall pluslist 1))
+             ;; evil nerd commenter
+             (global-set-key (kbd "C-;") 'evilnc-comment-or-uncomment-lines)))
 #+end_src
 TODO can the above do list be replaced with =(package-initialize)=?
 
@@ -410,6 +412,7 @@ Check with other environments to settle on "C-;" or "M-;" -- the other us used f
 ** Input Buffer, Directory Search
 *** Ivy, Ivy-Rich, and Counsel
 Ivy displays vertical completions of input buffer.
+- When we want the text accepted over the suggest completion use "C-M-j" which executes (ivy-immediate-done) [[https://emacs.stackexchange.com/questions/32862/ivy-disable-completion-for-a-command-in-minibuffer][source]]
 #+begin_src emacs-lisp
   (use-package ivy
     :after counsel
@@ -549,6 +552,7 @@ Clear up to allow the tab-bar keybindings.
 *** remove use-package s-expressions
 #+begin_src emacs-lisp
    (defun remove-function-sexps (functionName)
+     "Remove all sexps with the input car in the current buffer."
        (save-excursion
          (goto-char (point-min))
          ;; break up the string so it is not replaced here
@@ -558,6 +562,7 @@ Clear up to allow the tab-bar keybindings.
            (kill-sexp))))
 
   (defun remove-if-var-sexps (varName)
+    "Remove all sexps which start with 'if input' in the current buffer."
        (save-excursion
          (goto-char (point-min))
          ;; break up the string so it is not replaced here
@@ -567,7 +572,8 @@ Clear up to allow the tab-bar keybindings.
            (backward-char)
            (kill-sexp))))
 
-   (defun purify-my-config-and-save ()
+   (defun jmn-purify-my-config-and-save ()
+     "Create a 'pure' configuration file '~/.emacs.d/pure_init.el' by removing impure configuration sexps."
      (interactive)
      (find-file "~/.emacs.d/init.el")
      (remove-function-sexps "use-package")
