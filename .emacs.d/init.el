@@ -12,7 +12,7 @@
 (defconst jmn-connected-extras t
   "Flag of weather to use the purely astetic packages or not on connected system")
 
-(defconst jmn-pureplus-systems '("lat")
+(defconst jmn-pureplus-systems '("lat" "testbed")
   "Systems which use the pure setup with the plus packages")
 
 (defconst jmn-dark-mode t
@@ -44,33 +44,46 @@
 (defconst jmn-term (not (display-graphic-p (selected-frame)))
   "Indicating if emacs is being run within a terminal or not")
 
+(defun jmn-connect-to-repositories ()
+  (require 'package)
+  (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                           ("elpa" . "https://elpa.gnu.org/packages/")))
+
+  (if (version< emacs-version "28")
+      (progn
+        (setq package-check-signature nil)  ;; bugfix: keys are not installed
+        (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")))  ;; to load melpa
+
+  (package-initialize)
+
+  (unless package-archive-contents
+    (package-refresh-contents))
+
+  (unless (package-installed-p 'use-package)
+    (package-install 'use-package));; Initialize use-package on non-Linux platforms
+
+  (require 'use-package)
+  (setq use-package-always-ensure t) ; no need for :ensure t for each package.
+  (setq use-package-verbose t)) ; log configure/loading messages in *Messages*
+
 (if jmn-pure
-    (progn
       (defmacro use-package (&rest _))  ;; define use-package macro to do nothing
-      (if (string= jmn-pure "plus") ;; turn on all of the plus modes
-          (progn (require 'prescient)
-                 (dolist (pluslist '(which-key-mode undo-tree-mode ws-butler-mode prescient-persist-mode ivy-mode ivy-rich-mode ivy-prescient-mode counsel-mode))
-                   (funcall pluslist 1)))))
-  (progn  ;; Connect to the internet and use use-package macros to config below
-    (require 'package)
-    (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                             ("elpa" . "https://elpa.gnu.org/packages/")))
-    (package-initialize)
+  (jmn-connect-to-repositories)) ;; connect to repos  and use use-package macros to config below
 
-    (unless package-archive-contents
-      (package-refresh-contents))
+  ;; allows us to make sure environment packages are installed
+  (use-package use-package-ensure-system-package
+    :ensure t)
 
-    (unless (package-installed-p 'use-package)
-      (package-install 'use-package));; Initialize use-package on non-Linux platforms
+(defun jmn-install-plus-packages()
+  (interactive)
+  (jmn-connect-to-repositories)
+  (dolist (pluslist '(which-key undo-tree ws-butler prescient ivy ivy-rich ivy-prescient counsel))
+    (package-install pluslist 1)))
 
-    (require 'use-package)
-    (setq use-package-always-ensure t) ; no need for :ensure t for each package.
-    (setq use-package-verbose t)) ; log configure/loading messages in *Messages*
-  )
-
-;; allows us to make sure environment packages are installed
-(use-package use-package-ensure-system-package
-  :ensure t)
+(if (string= jmn-pure "plus") ;; turn on all of the plus modes
+    (progn (require 'prescient)
+           (dolist (pluslist '(which-key-mode undo-tree-mode ws-butler-mode prescient-persist-mode ivy-mode ivy-rich-mode ivy-prescient-mode counsel-mode))
+             (funcall pluslist 1))))
 
 ;;;; Basic ;;;;
 (setq inhibit-startup-message t)		; inhibit startup message
@@ -649,6 +662,9 @@
   (define-key vc-dir-mode-map (kbd "C-M-o") 'vc-dir-display-file)
   (define-key vc-dir-mode-map (kbd "c") 'jmn-vc-commit))
 
+(add-hook 'emacs-lisp-mode-hook 'display-line-numbers-mode)
+(add-hook 'emacs-lisp-mode-hook 'visual-line-mode)
+
 (defun my-sh-mode-hook-fn()
   (setq sh-basic-offset 2
         sh-indentation 2)) ;; defaults is 4
@@ -1117,6 +1133,9 @@ f"))
 
 (use-package eterm-256color
   :hook (term-mode . eterm-256color-mode))
+
+(if (version<= emacs-version "27" )
+  (setq explicit-shell-file-name "/bin/bash"))
 
 (use-package vterm
   :ensure-system-package ((cmake . "sudo dnf install -y cmake")

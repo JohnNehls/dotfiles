@@ -22,7 +22,7 @@ Hopefully only need to change these to get setup on a new machine.
   (defconst jmn-connected-extras t
     "Flag of weather to use the purely astetic packages or not on connected system")
 
-  (defconst jmn-pureplus-systems '("lat")
+  (defconst jmn-pureplus-systems '("lat" "testbed")
     "Systems which use the pure setup with the plus packages")
 
   (defconst jmn-dark-mode t
@@ -65,34 +65,55 @@ Archives: elpa is default, melpa is community.
   (defconst jmn-term (not (display-graphic-p (selected-frame)))
     "Indicating if emacs is being run within a terminal or not")
 
+  (defun jmn-connect-to-repositories ()
+    (require 'package)
+    (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                             ("elpa" . "https://elpa.gnu.org/packages/")))
+
+    (if (version< emacs-version "28")
+        (progn
+          (setq package-check-signature nil)  ;; bugfix: keys are not installed
+          (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")))  ;; to load melpa
+
+    (package-initialize)
+
+    (unless package-archive-contents
+      (package-refresh-contents))
+
+    (unless (package-installed-p 'use-package)
+      (package-install 'use-package));; Initialize use-package on non-Linux platforms
+
+    (require 'use-package)
+    (setq use-package-always-ensure t) ; no need for :ensure t for each package.
+    (setq use-package-verbose t)) ; log configure/loading messages in *Messages*
+
   (if jmn-pure
-      (progn
         (defmacro use-package (&rest _))  ;; define use-package macro to do nothing
-        (if (string= jmn-pure "plus") ;; turn on all of the plus modes
-            (progn (require 'prescient)
-                   (dolist (pluslist '(which-key-mode undo-tree-mode ws-butler-mode prescient-persist-mode ivy-mode ivy-rich-mode ivy-prescient-mode counsel-mode))
-                     (funcall pluslist 1)))))
-    (progn  ;; Connect to the internet and use use-package macros to config below
-      (require 'package)
-      (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                               ("elpa" . "https://elpa.gnu.org/packages/")))
-      (package-initialize)
+    (jmn-connect-to-repositories)) ;; connect to repos  and use use-package macros to config below
 
-      (unless package-archive-contents
-        (package-refresh-contents))
-
-      (unless (package-installed-p 'use-package)
-        (package-install 'use-package));; Initialize use-package on non-Linux platforms
-
-      (require 'use-package)
-      (setq use-package-always-ensure t) ; no need for :ensure t for each package.
-      (setq use-package-verbose t)) ; log configure/loading messages in *Messages*
-    )
-
-  ;; allows us to make sure environment packages are installed
-  (use-package use-package-ensure-system-package
-    :ensure t)
+    ;; allows us to make sure environment packages are installed
+    (use-package use-package-ensure-system-package
+      :ensure t)
 #+end_src
+
+*** TODO Pure-plus
+Code above is for pure (offline) and non-pure (online). The below is for a pure = 'plus', when we include a few packages.
+#+begin_src emacs-lisp
+  (defun jmn-install-plus-packages()
+    (interactive)
+    (jmn-connect-to-repositories)
+    (dolist (pluslist '(which-key undo-tree ws-butler prescient ivy ivy-rich ivy-prescient counsel))
+      (package-install pluslist 1)))
+#+end_src
+
+If it fails here, we need to add the packages to =~/.emacs.d/elpa=
+#+begin_src emacs-lisp
+  (if (string= jmn-pure "plus") ;; turn on all of the plus modes
+      (progn (require 'prescient)
+             (dolist (pluslist '(which-key-mode undo-tree-mode ws-butler-mode prescient-persist-mode ivy-mode ivy-rich-mode ivy-prescient-mode counsel-mode))
+               (funcall pluslist 1))))
+#+end_src
+TODO can the above do list be replaced with =(package-initialize)=?
 
 * General Emacs
 ** UI Configurations
@@ -797,7 +818,7 @@ Archive: elpa, melpa
      ;;   (define-key flyspell-mode-map (kbd "M-;") flyspell-auto-correct-previous-word)))
 #+end_src
 
-** TODO Evil nerd commenter
+** Evil nerd commenter
 Archive: melpa
 #+begin_src emacs-lisp
   (use-package evil-nerd-commenter
@@ -928,7 +949,10 @@ As of 28.1 there is =tab-first-completion=. Could add a setup for it above which
 ** Emacs-lisp
 Use =C-c '= to view elisp babel blocks in their own file to get completion in company-mode.
 - added flycheck-mode-hook in it's use-package config.
-
+#+begin_src emacs-lisp
+  (add-hook 'emacs-lisp-mode-hook 'display-line-numbers-mode)
+  (add-hook 'emacs-lisp-mode-hook 'visual-line-mode)
+#+end_src
 ** Bash
 - debuggers are available
 
@@ -1592,6 +1616,11 @@ Archive: melpa
   :hook (term-mode . eterm-256color-mode))
 #+end_src
 
+*** Version 26.1
+#+begin_src emacs-lisp
+(if (version<= emacs-version "27" )
+  (setq explicit-shell-file-name "/bin/bash"))
+#+end_src
 ** vterm
 Faster terminal due to being compiled. Default is a better mode than term-mode; it's like a Char-mode but with ability to access function list with M-x.  [[https://github.com/akermu/emacs-libvterm][vterm Documentation]]
 - For more than one terminal, you must M-x rename-uniquely the terminal.
