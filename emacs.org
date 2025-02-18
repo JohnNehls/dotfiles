@@ -49,6 +49,15 @@ This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-con
   (add-hook 'org-mode-hook
             (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 #+end_src
+*** function  to quickly load init
+Defined earlier in the init so it will load even if there is an error later in the config
+#+begin_src emacs-lisp
+  (defun jmn-load-init ()
+    (interactive)
+    (if (version<= "27" emacs-version)
+        (load "~/.emacs.d/init.el")
+      (load "~/.emacs")))
+#+end_src
 
 ** Packages and Management
 Archives: elpa is default, melpa is community.
@@ -70,7 +79,7 @@ Archives: elpa is default, melpa is community.
     (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                              ("elpa" . "https://elpa.gnu.org/packages/")))
 
-    (if (version< emacs-version "28")
+    (if (version< emacs-version "29")
         (progn
           (setq package-check-signature nil)  ;; bugfix: keys are not installed
           (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")))  ;; to load melpa
@@ -102,8 +111,21 @@ Code above is for pure (offline) and non-pure (online). The below is for a pure 
   (defun jmn-install-plus-packages()
     (interactive)
     (jmn-connect-to-repositories)
+    ;;install for all versions
     (dolist (pluslist '(which-key undo-tree ws-butler prescient ivy ivy-rich ivy-prescient counsel htmlize evil-nerd-commenter))
-      (package-install pluslist 1)))
+      (package-install pluslist 1))
+    ;; install if version 27 and above
+    (if (version<= "27" emacs-version)
+        (progn
+          ;; For emacs 28
+          ;; magit requires ver >= 2.24 which is greater than built in version
+          ;; Warnings buffer gives the following advice
+          ;; TODO -- need it install seq-2.24 by hand in package-list-packages
+          (setq package-install-upgrade-built-in t)
+          (dolist (pluslist '(seq magit markdown-mode))
+            (package-install pluslist 1))
+          (unload-feature 'seq t)
+          (require 'seq))))
 #+end_src
 
 If it fails here, we need to add the packages to =~/.emacs.d/elpa=
@@ -500,13 +522,6 @@ Archive: elpa, melpa
 #+end_src
 
 ** General Helper Function
-*** jmn-load-init
-#+begin_src emacs-lisp
-  (defun jmn-load-init ()
-    (interactive)
-    (load "~/.emacs.d/init.el"))
-#+end_src
-
 *** jmn-vscode-current-buffer-file-at-point
 #+begin_src emacs-lisp
   (defun jmn-vscode-current-buffer-file-at-point ()
@@ -1624,7 +1639,7 @@ Archive: melpa
 
 *** Version 26.1
 #+begin_src emacs-lisp
-(if (version<= emacs-version "27" )
+(if (version<= emacs-version "29" )
   (setq explicit-shell-file-name "/bin/bash"))
 #+end_src
 ** vterm

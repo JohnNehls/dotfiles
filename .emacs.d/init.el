@@ -34,6 +34,12 @@
 (add-hook 'org-mode-hook
           (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 
+(defun jmn-load-init ()
+  (interactive)
+  (if (version<= "27" emacs-version)
+      (load "~/.emacs.d/init.el")
+    (load "~/.emacs")))
+
 (if (member system-name jmn-connected-systems)
     (defconst jmn-pure nil "Indicating if we are pure or using packages")
   (if (member system-name jmn-pureplus-systems)
@@ -49,7 +55,7 @@
   (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                            ("elpa" . "https://elpa.gnu.org/packages/")))
 
-  (if (version< emacs-version "28")
+  (if (version< emacs-version "29")
       (progn
         (setq package-check-signature nil)  ;; bugfix: keys are not installed
         (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")))  ;; to load melpa
@@ -77,8 +83,21 @@
 (defun jmn-install-plus-packages()
   (interactive)
   (jmn-connect-to-repositories)
+  ;;install for all versions
   (dolist (pluslist '(which-key undo-tree ws-butler prescient ivy ivy-rich ivy-prescient counsel htmlize evil-nerd-commenter))
-    (package-install pluslist 1)))
+    (package-install pluslist 1))
+  ;; install if version 27 and above
+  (if (version<= "27" emacs-version)
+      (progn
+        ;; For emacs 28
+        ;; magit requires ver >= 2.24 which is greater than built in version
+        ;; Warnings buffer gives the following advice
+        ;; TODO -- need it install seq-2.24 by hand in package-list-packages
+        (setq package-install-upgrade-built-in t)
+        (dolist (pluslist '(seq magit markdown-mode))
+          (package-install pluslist 1))
+        (unload-feature 'seq t)
+        (require 'seq))))
 
 (if (string= jmn-pure "plus") ;; turn on all of the plus modes
     (progn (require 'prescient)
@@ -376,10 +395,6 @@
                                 100 nil 'string=)) ;; default is 100
 
 (setq text-scale-mode-step 1.05)
-
-(defun jmn-load-init ()
-  (interactive)
-  (load "~/.emacs.d/init.el"))
 
 (defun jmn-vscode-current-buffer-file-at-point ()
   (interactive)
@@ -1139,7 +1154,7 @@ f"))
 (use-package eterm-256color
   :hook (term-mode . eterm-256color-mode))
 
-(if (version<= emacs-version "27" )
+(if (version<= emacs-version "29" )
   (setq explicit-shell-file-name "/bin/bash"))
 
 (use-package vterm
