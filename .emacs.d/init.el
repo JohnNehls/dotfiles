@@ -15,7 +15,7 @@
 (defconst jmn-pureplus-systems '("lat" "testbed")
   "Systems which use the pure setup with the plus packages")
 
-(defconst jmn-dark-mode t
+(defconst jmn-dark-mode nil
   "Do we want Emacs in a dark mode? Note: no dark-mode for windows as of now")
 
 (defconst jmn-font-height-alist '(("xps" . 110)
@@ -100,11 +100,13 @@
         (require 'seq))))
 
 (if (string= jmn-pure "plus") ;; turn on all of the plus modes
-    (progn (require 'prescient)
-           (dolist (pluslist '(which-key-mode undo-tree-mode ws-butler-mode prescient-persist-mode ivy-mode ivy-rich-mode ivy-prescient-mode counsel-mode))
-             (funcall pluslist 1))
-           ;; evil nerd commenter
-           (global-set-key (kbd "C-;") 'evilnc-comment-or-uncomment-lines)))
+    (progn
+      (package-initialize)
+      (require 'prescient)
+      (dolist (pluslist '(which-key-mode undo-tree-mode ws-butler-mode prescient-persist-mode ivy-mode ivy-rich-mode ivy-prescient-mode counsel-mode))
+        (funcall pluslist 1))
+      ;; evil nerd commenter
+      (global-set-key (kbd "C-;") 'evilnc-comment-or-uncomment-lines)))
 
 ;;;; Basic ;;;;
 (setq inhibit-startup-message t)		; inhibit startup message
@@ -135,6 +137,13 @@
 (global-auto-revert-mode 1)			; refresh buffer if changed on disk
 (setq auto-revert-use-notify nil)		; don't notify?
 (setq auto-revert-verbose nil)			;
+
+;; Mouse
+(setq mouse-yank-at-point t) ;; yank at cursor not click location
+
+;; By default Emacs prefers `.elc' to `.el' in all cases, `load-prefer-newer's
+;; alway prefers the last-edited file, preventing this problem.
+(setq load-prefer-newer t)
 
 ;; Buffer Menu
 (add-hook 'Buffer-menu-mode-hook 'hl-line-mode)
@@ -276,6 +285,10 @@
 ;;;; Dired ;;;;
 ;; (add-hook 'dired-mode-hook 'dired-hide-details-mode) ;; hide default -- '(' to toggle
 (add-hook 'dired-mode-hook 'hl-line-mode)
+
+ ;; Auto-revert dired (the directory editor) when revisiting
+ ;; directories, since they may have changed underneath.
+(setq dired-auto-revert-buffer t)
 
 (with-eval-after-load 'dired
   (setq dired-listing-switches "-agho --group-directories-first" )
@@ -489,10 +502,10 @@
   :hook (prog-mode . smartparens-mode))
 
 (use-package magit
-  :commands (magit-status))
-  ;; :custom
-  ;; (magit-display-buffer-function
-  ;;    #'magit-display-buffer-same-window-except-diff-v1));;display status buffer
+  :commands (magit-status)
+  :custom
+  (magit-display-buffer-function
+   #'magit-display-buffer-same-window-except-diff-v1))
 
 
 ;; moved here incase magit installed on a pure machine ;; replace original keybinding?
@@ -559,7 +572,7 @@
              (python-mode . eglot-ensure)
              (c-mode . eglot-ensure)
              (c++-mode . eglot-ensure)
-             (latex-mode . eglot-ensure))
+             (LaTeX-mode . eglot-ensure))
       :config
       ;; make shorter ones later?
       ;; use "M-." for xref-find-definitions
@@ -576,6 +589,11 @@
       (define-key eglot-prefix (kbd "n") 'flymake-goto-next-error)
       (define-key eglot-prefix (kbd "p") 'flymake-goto-prev-error)
       (define-key eglot-prefix (kbd "b") 'flymake-show-buffer-diagnostics)))
+
+(use-package breadcrumb
+  :ensure t
+  :config
+  (breadcrumb-mode))
 
 (use-package cmake-mode
   :defer t

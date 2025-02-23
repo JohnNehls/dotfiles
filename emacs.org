@@ -25,7 +25,7 @@ Hopefully only need to change these to get setup on a new machine.
   (defconst jmn-pureplus-systems '("lat" "testbed")
     "Systems which use the pure setup with the plus packages")
 
-  (defconst jmn-dark-mode t
+  (defconst jmn-dark-mode nil
     "Do we want Emacs in a dark mode? Note: no dark-mode for windows as of now")
 
   (defconst jmn-font-height-alist '(("xps" . 110)
@@ -131,11 +131,13 @@ Code above is for pure (offline) and non-pure (online). The below is for a pure 
 If it fails here, we need to add the packages to =~/.emacs.d/elpa=
 #+begin_src emacs-lisp
   (if (string= jmn-pure "plus") ;; turn on all of the plus modes
-      (progn (require 'prescient)
-             (dolist (pluslist '(which-key-mode undo-tree-mode ws-butler-mode prescient-persist-mode ivy-mode ivy-rich-mode ivy-prescient-mode counsel-mode))
-               (funcall pluslist 1))
-             ;; evil nerd commenter
-             (global-set-key (kbd "C-;") 'evilnc-comment-or-uncomment-lines)))
+      (progn
+        (package-initialize)
+        (require 'prescient)
+        (dolist (pluslist '(which-key-mode undo-tree-mode ws-butler-mode prescient-persist-mode ivy-mode ivy-rich-mode ivy-prescient-mode counsel-mode))
+          (funcall pluslist 1))
+        ;; evil nerd commenter
+        (global-set-key (kbd "C-;") 'evilnc-comment-or-uncomment-lines)))
 #+end_src
 TODO can the above do list be replaced with =(package-initialize)=?
 
@@ -173,6 +175,13 @@ TODO can the above do list be replaced with =(package-initialize)=?
   (setq auto-revert-use-notify nil)		; don't notify?
   (setq auto-revert-verbose nil)			;
 
+  ;; Mouse
+  (setq mouse-yank-at-point t) ;; yank at cursor not click location
+
+  ;; By default Emacs prefers `.elc' to `.el' in all cases, `load-prefer-newer's
+  ;; alway prefers the last-edited file, preventing this problem.
+  (setq load-prefer-newer t)
+  
   ;; Buffer Menu
   (add-hook 'Buffer-menu-mode-hook 'hl-line-mode)
   (add-hook 'bookmark-bmenu-mode-hook 'hl-line-mode)
@@ -269,6 +278,9 @@ Archive: melpa
 #+end_src
 
 ** Keybindings
+- Eventually I will assume =repeat-mode= is builtin and remove the =C-o= bindings to ='other-window=
+  - repeat mode is built in starting in Emacs 28
+  
 #+begin_src emacs-lisp
   ;; general improvements
   (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
@@ -354,6 +366,10 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
   ;; (add-hook 'dired-mode-hook 'dired-hide-details-mode) ;; hide default -- '(' to toggle
   (add-hook 'dired-mode-hook 'hl-line-mode)
 
+   ;; Auto-revert dired (the directory editor) when revisiting
+   ;; directories, since they may have changed underneath.
+  (setq dired-auto-revert-buffer t)
+  
   (with-eval-after-load 'dired
     (setq dired-listing-switches "-agho --group-directories-first" )
     (setq find-ls-option '("-print0 | xargs -0 ls -agho" . ""))
@@ -650,18 +666,18 @@ Archive: melpa
 ** Magit
 [[https://magit.vc/][Magit Documentation]] Archive: melpa
 #+begin_src emacs-lisp
-    (use-package magit
-      :commands (magit-status))
-      ;; :custom
-      ;; (magit-display-buffer-function
-      ;;    #'magit-display-buffer-same-window-except-diff-v1));;display status buffer
+  (use-package magit
+    :commands (magit-status)
+    :custom
+    (magit-display-buffer-function
+     #'magit-display-buffer-same-window-except-diff-v1))
 
 
-    ;; moved here incase magit installed on a pure machine ;; replace original keybinding?
-    (with-eval-after-load 'magit
-      (add-hook 'magit-status-mode-hook
-                (lambda () (define-key magit-mode-map (kbd "C-<tab>") nil)))
-      (jmn-remove-M-1-9-from-mode-map magit-mode-map))
+  ;; moved here incase magit installed on a pure machine ;; replace original keybinding?
+  (with-eval-after-load 'magit
+    (add-hook 'magit-status-mode-hook
+              (lambda () (define-key magit-mode-map (kbd "C-<tab>") nil)))
+    (jmn-remove-M-1-9-from-mode-map magit-mode-map))
 #+end_src
 
 ** Git-Gutter
@@ -765,7 +781,7 @@ Function/keybinding learning area:
                (python-mode . eglot-ensure)
                (c-mode . eglot-ensure)
                (c++-mode . eglot-ensure)
-               (latex-mode . eglot-ensure))
+               (LaTeX-mode . eglot-ensure))
         :config
         ;; make shorter ones later?
         ;; use "M-." for xref-find-definitions
@@ -782,6 +798,15 @@ Function/keybinding learning area:
         (define-key eglot-prefix (kbd "n") 'flymake-goto-next-error)
         (define-key eglot-prefix (kbd "p") 'flymake-goto-prev-error)
         (define-key eglot-prefix (kbd "b") 'flymake-show-buffer-diagnostics)))
+#+end_src
+
+** Breadcrumb
+Add breadcrumbs to the top of buffers.  Works great with Eglot.
+#+begin_src emacs-lisp
+  (use-package breadcrumb
+    :ensure t
+    :config
+    (breadcrumb-mode))
 #+end_src
 
 ** CMake
