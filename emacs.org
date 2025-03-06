@@ -25,7 +25,7 @@ Hopefully only need to change these to get setup on a new machine.
   (defconst jmn-pureplus-systems '("lat" "testbed")
     "Systems which use the pure setup with the plus packages")
 
-  (defconst jmn-dark-mode nil
+  (defconst jmn-dark-mode t
     "Do we want Emacs in a dark mode? Note: no dark-mode for windows as of now")
 
   (defconst jmn-font-height-alist '(("xps" . 110)
@@ -369,7 +369,7 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
    ;; Auto-revert dired (the directory editor) when revisiting
    ;; directories, since they may have changed underneath.
   (setq dired-auto-revert-buffer t)
-  
+
   (with-eval-after-load 'dired
     (setq dired-listing-switches "-agho --group-directories-first" )
     (setq find-ls-option '("-print0 | xargs -0 ls -agho" . ""))
@@ -393,8 +393,9 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
                                          ("\\.pdf\\'" "evince")
                                          ("\\.ipynb\\'" "code")
                                          ("\\.py\\'" "python")
-                                         ("\\.sh\\'" "bash"))))
-
+                                         ("\\.sh\\'" "bash")))
+    (if (version<= "28" emacs-version)
+        (setf dired-kill-when-opening-new-dired-buffer t)))
 
   ;; sluggish mode which lists the recursive size of each folder/item in dired.
   (use-package dired-du
@@ -402,18 +403,18 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
     :defer t
     :config (setq dired-du-size-format t))
 
-  ;; use a single dired session
-  (use-package dired-single
-    :after dired
-    :defer t
-    :hook (dired-mode .
-                      (lambda () (define-key dired-mode-map [remap dired-find-file]
-                                             'dired-single-buffer)
-                        (define-key dired-mode-map
-                                    [remap dired-mouse-find-file-other-window]
-                                    'dired-single-buffer-mouse)
-                        (define-key dired-mode-map [remap dired-up-directory]
-                                    'dired-single-up-directory))))
+  ;; use a single dired session ;; needed for emacs version < 28
+  ;; (use-package dired-single
+  ;;   :after dired
+  ;;   :defer t
+  ;;   :hook (dired-mode .
+  ;;                     (lambda () (define-key dired-mode-map [remap dired-find-file]
+  ;;                                            'dired-single-buffer)
+  ;;                       (define-key dired-mode-map
+  ;;                                   [remap dired-mouse-find-file-other-window]
+  ;;                                   'dired-single-buffer-mouse)
+  ;;                       (define-key dired-mode-map [remap dired-up-directory]
+  ;;                                   'dired-single-up-directory))))
   (if jmn-connected-extras
       (use-package all-the-icons-dired
         :after dired
@@ -680,7 +681,8 @@ Archive: melpa
     (jmn-remove-M-1-9-from-mode-map magit-mode-map))
 #+end_src
 
-** Git-Gutter
+** TODO Git-Gutter
+- [ ] replace with diff-hl mode?
 Git-gutter-fringe displays git-gutter in the fringe
 #+begin_src emacs-lisp
   (use-package git-gutter

@@ -313,8 +313,9 @@
                                        ("\\.pdf\\'" "evince")
                                        ("\\.ipynb\\'" "code")
                                        ("\\.py\\'" "python")
-                                       ("\\.sh\\'" "bash"))))
-
+                                       ("\\.sh\\'" "bash")))
+  (if (version<= "28" emacs-version)
+      (setf dired-kill-when-opening-new-dired-buffer t)))
 
 ;; sluggish mode which lists the recursive size of each folder/item in dired.
 (use-package dired-du
@@ -322,18 +323,18 @@
   :defer t
   :config (setq dired-du-size-format t))
 
-;; use a single dired session
-(use-package dired-single
-  :after dired
-  :defer t
-  :hook (dired-mode .
-                    (lambda () (define-key dired-mode-map [remap dired-find-file]
-                                           'dired-single-buffer)
-                      (define-key dired-mode-map
-                                  [remap dired-mouse-find-file-other-window]
-                                  'dired-single-buffer-mouse)
-                      (define-key dired-mode-map [remap dired-up-directory]
-                                  'dired-single-up-directory))))
+;; use a single dired session ;; needed for emacs version < 28
+;; (use-package dired-single
+;;   :after dired
+;;   :defer t
+;;   :hook (dired-mode .
+;;                     (lambda () (define-key dired-mode-map [remap dired-find-file]
+;;                                            'dired-single-buffer)
+;;                       (define-key dired-mode-map
+;;                                   [remap dired-mouse-find-file-other-window]
+;;                                   'dired-single-buffer-mouse)
+;;                       (define-key dired-mode-map [remap dired-up-directory]
+;;                                   'dired-single-up-directory))))
 (if jmn-connected-extras
     (use-package all-the-icons-dired
       :after dired
