@@ -1531,6 +1531,7 @@ f"))
       :ensure t
       :init (dashboard-setup-startup-hook)
       :bind ("C-c d" . dashboard-open)
+      :hook (dashboard-mode . hl-line-mode)
       :config
       (setq dashboard-banner-logo-title "Habits, not goals.")
 
