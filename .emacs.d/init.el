@@ -15,7 +15,7 @@
 (defconst jmn-pureplus-systems '("lat" "testbed")
   "Systems which use the pure setup with the plus packages")
 
-(defconst jmn-dark-mode nil
+(defconst jmn-dark-mode t
   "Do we want Emacs in a dark mode? Note: no dark-mode for windows as of now")
 
 (defconst jmn-font-height-alist '(("xps" . 110)
@@ -75,10 +75,6 @@
 (if jmn-pure
       (defmacro use-package (&rest _))  ;; define use-package macro to do nothing
   (jmn-connect-to-repositories)) ;; connect to repos  and use use-package macros to config below
-
-  ;; allows us to make sure environment packages are installed
-  (use-package use-package-ensure-system-package
-    :ensure t)
 
 (defun jmn-install-plus-packages()
   (interactive)
@@ -286,11 +282,8 @@
 ;; (add-hook 'dired-mode-hook 'dired-hide-details-mode) ;; hide default -- '(' to toggle
 (add-hook 'dired-mode-hook 'hl-line-mode)
 
- ;; Auto-revert dired (the directory editor) when revisiting
- ;; directories, since they may have changed underneath.
-(setq dired-auto-revert-buffer t)
-
 (with-eval-after-load 'dired
+  (setq dired-auto-revert-buffer t)  ;; auto-revert dired when revisiting
   (setq dired-listing-switches "-agho --group-directories-first" )
   (setq find-ls-option '("-print0 | xargs -0 ls -agho" . ""))
   (setq dired-dwim-target t) ;; guess other dired directory for copy and rename
@@ -481,6 +474,8 @@
       (xterm-mouse-mode 1)
       (setopt mode-line-end-spaces nil)  ;; Only matters for jmn-pure, doom-modeline is uneffected
       (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))))
+
+(add-to-list 'display-buffer-alist '("*Async Shell Command*" display-buffer-no-window (nil)))
 
 (use-package dtrt-indent
   :hook (prog-mode . (lambda () (dtrt-indent-mode 1))))
@@ -1527,47 +1522,46 @@ f"))
         (tab-bar-select-tab 2))))
 
 (if jmn-connected-extras
-    (use-package dashboard
-      :ensure t
-      :init (dashboard-setup-startup-hook)
-      :bind ("C-c d" . dashboard-open)
-      :hook (dashboard-mode . hl-line-mode)
-      :config
-      (setq dashboard-banner-logo-title "Habits, not goals.")
+    (progn
+      (defun my-dashboard-hook()
+        "Needed to define these after hook for some reason"
+        (define-key dashboard-mode-map (kbd "n")  'dashboard-next-line)
+        (define-key dashboard-mode-map (kbd "p")  'dashboard-previous-line))
 
-      (setq dashboard-startup-banner 2)  ;; (nil . no-banner)  ([1-5] . plain-text banners)
-      (setq dashboard-center-content 1)
-      (setq dashboard-show-shortcuts 1)  ;; show the single-character shortcuts
-      (setq dashboard-items '((recents  . 5)
-                              (bookmarks . 5)
-                              (projects . 5)
-                              (agenda . 5)
-                              (registers . 5)))
+      (use-package dashboard
+        :ensure t
+        :init (dashboard-setup-startup-hook)
+        :bind ("C-c d" . dashboard-open)
+        :hook ((dashboard-mode . hl-line-mode)
+               (dashboard-mode . my-dashboard-hook))
+        :config
+        (setq dashboard-banner-logo-title "Habits, not goals.")
 
-      (setcdr (assoc 'projects dashboard-item-shortcuts) "j")
-      (setq dashboard-set-heading-icons t)
-      (setq dashboard-set-file-icons t)
-      (setq dashboard-projects-backend 'project-el)
-      (dashboard-modify-heading-icons '((recents . "file-text")))
-      (setq dashboard-set-footer nil)
-      (setq dashboard-startupify-list
-            '(dashboard-insert-banner
-              dashboard-insert-newline
-              dashboard-insert-banner-title
-              dashboard-insert-newline
-              dashboard-insert-init-info
-              dashboard-insert-items
-              dashboard-insert-newline
-              ;;dashboard-insert-footer
-              )))
+        (setq dashboard-startup-banner 2)  ;; (nil . no-banner)  ([1-5] . plain-text banners)
+        (setq dashboard-center-content 1)
+        (setq dashboard-show-shortcuts 1)  ;; show the single-character shortcuts
+        (setq dashboard-items '((recents  . 5)
+                                (bookmarks . 5)
+                                (projects . 5)
+                                (agenda . 5)
+                                (registers . 5)))
 
-  (defun my-dashboard-hook()
-    "Needed to define these after hook for some reason"
-    (define-key dashboard-mode-map (kbd "n")  'dashboard-next-line)
-    (define-key dashboard-mode-map (kbd "p")  'dashboard-previous-line))
-
-  (add-hook 'dashboard-mode-hook 'my-dashboard-hook)
-  (add-hook 'dashboard-mode-hook 'hl-line-mode))
+        (setcdr (assoc 'projects dashboard-item-shortcuts) "j")
+        (setq dashboard-set-heading-icons t)
+        (setq dashboard-set-file-icons t)
+        (setq dashboard-projects-backend 'project-el)
+        (dashboard-modify-heading-icons '((recents . "file-text")))
+        (setq dashboard-set-footer nil)
+        (setq dashboard-startupify-list
+              '(dashboard-insert-banner
+                dashboard-insert-newline
+                dashboard-insert-banner-title
+                dashboard-insert-newline
+                dashboard-insert-init-info
+                dashboard-insert-items
+                dashboard-insert-newline
+                ;;dashboard-insert-footer
+                )))))
 
 (unless jmn-pure
 (use-package hnreader))
