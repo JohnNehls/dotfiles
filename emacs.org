@@ -362,11 +362,8 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
   ;; (add-hook 'dired-mode-hook 'dired-hide-details-mode) ;; hide default -- '(' to toggle
   (add-hook 'dired-mode-hook 'hl-line-mode)
 
-   ;; Auto-revert dired (the directory editor) when revisiting
-   ;; directories, since they may have changed underneath.
-  (setq dired-auto-revert-buffer t)
-
   (with-eval-after-load 'dired
+    (setq dired-auto-revert-buffer t)  ;; auto-revert dired when revisiting
     (setq dired-listing-switches "-agho --group-directories-first" )
     (setq find-ls-option '("-print0 | xargs -0 ls -agho" . ""))
     (setq dired-dwim-target t) ;; guess other dired directory for copy and rename
@@ -619,6 +616,13 @@ Clear up to allow the tab-bar keybindings.
           (setopt mode-line-end-spaces nil)  ;; Only matters for jmn-pure, doom-modeline is uneffected
           (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))))
 #+end_src
+** MISC
+*** Suppress Async Shell Command  buffers
+When running async commands, do not pop up a buffer and display the output.
+#+begin_src emacs-lisp
+(add-to-list 'display-buffer-alist '("*Async Shell Command*" display-buffer-no-window (nil)))
+#+end_src
+
 * General Development
 ** Indentation
 Guess the indentation offset and 'indent-tabs-mode' from the file using internal heuristics.
