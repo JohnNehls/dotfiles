@@ -1330,6 +1330,7 @@ f"))
 
 (defun jmn-load-pure-dark-theme()
   (load-theme 'wombat)
+  (set-face-background 'mode-line "gray44")
   (with-eval-after-load 'org
     (set-face-background 'org-block "gray10")
     (setq org-todo-keyword-faces
