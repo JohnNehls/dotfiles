@@ -1,4 +1,3 @@
-# -*- eval: (jmn-export-to-html-on-save) -*-
 #+TITLE: Emacs Configuration
 #+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/init.el :results output silent
 #+STARTUP: overview
@@ -34,35 +33,20 @@ Hopefully only need to change these to get setup on a new machine.
     "Set text-hight for each machine-- default will be 100")
 #+end_src
 
-* Setup
-** Auto-tangle
-This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-config= gets executed each time such a buffer gets saved.  This function checks to see if the file being saved is the Emacs.org file you're looking at right now, and if so, automatically exports the configuration here to the associated output files.
+* Packages and Management
+** auto-tangle to init file
+This is accomplished through the =#+PROPERTY:= at the top and adding the hook to tangle on save in the =Local Variables= at the bottom of the file.
+- Here we designate the auto tangle as safe so we are not prompted to designate it safe on startup the first time.
+  
 #+begin_src emacs-lisp
-  ;; Automatically tangle our Emacs.org config file when we save it
-  (defun efs/org-babel-tangle-config ()
-    (when (string-equal (buffer-file-name)
-                        (expand-file-name jmn-config-location))
-      ;; Dynamic scoping to the rescue
-      (let ((org-confirm-babel-evaluate nil))
-        (org-babel-tangle))))
-
-  (add-hook 'org-mode-hook
-            (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
-#+end_src
-*** function  to quickly load init
-Defined earlier in the init so it will load even if there is an error later in the config
-#+begin_src emacs-lisp
-  (defun jmn-load-init ()
-    (interactive)
-    (if (version<= "27" emacs-version)
-        (load "~/.emacs.d/init.el")
-      (load "~/.emacs")))
+  (add-to-list 'safe-local-variable-values  `(eval add-hook 'after-save-hook #'org-babel-tangle t t))
 #+end_src
 
-** Packages and Management
+** Package management 
 Archives: elpa is default, melpa is community.
 - Use-package is macro that is used like a package manager. [[https://github.com/jwiegley/use-package][Use-Package Documentation]]
 - Update all packages with =M-x package-upgrade-all=
+  
 #+begin_src emacs-lisp
   (if (member system-name jmn-connected-systems)
       (defconst jmn-pure nil "Indicating if we are pure or using packages")
@@ -101,7 +85,7 @@ Archives: elpa is default, melpa is community.
     (jmn-connect-to-repositories)) ;; connect to repos  and use use-package macros to config below
 #+end_src
 
-*** TODO Pure-plus
+** TODO Pure-plus
 Code above is for pure (offline) and non-pure (online). The below is for a pure = 'plus', when we include a few packages.
 #+begin_src emacs-lisp
   (defun jmn-install-plus-packages()
@@ -532,6 +516,16 @@ Archive: elpa, melpa
 #+end_src
 
 ** General Helper Function
+*** Quickly load init
+Defined earlier in the init so it will load even if there is an error later in the config
+#+begin_src emacs-lisp
+  (defun jmn-load-init ()
+    (interactive)
+    (if (version<= "27" emacs-version)
+        (load "~/.emacs.d/init.el")
+      (load "~/.emacs")))
+#+end_src
+
 *** jmn-vscode-current-buffer-file-at-point
 #+begin_src emacs-lisp
   (defun jmn-vscode-current-buffer-file-at-point ()
@@ -574,7 +568,7 @@ Clear up to allow the tab-bar keybindings.
       (define-key modemap (kbd (concat "M-" num)) nil)))
 #+end_src
 
-*** remove use-package s-expressions
+*** Remove use-package s-expressions
 #+begin_src emacs-lisp
    (defun remove-function-sexps (functionName)
      "Remove all sexps with the input car in the current buffer."
@@ -1338,10 +1332,9 @@ Create a function to align the size of displayed latex framents with overall org
 *** org-fragtog
 Automatically toggle between displaying and editing LaTeX depending on the cursor's position.
 #+begin_src emacs-lisp
-  (unless jmn-pure
-    (use-package org-fragtog
-      :hook
-      (org-mode . org-fragtog-mode)))
+  (use-package org-fragtog
+    :hook
+    (org-mode . org-fragtog-mode))
 #+end_src
 
 ** Keybindings
@@ -1362,34 +1355,10 @@ For syntax highlighting in export html, we want htmlize version > =1.34=
 #+end_src
 
 *** Save to HTML on save
-To have an org file convert to html on save, add the file name to the =org-files-to-html-on-save= in the file's local variables. This can be done in one of two ways:
-#+begin_src org :tangle  no
-  # -*- eval: (jmn-export-to-html-on-save) -*-
-  ;; which *must* be the first line.
-#+end_src
-
-Here we create a list of the files to convert on save and add a function to the after-save hook to
-reference this list.
+This org file converts to  html on save, via the file's local variables. See the end of the file.
+- Here we designate the auto convert to html on save  as safe so we are not prompted to designate it safe on startup the first time.
 #+begin_src emacs-lisp
-  ;; initialize if not already
-  (if (not (bound-and-true-p jmn-org-files-to-html-on-save))
-      (setq  jmn-org-files-to-html-on-save nil))
-
-  (defun jmn-org-export-html-on-save-list()
-    (when (member (buffer-file-name)  jmn-org-files-to-html-on-save)
-      (org-html-export-to-html)))
-
-  (add-hook 'after-save-hook #'jmn-org-export-html-on-save-list)
-
-  (defun jmn-export-to-html-on-save()
-    (interactive)
-    (add-to-list 'jmn-org-files-to-html-on-save (buffer-file-name)))
-#+end_src
-
-**** Make the local eval "safe"
-The following removes the prompts when loading the buffer with the local variable
-#+begin_src emacs-lisp
-  (add-to-list 'safe-local-variable-values '(eval jmn-export-to-html-on-save))
+  (add-to-list  'safe-local-variable-values `(eval add-hook 'after-save-hook #'org-html-export-to-html))
 #+end_src
 
 *** Make Read The Org setup file safe
@@ -1399,6 +1368,7 @@ Make the setup file safe for non-pure machines.
       (with-eval-after-load 'org
         (add-to-list 'org-safe-remote-resources  "\\`https://fniessen\\.github\\.io/org-html-themes/org/theme-readtheorg\\.setup\\'")))
 #+end_src
+
 * Agenda and GTD
 ** General
 Following the tutorial [[https://emacs.cafe/emacs/orgmode/gtd/2017/06/30/orgmode-gtd.html][here]].
@@ -2154,8 +2124,12 @@ Dash board for initial startup of emacs. [[https://github.com/emacs-dashboard/em
 ** Hacker News Reader
 #+begin_src emacs-lisp
   (unless jmn-pure
-  (use-package hnreader))
-
+    (use-package hnreader))
 #+end_src
-* Localwords                                                       :noexport:
+* Local Words and Variables                                        :noexport:
 #  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell  Dired dracula clangd ui Grammarly workspaces commenter Pyright CMake Flyspell Pyvenv treemacs shellcheck Linum Proced Hacky GTD
+
+# Local Variables:
+# eval: (add-hook 'after-save-hook #'org-babel-tangle t t)
+# eval: (add-hook 'after-save-hook #'org-html-export-to-html)
+# End:
