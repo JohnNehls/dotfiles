@@ -23,7 +23,16 @@
                                   ("lat" . 115))
   "Set text-hight for each machine-- default will be 100")
 
-(add-to-list 'safe-local-variable-values  `(eval add-hook 'after-save-hook #'org-babel-tangle t t))
+;; Automatically tangle our Emacs.org config file when we save it
+(defun efs/org-babel-tangle-config ()
+  (when (string-equal (buffer-file-name)
+                      (expand-file-name jmn-config-location))
+    ;; Dynamic scoping to the rescue
+    (let ((org-confirm-babel-evaluate nil))
+      (org-babel-tangle))))
+
+(add-hook 'org-mode-hook
+          (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 
 (if (member system-name jmn-connected-systems)
     (defconst jmn-pure nil "Indicating if we are pure or using packages")
@@ -925,9 +934,10 @@ f"))
   (defconst jmn-latex-scale 1.1 "scaling factor for latex fragments")
   (setq org-format-latex-options (plist-put org-format-latex-options :scale jmn-latex-scale)))
 
-(use-package org-fragtog
-  :hook
-  (org-mode . org-fragtog-mode))
+(unless jmn-pure
+  (use-package org-fragtog
+    :hook
+    (org-mode . org-fragtog-mode)))
 
 (global-set-key (kbd "C-c x") #'org-html-export-to-html)
 (global-set-key (kbd "C-c s") #'org-store-link)
@@ -938,7 +948,20 @@ f"))
   :ensure t
   :defer t)
 
-(add-to-list  'safe-local-variable-values `(eval add-hook 'after-save-hook #'org-html-export-to-html))
+;; initialize if not already
+(if (not (bound-and-true-p jmn-org-files-to-html-on-save))
+    (setq  jmn-org-files-to-html-on-save nil))
+
+(defun jmn-org-export-html-on-save-list()
+  (when (member (buffer-file-name)  jmn-org-files-to-html-on-save)
+    (org-html-export-to-html)))
+
+(add-hook 'after-save-hook #'jmn-org-export-html-on-save-list)
+
+(defun jmn-export-to-html-on-save()
+  (interactive)
+  (add-to-list 'jmn-org-files-to-html-on-save (buffer-file-name)))
+(add-to-list 'safe-local-variable-values '(eval jmn-export-to-html-on-save))
 
 (if (and (version<= "29" emacs-version) (not jmn-pure))
     (with-eval-after-load 'org

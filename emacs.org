@@ -1,3 +1,4 @@
+# -*- eval: (jmn-export-to-html-on-save) -*-
 #+TITLE: Emacs Configuration
 #+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/init.el :results output silent
 #+STARTUP: overview
@@ -34,14 +35,19 @@ Hopefully only need to change these to get setup on a new machine.
 #+end_src
 
 * Packages and Management
-** auto-tangle to init file
-This is accomplished through the =#+PROPERTY:= at the top and adding the hook to tangle on save in the =Local Variables= at the bottom of the file.
-- Here we designate the auto tangle as safe so we are not prompted to designate it safe on startup the first time.
-  
+** Auto-tangle to init file
 #+begin_src emacs-lisp
-  (add-to-list 'safe-local-variable-values  `(eval add-hook 'after-save-hook #'org-babel-tangle t t))
-#+end_src
+;; Automatically tangle our Emacs.org config file when we save it
+(defun efs/org-babel-tangle-config ()
+  (when (string-equal (buffer-file-name)
+                      (expand-file-name jmn-config-location))
+    ;; Dynamic scoping to the rescue
+    (let ((org-confirm-babel-evaluate nil))
+      (org-babel-tangle))))
 
+(add-hook 'org-mode-hook
+          (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+#+end_src
 ** Package management 
 Archives: elpa is default, melpa is community.
 - Use-package is macro that is used like a package manager. [[https://github.com/jwiegley/use-package][Use-Package Documentation]]
@@ -1332,9 +1338,10 @@ Create a function to align the size of displayed latex framents with overall org
 *** org-fragtog
 Automatically toggle between displaying and editing LaTeX depending on the cursor's position.
 #+begin_src emacs-lisp
-  (use-package org-fragtog
-    :hook
-    (org-mode . org-fragtog-mode))
+  (unless jmn-pure
+    (use-package org-fragtog
+      :hook
+      (org-mode . org-fragtog-mode)))
 #+end_src
 
 ** Keybindings
@@ -1357,7 +1364,24 @@ For syntax highlighting in export html, we want htmlize version > =1.34=
 *** Save to HTML on save
 This org file converts to  html on save, via the file's local variables. See the end of the file.
 - Here we designate the auto convert to html on save  as safe so we are not prompted to designate it safe on startup the first time.
-#+begin_src emacs-lisp
+  #+begin_src emacs-lisp
+    ;; initialize if not already
+    (if (not (bound-and-true-p jmn-org-files-to-html-on-save))
+        (setq  jmn-org-files-to-html-on-save nil))
+
+    (defun jmn-org-export-html-on-save-list()
+      (when (member (buffer-file-name)  jmn-org-files-to-html-on-save)
+        (org-html-export-to-html)))
+
+    (add-hook 'after-save-hook #'jmn-org-export-html-on-save-list)
+
+    (defun jmn-export-to-html-on-save()
+      (interactive)
+      (add-to-list 'jmn-org-files-to-html-on-save (buffer-file-name)))
+    (add-to-list 'safe-local-variable-values '(eval jmn-export-to-html-on-save))
+  #+end_src
+
+#+begin_src emacs-lisp :tangle no
   (add-to-list  'safe-local-variable-values `(eval add-hook 'after-save-hook #'org-html-export-to-html))
 #+end_src
 
@@ -2126,10 +2150,5 @@ Dash board for initial startup of emacs. [[https://github.com/emacs-dashboard/em
   (unless jmn-pure
     (use-package hnreader))
 #+end_src
-* Local Words and Variables                                        :noexport:
+* Local Words                                                      :noexport:
 #  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell  Dired dracula clangd ui Grammarly workspaces commenter Pyright CMake Flyspell Pyvenv treemacs shellcheck Linum Proced Hacky GTD
-
-# Local Variables:
-# eval: (add-hook 'after-save-hook #'org-babel-tangle t t)
-# eval: (add-hook 'after-save-hook #'org-html-export-to-html)
-# End:
