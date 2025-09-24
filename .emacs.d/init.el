@@ -277,6 +277,7 @@
 (add-hook 'dired-mode-hook 'hl-line-mode)
 
 (with-eval-after-load 'dired
+  (require 'dired-x) ;; may need to be (load "dired-x" for old versions
   (setq dired-auto-revert-buffer t)  ;; auto-revert dired when revisiting
   (setq dired-listing-switches "-agho --group-directories-first" )
   (setq find-ls-option '("-print0 | xargs -0 ls -agho" . ""))
@@ -475,7 +476,10 @@
       (setopt mode-line-end-spaces nil)  ;; Only matters for jmn-pure, doom-modeline is uneffected
       (set-display-table-slot standard-display-table 'vertical-border (make-glyph-code ?│))))
 
+;; Suppress Async Shell Command  buffers
 (add-to-list 'display-buffer-alist '("*Async Shell Command*" display-buffer-no-window (nil)))
+;; Only have one Async Shell Command buffer and it holds most recent output
+(setq async-shell-command-buffer 'rename-buffer)
 
 (use-package dtrt-indent
   :hook (prog-mode . (lambda () (dtrt-indent-mode 1))))
