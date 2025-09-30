@@ -273,13 +273,16 @@
 (global-set-key (kbd "C-c =") 'vc-diff) ;; also bound to "C-x v ="
 
 ;;;; Dired ;;;;
-;; (add-hook 'dired-mode-hook 'dired-hide-details-mode) ;; hide default -- '(' to toggle
+(add-hook 'dired-mode-hook 'dired-hide-details-mode) ;; hide default -- '(' to toggle
 (add-hook 'dired-mode-hook 'hl-line-mode)
 
 (with-eval-after-load 'dired
   (require 'dired-x) ;; may need to be (load "dired-x" for old versions
   (setq dired-auto-revert-buffer t)  ;; auto-revert dired when revisiting
-  (setq dired-listing-switches "-agho --group-directories-first" )
+  ;; good for my persional machine
+  ;; (setq dired-listing-switches "-agho --group-directories-first" )
+  ;; good as a user of
+  (setq dired-listing-switches "-alh --group-directories-first" )
   (setq find-ls-option '("-print0 | xargs -0 ls -agho" . ""))
   (setq dired-dwim-target t) ;; guess other dired directory for copy and rename
   (setq wdired-allow-to-change-permissions t)
