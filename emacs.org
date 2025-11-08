@@ -625,8 +625,12 @@ Clear up to allow the tab-bar keybindings.
 #+begin_src emacs-lisp
    ;; Suppress Async Shell Command  buffers
   (add-to-list 'display-buffer-alist '("*Async Shell Command*" display-buffer-no-window (nil)))
+  ;; Could use this instead
+  ;; (setq async-shell-command-display-buffer nil)
+
   ;; Only have one Async Shell Command buffer and it holds most recent output
   (setq async-shell-command-buffer 'rename-buffer)
+
 #+end_src
 *** 
 * General Development
@@ -1909,7 +1913,9 @@ Helpful functions
 
 * Shell Backend and Windows Core Setup
 ** Linux
-#+begin_src emacs-lisp
+This allows aliases set in =.bashrc= can then be used when running shells
+It also does not causes a print of errors which stops the use of =getenv=
+#+begin_src emacs-lisp :tangle no
   (if (eq system-type 'gnu/linux)
       (setq shell-command-switch "-ic"))  ;; add -i so it loads .bashrc (aliases!)
 #+end_src

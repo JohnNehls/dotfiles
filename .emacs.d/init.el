@@ -481,6 +481,9 @@
 
 ;; Suppress Async Shell Command  buffers
 (add-to-list 'display-buffer-alist '("*Async Shell Command*" display-buffer-no-window (nil)))
+;; Could use this instead
+;; (setq async-shell-command-display-buffer nil)
+
 ;; Only have one Async Shell Command buffer and it holds most recent output
 (setq async-shell-command-buffer 'rename-buffer)
 
@@ -1370,9 +1373,6 @@ f"))
           (jmn-load-gruvbox-dark-hardest))  ;; dark, linux, connected
       (jmn-load-pure-light-theme))  ;; dark, windows
   (jmn-load-pure-light-theme))  ;; non-dark
-
-(if (eq system-type 'gnu/linux)
-    (setq shell-command-switch "-ic"))  ;; add -i so it loads .bashrc (aliases!)
 
 (cond
  ((eq system-type 'windows-nt)
