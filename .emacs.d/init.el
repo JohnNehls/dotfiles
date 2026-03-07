@@ -277,8 +277,12 @@
 (add-hook 'dired-mode-hook 'hl-line-mode)
 
 (with-eval-after-load 'dired
-  (require 'dired-x) ;; may need to be (load "dired-x" for old versions
+  (if (version< emacs-version "26")
+      (load "dired-x")
+    (require 'dired-x))
+
   (setq dired-auto-revert-buffer t)  ;; auto-revert dired when revisiting
+  (setq dired-vc-rename-file t)      ;; renamed files are under version control
   ;; good for my persional machine
   ;; (setq dired-listing-switches "-agho --group-directories-first" )
   ;; good as a user of
@@ -305,8 +309,10 @@
                                        ("\\.ipynb\\'" "code")
                                        ("\\.py\\'" "python")
                                        ("\\.sh\\'" "bash")))
-  (if (version<= "28" emacs-version)
-      (setf dired-kill-when-opening-new-dired-buffer t)))
+  ;;;; maybe use again in the future -- does not align with pure emacs
+  ;; (if (version<= "28" emacs-version)
+      ;; (setf dired-kill-when-opening-new-dired-buffer t))
+  )
 
 ;; sluggish mode which lists the recursive size of each folder/item in dired.
 (use-package dired-du
@@ -785,6 +791,10 @@
 (use-package  markdown-preview-mode
   :defer t)
 
+(use-package haskell-mode)
+(use-package lsp-haskell)
+(use-package flymake-hlint)
+
 (defun jmn/org-mode-setup ()
   (unless (or jmn-term (version<=  emacs-version "26.1"))
     (org-indent-mode))
@@ -865,7 +875,7 @@
     (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●"))))
 
 (defun jmn/org-mode-visual-fill ()
-  (setq visual-fill-column-width 100
+  (setq visual-fill-column-width 120
         visual-fill-column-center-text t)
   (visual-fill-column-mode 1))
 
@@ -1154,8 +1164,9 @@ f"))
 
   ;; add "C-x" as escape character and use it for keybindings
   (let (term-escape-char)
-    (term-set-escape-char ?\C-x))
-  (define-key term-raw-map (kbd "C-x C-k") ' kill-current-buffer))
+    (term-set-escape-char ?\C-x)) ; set "C-x" as an escape character
+  (define-key term-raw-map (kbd "C-x C-k") 'kill-current-buffer)
+  (define-key term-raw-map (kbd "C-c C-k") 'nil)) ; no only used to change from char to line mode
 
 (use-package eterm-256color
   :hook (term-mode . eterm-256color-mode))
@@ -1325,6 +1336,7 @@ f"))
   (set-face-background 'mode-line "gray44")
   (with-eval-after-load 'org
     (set-face-background 'org-block "gray10")
+    (set-face-foreground 'org-level-7 "MediumPurple1")
     (setq org-todo-keyword-faces
           `(("TODO" . "Pink")
             ("NEXT" . "gold2")
@@ -1438,9 +1450,25 @@ f"))
 
 (setq org-image-actual-width 600)
 
+(defun jmn-set-files-read-only ()
+     "Set buffers to read only if have one of the extensions hard coded in the function"
+     (dolist (extension'("dat" "out"))
+       (if (string-match extension (car (last (split-string (buffer-name) "\\."))))
+	   (read-only-mode 1))))
+
+(add-hook 'find-file-hook 'jmn-set-files-read-only)
+
+(defun jmn-set-files-display-line-numbers ()
+     "Set buffers to read only if have one of the extensions hard coded in the function"
+     (dolist (extension'("txt"))
+       (if (string-match extension (car (last (split-string (buffer-name) "\\."))))
+	   (display-line-numbers-mode 1))))
+
+(add-hook 'find-file-hook 'jmn-set-files-display-line-numbers)
+
 (recentf-mode 1) ;; needed for recent files in dashboard
 (setq recentf-max-menu-items 25) ;; max number of entries
-(run-at-time nil (* 5 60) 'recentf-save-list) ;; save recent files periodically
+;; (run-at-time nil (* 5 60) 'recentf-save-list) ;; save recent files periodically
 
 ;; Exclude the following files from the recents list
 (add-to-list 'recentf-exclude "~/.emacs.d/recentf")
