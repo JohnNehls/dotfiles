@@ -277,10 +277,7 @@
 (add-hook 'dired-mode-hook 'hl-line-mode)
 
 (with-eval-after-load 'dired
-  (if (version< emacs-version "26")
-      (load "dired-x")
-    (require 'dired-x))
-
+  (require 'dired-x) ;; may need to be (load "dired-x" for old versions
   (setq dired-auto-revert-buffer t)  ;; auto-revert dired when revisiting
   (setq dired-vc-rename-file t)      ;; renamed files are under version control
   ;; good for my persional machine
@@ -1583,3 +1580,16 @@ f"))
 
 (unless jmn-pure
   (use-package hnreader))
+
+(unless jmn-pure
+  (progn
+    (use-package gptel
+      :ensure t
+      :config
+      (setq gptel-api-key (with-temp-buffer
+                             (insert-file-contents "~/.authinfo")
+                             (string-trim (buffer-string))))
+      (setq gptel-default-mode 'org-mode)
+      )
+    (gptel-make-gemini "Gemini" :key gptel-api-key :stream t))
+  )
