@@ -1204,96 +1204,39 @@ f"))
                  (reusable-frames . visible)
                  (window-height . 0.3))))
 
-(setq custom-safe-themes t) ;; don't ask if theme is safe
+(setq custom-safe-themes t)                                                              ;; don't ask if theme is safe
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 
-(defun jmn-disable-theme()
+(defun jmn-disable-all-themes()
   (interactive)
-  (disable-theme (car custom-enabled-themes)))
+  (while custom-enabled-themes
+    (disable-theme (car custom-enabled-themes))))
 
 (use-package gruvbox-theme)
 
-(defun jmn-set-gruv-org-faces (props)
-  "Function used by all gruvbox themes for setting or faces"
-
-  (set-face-foreground 'org-priority (face-foreground font-lock-constant-face))
-  (set-face-foreground 'org-agenda-done (alist-get 'done-color props))
-  (set-face-foreground 'org-headline-done (alist-get 'done-color props))
-  (set-face-foreground 'org-done (alist-get 'done-color props))
-
-  (set-face-attribute 'org-block-begin-line nil :inherit 'font-lock-comment-face)
-  (set-face-attribute 'org-block-end-line nil :inherit 'font-lock-comment-face)
-  (set-face-background 'org-block-begin-line (face-background `default))
-  (set-face-background 'org-block-end-line (face-background `default))
-
-  (setq org-todo-keyword-faces
-        `(("NEXT" . ,(face-foreground font-lock-function-name-face))
-          ("HOLD" . ,(face-foreground font-lock-builtin-face))
-          ("DONE" . ,(alist-get 'done-color props))))
-
-  (if (alist-get 'org-block props)
-      (set-face-background 'org-block (alist-get 'org-block props))))
-
 (defun jmn-load-gruvbox-dark-medium ()
-  "Theme for dark time"
+  "Theme for a medium dark time"
   (interactive)
-  (disable-theme (car custom-enabled-themes))
-  (load-theme 'gruvbox-dark-medium t)
-  (set-face-background 'line-number
-                       (face-attribute 'default :background))
-
-  ;; (set-face-foreground 'default "gray75") ;; default "#ebdbb2"
-  (set-face-foreground 'default "moccasin") ;; default "#ebdbb2"
-  (set-face-foreground 'font-lock-comment-face  "#98be65") ;; default "#ebdbb2"
-  (with-eval-after-load 'org
-    (jmn-set-gruv-org-faces '((done-color . "gray35" )))))
+    (jmn-disable-all-themes)
+    (load-theme 'gruvbox-dark-medium )
+    (load-theme 'jmn-gruvbox-general-org)
+    (load-theme 'jmn-gruvbox-dark-medium))
 
 (defun jmn-load-gruvbox-dark-hard ()
-  "Theme for very dark time"
+  "Theme for dark time"
   (interactive)
-  (disable-theme (car custom-enabled-themes))
-  (load-theme 'gruvbox-dark-hard t)
+    (jmn-disable-all-themes)
+    (load-theme 'gruvbox-dark-hard )
+    (load-theme 'jmn-gruvbox-general-org)
+    (load-theme 'jmn-gruvbox-dark-hard))
 
-  ;; (set-face-foreground 'default "bisque2") ;; default "#ebdbb2"
-  ;; (set-face-foreground 'font-lock-comment-face  "#98be65") ;; default "#ebdbb2"
-  ;; (set-face-foreground 'font-lock-string-face  "LightGoldenrod3")
-
-
-  (set-face-background 'mode-line-inactive "gray22")
-  (set-face-background 'mode-line-active   "gray35")
-
-  (set-face-background 'line-number
-                       (face-attribute 'default :background))
-  (set-face-background 'fringe
-                       (face-attribute 'default :background))
-
-  (with-eval-after-load 'org
-    (jmn-set-gruv-org-faces '((done-color . "gray35" )
-                              (org-block . "gray11")))))
-
-(defun jmn-load-gruvbox-dark-hardest ()
+(defun jmn-load-gruvbox-dark-hardest()
   "Theme for very darkest of times"
   (interactive)
-  (disable-theme (car custom-enabled-themes))
-  (load-theme 'gruvbox-dark-hard t)
-
-  (set-face-background 'default "gray7")
-  (set-face-foreground 'link  "#83a598") ;; 'tree-sitter-hl-face:function.call inherits
-
-  (set-face-background 'line-number
-                       (face-attribute 'default :background))
-  (set-face-background 'fringe
-                       (face-attribute 'default :background))
-
-  (with-eval-after-load 'tree-sitter-hl
-    (set-face-foreground 'tree-sitter-hl-face:variable "#FFA500") ;; was blue, set to aqua
-    (set-face-foreground 'tree-sitter-hl-face:variable.parameter
-                         (face-attribute 'default :foreground))
-    (set-face-foreground 'tree-sitter-hl-face:label  "#d65d0e"))
-
-  (with-eval-after-load 'org
-    (jmn-set-gruv-org-faces '(
-                              (done-color . "gray35" )
-                              (org-block . "gray3")))))
+   (jmn-disable-all-themes)
+    (load-theme 'gruvbox-dark-hard )
+    (load-theme 'jmn-gruvbox-general-org)
+    (load-theme 'jmn-gruvbox-dark-hardest))
 
 (defun jmn-load-gruvbox-light-medium()
   "Theme for light time"
@@ -1321,50 +1264,19 @@ f"))
     (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
                               (org-block . "#ebdbb2"))))) ;; default "#f9f5d7"
 
-(defun jmn-set-tab-background-to-default ()
-  (dolist (face '(tab-bar tab-bar-tab tab-bar-tab-inactive))
-    (set-face-attribute  face nil
-                         :foreground (face-foreground 'default)
-                         :background (face-background 'default)
-                         :weight 'regular)))
-
 (defun jmn-load-pure-dark-theme()
+  (interactive)
+  (jmn-disable-all-themes)
   (load-theme 'wombat)
-  (set-face-background 'mode-line "gray44")
-  (with-eval-after-load 'org
-    (set-face-background 'org-block "gray10")
-    (set-face-foreground 'org-level-7 "MediumPurple1")
-    (setq org-todo-keyword-faces
-          `(("TODO" . "Pink")
-            ("NEXT" . "gold2")
-            ("HOLD" . "orange3")
-            ("IGNORE" . "#99968b"))))
-  (with-eval-after-load 'tab-bar
-    (jmn-set-tab-background-to-default)
-    (set-face-background 'tab-bar-tab "gray25")))
+ (load-theme 'jmn-wombat))
 
 (defun jmn-load-pure-light-theme()
-  (with-eval-after-load 'org
-    (set-face-background 'org-block "gray93")
-    (setq org-todo-keyword-faces
-          `(("TODO" . "Red1")
-            ("NEXT" . "orange")
-            ("HOLD" . "Black")
-            ("IGNORE" . "gray60"))))
-  (with-eval-after-load 'tab-bar
-    (jmn-set-tab-background-to-default)
-    (set-face-background 'tab-bar-tab "darkseagreen2")))
+  (interactive)
+  (jmn-disable-all-themes)
+ (load-theme 'jmn-light))
 
 (if (window-system)
     (set-frame-height (selected-frame) 53))
-
-(if jmn-dark-mode
-    (if (eq system-type 'gnu/linux)
-        (if jmn-pure
-            (jmn-load-pure-dark-theme)  ;; dark, linux, pure
-          (jmn-load-gruvbox-dark-hardest))  ;; dark, linux, connected
-      (jmn-load-pure-light-theme))  ;; dark, windows
-  (jmn-load-pure-light-theme))  ;; non-dark
 
 (cond
  ((eq system-type 'windows-nt)
@@ -1494,8 +1406,8 @@ f"))
       (setq tab-bar-close-button-show nil        ; remove close button
             tab-bar-show 1                       ; only show tab bar if #tabs>1
             tab-bar-select-tab-modifiers '(meta) ; Alt-i switch to the tab numbered i
-            tab-bar-tab-hints t)                 ; show a number on each tabs
-
+            tab-bar-tab-hints t                  ; show a number on each tabs
+            tab-bar-separator "")                ; remove seperating spacebetween tabs
       (tab-bar-mode 1)
       (tab-bar-close-other-tabs) ; ensures (tab-bar-mode 1) works on older systems
 
