@@ -1,7 +1,7 @@
 # -*- eval: (jmn-export-to-html-on-save) -*-
 #+TITLE: Emacs Configuration
 #+PROPERTY: header-args:emacs-lisp :tangle ~/.emacs.d/init.el :results output silent
-#+STARTUP: overview
+#+STARTUP: overview latexpreview
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 #+OPTIONS: toc:3 num:nil
 
@@ -25,7 +25,7 @@ Hopefully only need to change these to get setup on a new machine.
   (defconst jmn-pureplus-systems '("lat" "testbed")
     "Systems which use the pure setup with the plus packages")
 
-  (defconst jmn-dark-mode t
+  (defconst jmn-dark-mode nil
     "Do we want Emacs in a dark mode? Note: no dark-mode for windows as of now")
 
   (defconst jmn-font-height-alist '(("xps" . 110)
@@ -1732,197 +1732,364 @@ Need to install: cmake, libtool
 To modify a theme it is helpful to use:
 - =list-faces-display= to show the fonts used showing an example of how they look
 - =describe-face= to show the font under the cursor
-
 ** Setup and helpers
-Helpful functions
 #+begin_src emacs-lisp
-(setq custom-safe-themes t) ;; don't ask if theme is safe
-#+end_src
-
-#+begin_src emacs-lisp
-  (defun jmn-disable-theme()
+  (setq custom-safe-themes t)                                                              ;; don't ask if theme is safe
+  (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+  
+  (defun jmn-disable-all-themes()
     (interactive)
-    (disable-theme (car custom-enabled-themes)))
+    (while custom-enabled-themes
+      (disable-theme (car custom-enabled-themes))))
 #+end_src
 
-** Theme Packages
-*** Gruvbox
-**** Overall setup
+** Gruvbox and Modifications
 #+begin_src emacs-lisp
   (use-package gruvbox-theme)
+#+end_src
+*** Modify Themes
+**** General Org
+#+begin_src emacs-lisp :tangle ~/.emacs.d/themes/jmn-gruvbox-general-org-theme.el
+(deftheme jmn-gruvbox-general-org
+  "Altering all the gruvbox themes-- load after loading the gruvbox theme")
 
-  (defun jmn-set-gruv-org-faces (props)
-    "Function used by all gruvbox themes for setting or faces"
+;; changes which will be permanent
+(with-eval-after-load 'org
+  (setq org-todo-keyword-faces
+        `(("NEXT" . ,(face-foreground font-lock-function-name-face))
+          ("HOLD" . ,(face-foreground font-lock-builtin-face)))))
 
-    (set-face-foreground 'org-priority (face-foreground font-lock-constant-face))
-    (set-face-foreground 'org-agenda-done (alist-get 'done-color props))
-    (set-face-foreground 'org-headline-done (alist-get 'done-color props))
-    (set-face-foreground 'org-done (alist-get 'done-color props))
+  ;; changes which will be undone when disabling the theme
+  (custom-theme-set-faces
+   'jmn-gruvbox-general-org
 
-    (set-face-attribute 'org-block-begin-line nil :inherit 'font-lock-comment-face)
-    (set-face-attribute 'org-block-end-line nil :inherit 'font-lock-comment-face)
-    (set-face-background 'org-block-begin-line (face-background `default))
-    (set-face-background 'org-block-end-line (face-background `default))
+   `(org-priority ((t (:foreground ,(face-foreground 'font-lock-constant-face)))))
+   `(org-block-begin-line ((t (:inherit font-lock-comment-face
+                               :background ,(face-background 'default)))))
+   `(org-block-end-line ((t (:inherit font-lock-comment-face
+                             :background ,(face-background 'default))))))
 
+(provide-theme 'jmn-gruvbox-general-org)
+#+end_src
+**** Dark
+***** Hard
+#+begin_src emacs-lisp :tangle ~/.emacs.d/themes/jmn-gruvbox-dark-hard-theme.el
+(deftheme jmn-gruvbox-dark-hard
+  "Altering the gruvbox-dark-hard theme-- load after loading the gruvbox theme")
+
+(let ((done-color "gray35"))
+
+  ;; changes which will be permanent
+  (with-eval-after-load 'org
     (setq org-todo-keyword-faces
           `(("NEXT" . ,(face-foreground font-lock-function-name-face))
             ("HOLD" . ,(face-foreground font-lock-builtin-face))
-            ("DONE" . ,(alist-get 'done-color props))))
+            ("DONE" . done-color)
+            ("IGNORE" . done-color))))
 
-    (if (alist-get 'org-block props)
-        (set-face-background 'org-block (alist-get 'org-block props))))
+  ;; changes which will be undone when disabling the theme
+   (custom-theme-set-faces
+    'jmn-gruvbox-dark-hard
+    ;; Basics
+    `(mode-line-inactive ((t (:background "gray22" :extend t))))
+    `(mode-line-active ((t (:background "gray35" :extend t))))
+    `(line-number ((t :background ,(face-attribute 'default :background))))
+    `(fringe ((t :background ,(face-attribute 'default :background))))
+
+    ;; org
+    `(org-agenda-done ((t (:foreground ,done-color))))
+    `(org-headline-done ((t (:foreground ,done-color))))
+    `(org-done ((t (:foreground ,done-color))))
+    `(org-block ((t (:background "gray8" :extend t))))))
+
+(provide-theme 'jmn-gruvbox-dark-hard)
 #+end_src
-**** Darks
-***** dark medium
+***** Hardest
+#+begin_src emacs-lisp :tangle ~/.emacs.d/themes/jmn-gruvbox-dark-hardest-theme.el
+(deftheme jmn-gruvbox-dark-hardest
+  "Altering the gruvbox-dark-hard theme-- load after loading the gruvbox theme")
+
+(let ((done-color "gray35"))
+
+  ;; changes which will be permanent
+  (with-eval-after-load 'org
+    (setq org-todo-keyword-faces
+          `(("NEXT" . ,(face-foreground font-lock-function-name-face))
+            ("HOLD" . ,(face-foreground font-lock-builtin-face))
+            ("DONE" . done-color)
+            ("IGNORE" . done-color))))
+
+  ;; changes which will be undone when disabling the theme
+   (custom-theme-set-faces
+    'jmn-gruvbox-dark-hardest
+    ;; Basics
+    `(default ((t (:background "gray7" :extend t))))
+    `(link ((t (:foreground "#83a598" :extend t))))  ;;'tree-sitter-hl-face inherits it
+
+    `(line-number ((t :background "gray7" :extend t )))
+    `(fringe ((t :background "gray7" :extend t )))
+
+    ;; treesitter
+    `(tree-sitter-hl-face:variable ((t :foreground "#FFA500" :extend t)))
+    `(tree-sitter-hl-face:variable.parameter ((t :foreground ,(face-attribute 'default :foreground))))
+    `(tree-sitter-hl-face:label ((t :foreground "#d65d0e" :extend t)))
+
+    ;; org
+    `(org-agenda-done ((t (:foreground ,done-color))))
+    `(org-headline-done ((t (:foreground ,done-color))))
+    `(org-done ((t (:foreground ,done-color))))
+    `(org-block ((t (:background "gray3" :extend t))))))
+
+(provide-theme 'jmn-gruvbox-dark-hardest)
+#+end_src
+***** Medium
+#+begin_src emacs-lisp :tangle ~/.emacs.d/themes/jmn-gruvbox-dark-medium-theme.el
+(deftheme jmn-gruvbox-dark-medium
+  "Altering the gruvbox-dark-medium theme-- load after loading the gruvbox theme")
+
+(let ((done-color "gray35"))
+
+  ;; changes which will be permanent
+  (with-eval-after-load 'org
+    (setq org-todo-keyword-faces
+          `(("NEXT" . ,(face-foreground font-lock-function-name-face))
+            ("HOLD" . ,(face-foreground font-lock-builtin-face))
+            ("DONE" . done-color)
+            ("IGNORE" . done-color))))
+
+  ;; changes which will be undone when disabling the theme
+   (custom-theme-set-faces
+    'jmn-gruvbox-dark-medium
+    ;; Basics
+    ;; `(default ((t (:foreground "moccasin" :extend t))))
+    `(line-number ((t :background ,(face-attribute 'default :background))))
+    `(font-lock-comment-face ((t (:foreground "#98be65" :extend t))))
+
+    ;; org
+    `(org-agenda-done ((t (:foreground ,done-color))))
+    `(org-headline-done ((t (:foreground ,done-color))))
+    `(org-done ((t (:foreground ,done-color))))))
+
+(provide-theme 'jmn-gruvbox-dark-medium)
+#+end_src
+**** Light
+***** Hard
+#+begin_src emacs-lisp :tangle ~/.emacs.d/themes/jmn-gruvbox-light-hard-theme.el
+(deftheme jmn-gruvbox-light-hard
+  "Altering the gruvbox-light-hard theme-- load after loading the gruvbox theme")
+
+(let ((done-color "Navajowhite3"))
+
+  ;; changes which will be permanent
+  (with-eval-after-load 'org
+    (setq org-todo-keyword-faces
+          `(("NEXT" . ,(face-foreground font-lock-function-name-face))
+            ("HOLD" . ,(face-foreground font-lock-builtin-face))
+            ("DONE" . done-color)
+            ("IGNORE" . done-color))))
+
+  ;; changes which will be undone when disabling the theme
+   (custom-theme-set-faces
+    'jmn-gruvbox-light-hard
+    ;; org
+    `(org-agenda-done ((t (:foreground ,done-color))))
+    `(org-headline-done ((t (:foreground ,done-color))))
+    `(org-done ((t (:foreground ,done-color))))
+    `(org-block ((t (:background "#fbf1c7" :extend t))))))
+
+(provide-theme 'jmn-gruvbox-light-hard)
+#+end_src
+***** Medium
+#+begin_src emacs-lisp :tangle ~/.emacs.d/themes/jmn-gruvbox-light-medium-theme.el
+(deftheme jmn-gruvbox-light-medium
+  "Altering the gruvbox-light-medium theme-- load after loading the gruvbox theme")
+
+(let ((done-color "Navajowhite3"))
+
+  ;; changes which will be permanent
+  (with-eval-after-load 'org
+    (setq org-todo-keyword-faces
+          `(("NEXT" . ,(face-foreground font-lock-function-name-face))
+            ("HOLD" . ,(face-foreground font-lock-builtin-face))
+            ("DONE" . done-color)
+            ("IGNORE" . done-color))))
+
+  ;; changes which will be undone when disabling the theme
+   (custom-theme-set-faces
+    'jmn-gruvbox-light-medium
+    ;; org
+    `(org-agenda-done ((t (:foreground ,done-color))))
+    `(org-headline-done ((t (:foreground ,done-color))))
+    `(org-done ((t (:foreground ,done-color))))))
+
+(provide-theme 'jmn-gruvbox-light-medium)
+#+end_src
+***** Soft
+#+begin_src emacs-lisp :tangle ~/.emacs.d/themes/jmn-gruvbox-light-soft-theme.el
+(deftheme jmn-gruvbox-light-soft
+  "Altering the gruvbox-light-soft theme-- load after loading the gruvbox theme")
+
+(let ((done-color "Navajowhite3"))
+
+  ;; changes which will be permanent
+  (with-eval-after-load 'org
+    (setq org-todo-keyword-faces
+          `(("NEXT" . ,(face-foreground font-lock-function-name-face))
+            ("HOLD" . ,(face-foreground font-lock-builtin-face))
+            ("DONE" . done-color)
+            ("IGNORE" . done-color))))
+
+  ;; changes which will be undone when disabling the theme
+   (custom-theme-set-faces
+    'jmn-gruvbox-light-soft
+
+    ;; org
+    `(org-agenda-done ((t (:foreground ,done-color))))
+    `(org-headline-done ((t (:foreground ,done-color))))
+    `(org-done ((t (:foreground ,done-color))))
+    `(org-block ((t (:background "#ebdbb2" :extend t))))))
+
+(provide-theme 'jmn-gruvbox-light-soft)
+
+#+end_src
+
+*** Loading functions
 #+begin_src emacs-lisp
   (defun jmn-load-gruvbox-dark-medium ()
+    "Theme for a medium dark time"
+    (interactive)
+      (jmn-disable-all-themes)
+      (load-theme 'gruvbox-dark-medium )
+      (load-theme 'jmn-gruvbox-general-org)
+      (load-theme 'jmn-gruvbox-dark-medium))
+
+  (defun jmn-load-gruvbox-dark-hard ()
     "Theme for dark time"
     (interactive)
-    (disable-theme (car custom-enabled-themes))
-    (load-theme 'gruvbox-dark-medium t)
-    (set-face-background 'line-number
-                         (face-attribute 'default :background))
+      (jmn-disable-all-themes)
+      (load-theme 'gruvbox-dark-hard )
+      (load-theme 'jmn-gruvbox-general-org)
+      (load-theme 'jmn-gruvbox-dark-hard))
 
-    ;; (set-face-foreground 'default "gray75") ;; default "#ebdbb2"
-    (set-face-foreground 'default "moccasin") ;; default "#ebdbb2"
-    (set-face-foreground 'font-lock-comment-face  "#98be65") ;; default "#ebdbb2"
-    (with-eval-after-load 'org
-      (jmn-set-gruv-org-faces '((done-color . "gray35" )))))
-#+end_src
-***** dark hard
-#+begin_src emacs-lisp
-  (defun jmn-load-gruvbox-dark-hard ()
-    "Theme for very dark time"
-    (interactive)
-    (disable-theme (car custom-enabled-themes))
-    (load-theme 'gruvbox-dark-hard t)
-
-    ;; (set-face-foreground 'default "bisque2") ;; default "#ebdbb2"
-    ;; (set-face-foreground 'font-lock-comment-face  "#98be65") ;; default "#ebdbb2"
-    ;; (set-face-foreground 'font-lock-string-face  "LightGoldenrod3")
-
-
-    (set-face-background 'mode-line-inactive "gray22")
-    (set-face-background 'mode-line-active   "gray35")
-
-    (set-face-background 'line-number
-                         (face-attribute 'default :background))
-    (set-face-background 'fringe
-                         (face-attribute 'default :background))
-
-    (with-eval-after-load 'org
-      (jmn-set-gruv-org-faces '((done-color . "gray35" )
-                                (org-block . "gray11")))))
-#+end_src
-***** dark hardest
-#+begin_src emacs-lisp
-  (defun jmn-load-gruvbox-dark-hardest ()
+  (defun jmn-load-gruvbox-dark-hardest()
     "Theme for very darkest of times"
     (interactive)
-    (disable-theme (car custom-enabled-themes))
-    (load-theme 'gruvbox-dark-hard t)
+     (jmn-disable-all-themes)
+      (load-theme 'gruvbox-dark-hard )
+      (load-theme 'jmn-gruvbox-general-org)
+      (load-theme 'jmn-gruvbox-dark-hardest))
 
-    (set-face-background 'default "gray7")
-    (set-face-foreground 'link  "#83a598") ;; 'tree-sitter-hl-face:function.call inherits
-
-    (set-face-background 'line-number
-                         (face-attribute 'default :background))
-    (set-face-background 'fringe
-                         (face-attribute 'default :background))
-
-    (with-eval-after-load 'tree-sitter-hl
-      (set-face-foreground 'tree-sitter-hl-face:variable "#FFA500") ;; was blue, set to aqua
-      (set-face-foreground 'tree-sitter-hl-face:variable.parameter
-                           (face-attribute 'default :foreground))
-      (set-face-foreground 'tree-sitter-hl-face:label  "#d65d0e"))
-
-    (with-eval-after-load 'org
-      (jmn-set-gruv-org-faces '(
-                                (done-color . "gray35" )
-                                (org-block . "gray3")))))
-#+end_src
-**** Lights
-#+begin_src emacs-lisp
   (defun jmn-load-gruvbox-light-medium()
     "Theme for light time"
     (interactive)
-    (disable-theme (car custom-enabled-themes))
-    (load-theme 'gruvbox-light-medium t)
-    (with-eval-after-load 'org
-      (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )))))
+      (jmn-disable-all-themes)
+      (load-theme 'gruvbox-light-medium )
+      (load-theme 'jmn-gruvbox-general-org)
+      (load-theme 'jmn-gruvbox-light-medium))
 
   (defun jmn-load-gruvbox-light-hard()
     "Theme for very light time"
     (interactive)
-    (disable-theme (car custom-enabled-themes))
-    (load-theme 'gruvbox-light-hard t)
-    (with-eval-after-load 'org
-      (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
-                                (org-block . "#fbf1c7"))))) ;; default "#f9f5d7"
+      (jmn-disable-all-themes)
+      (load-theme 'gruvbox-light-hard )
+      (load-theme 'jmn-gruvbox-general-org)
+      (load-theme 'jmn-gruvbox-light-hard))
 
-  (defun jmn-load-gruvbox-light-soft()
+   (defun jmn-load-gruvbox-light-soft()
     "Theme for very light time"
     (interactive)
-    (disable-theme (car custom-enabled-themes))
-    (load-theme 'gruvbox-light-soft t)
-    (with-eval-after-load 'org
-      (jmn-set-gruv-org-faces '((done-color . "Navajowhite3" )
-                                (org-block . "#ebdbb2"))))) ;; default "#f9f5d7"
+      (jmn-disable-all-themes)
+      (load-theme 'gruvbox-light-soft )
+      (load-theme 'jmn-gruvbox-general-org)
+      (load-theme 'jmn-gruvbox-light-soft))
 #+end_src
-
 ** Pure Themes
-#+begin_src emacs-lisp
-  (defun jmn-set-tab-background-to-default ()
-    (dolist (face '(tab-bar tab-bar-tab tab-bar-tab-inactive))
-      (set-face-attribute  face nil
-                           :foreground (face-foreground 'default)
-                           :background (face-background 'default)
-                           :weight 'regular)))
+*** Modifying Themes
+**** Light
+#+begin_src emacs-lisp :tangle ~/.emacs.d/themes/jmn-light-theme.el
+(deftheme jmn-light
+  "Altering the default theme-- load after loading the default theme")
 
-  (defun jmn-load-pure-dark-theme()
-    (load-theme 'wombat)
-    (set-face-background 'mode-line "gray44")
-    (with-eval-after-load 'org
-      (set-face-background 'org-block "gray10")
-      (set-face-foreground 'org-level-7 "MediumPurple1")
-      (setq org-todo-keyword-faces
-            `(("TODO" . "Pink")
-              ("NEXT" . "gold2")
-              ("HOLD" . "orange3")
-              ("IGNORE" . "#99968b"))))
-    (with-eval-after-load 'tab-bar
-      (jmn-set-tab-background-to-default)
-      (set-face-background 'tab-bar-tab "gray25")))
-
-  (defun jmn-load-pure-light-theme()
-    (with-eval-after-load 'org
-      (set-face-background 'org-block "gray93")
-      (setq org-todo-keyword-faces
+;; variables which will be permanent
+(with-eval-after-load 'org
+  (setq org-todo-keyword-faces
             `(("TODO" . "Red1")
               ("NEXT" . "orange")
               ("HOLD" . "Black")
               ("IGNORE" . "gray60"))))
-    (with-eval-after-load 'tab-bar
-      (jmn-set-tab-background-to-default)
-      (set-face-background 'tab-bar-tab "darkseagreen2")))
+
+  (custom-theme-set-faces
+   'jmn-light
+
+   ;; Org-mode
+   `(org-block ((t (:background "gray93" :extend t))))
+
+   ;; Tab bar
+   '(tab-bar ((t (:inherit org-default :extend t))))
+   `(tab-bar-tab ((t (:background "darkseagreen2"))))
+   '(tab-bar-tab-inactive ((t (:inherit org-default :extend t)))))
+
+(provide-theme 'jmn-light)
+#+end_src
+**** Wombat
+#+begin_src emacs-lisp :tangle ~/.emacs.d/themes/jmn-wombat-theme.el
+(deftheme jmn-wombat
+  "Altering the wombat theme-- load after loading the wombat theme")
+
+;; variables which will be permanent
+(with-eval-after-load 'org
+  (setq org-todo-keyword-faces
+            `(("TODO" . "Pink")
+              ("NEXT" . "gold2")
+              ("HOLD" . "orange3")
+              ("IGNORE" . "#99968b"))))
+
+  (custom-theme-set-faces
+   'jmn-wombat
+
+   ;; Basics
+   `(mode-line ((t (:background "gray44" :extend t))))
+
+   ;; Org-mode
+   `(org-block ((t (:background "gray10" :extend t))))
+   `(org-level-7 ((t (:background "MediumPurple1" :extend t))))
+
+   ;; Tab bar
+   '(tab-bar ((t (:inherit org-default :extend t))))
+   '(tab-bar-tab ((t (:inherit mode-line :weight bold :box nil :extend t))))
+   '(tab-bar-tab-inactive ((t (:inherit org-default :extend t)))))
+
+(provide-theme 'jmn-wombat)
+#+end_src
+*** Loading functions
+#+begin_src emacs-lisp
+  (defun jmn-load-pure-light-theme()
+    (interactive)
+    (jmn-disable-all-themes)
+   (load-theme 'jmn-light))
+
+  (defun jmn-load-pure-dark-theme()
+    (interactive)
+    (jmn-disable-all-themes)
+    (load-theme 'wombat)
+   (load-theme 'jmn-wombat))
 #+end_src
 
+** Startup Theme switches
+#+begin_src emacs-lisp
+  (if jmn-dark-mode
+      (if (eq system-type 'gnu/linux) ;; dark theme looks bad on windows
+          (if jmn-pure
+               (jmn-load-pure-dark-theme)  ;; dark, linux, pure
+             (jmn-load-gruvbox-dark-hardest))
+        (load-theme 'jmn-light))  ;; dark on windows (show light)
+    (load-theme 'jmn-light))  ;; non-dark
+#+end_src
 ** Frame Height
 #+begin_src emacs-lisp
   (if (window-system)
       (set-frame-height (selected-frame) 53))
 #+end_src
-** Default and time switches
-#+begin_src emacs-lisp
-  (if jmn-dark-mode
-      (if (eq system-type 'gnu/linux)
-          (if jmn-pure
-              (jmn-load-pure-dark-theme)  ;; dark, linux, pure
-            (jmn-load-gruvbox-dark-hardest))  ;; dark, linux, connected
-        (jmn-load-pure-light-theme))  ;; dark, windows
-    (jmn-load-pure-light-theme))  ;; non-dark
-#+end_src
-
 * Shell Backend and Windows Core Setup
 ** TODO Linux
 This allows aliases set in =.bashrc= can then be used when running shells
