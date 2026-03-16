@@ -2367,18 +2367,20 @@ Dash board for initial startup of emacs. [[https://github.com/emacs-dashboard/em
 To highlight the LLM response, use =gptel-highlight-mode=
 - requires transient -- shipped in emacs in 29.1
 #+begin_src emacs-lisp
-  (unless jmn-pure
-    (progn
-      (use-package gptel
-        :ensure t
-        :config
-        (setq gptel-api-key (with-temp-buffer
-                               (insert-file-contents "~/.authinfo")
-                               (string-trim (buffer-string))))
-        (setq gptel-default-mode 'org-mode)
-        )
-      (gptel-make-gemini "Gemini" :key gptel-api-key :stream t))
-    )
+  ;; Helper function to read from authinfo.gpg
+  (defun my-get-api-key (host)
+    (let ((entry (car (auth-source-search :host host))))
+      (when entry
+        (funcall (plist-get entry :secret)))))
+
+  ;; Configure gptel to use the keys
+  (use-package gptel
+    :ensure t
+    :config
+    (setq gptel-default-mode 'org-mode))
+
+  (gptel-make-gemini "Gemini" :key (my-get-api-key "generativelanguage.googleapis.com") :stream t)
 #+end_src
+
 * Local Words                                                      :noexport:
 #  LocalWords:  IDE solarized gruvbox vertico Magit Quickhelp Elpy Elisp Neotree Greduan's Localwords Esc  Smartparens UI Helpful's Yasnippet LSP Modeline Dap Flycheck modeline Treemacs backend lsp vterm eshell  Dired dracula clangd ui Grammarly workspaces commenter Pyright CMake Flyspell Pyvenv treemacs shellcheck Linum Proced Hacky GTD
