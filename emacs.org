@@ -2375,11 +2375,19 @@ To highlight the LLM response, use =gptel-highlight-mode=
 
   ;; Configure gptel to use the keys
   (use-package gptel
+    :defer t
     :ensure t
     :config
-    (setq gptel-default-mode 'org-mode))
+    (global-set-key(kbd "C-c RET") 'gptel-send)
+    (setq gptel-default-mode 'org-mode)
+    (gptel-make-gemini "Gemini" :key (my-get-api-key "generativelanguage.googleapis.com") :stream t)
+    (setq
+     gptel-model 'gemini-2.5-pro
+     gptel-backend (gptel-make-gemini "Gemini"
+                     :key (my-get-api-key "generativelanguage.googleapis.com")
+                     :stream t))
+    )
 
-  (gptel-make-gemini "Gemini" :key (my-get-api-key "generativelanguage.googleapis.com") :stream t)
 #+end_src
 
 * Local Words                                                      :noexport:
