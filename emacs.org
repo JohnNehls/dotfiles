@@ -25,7 +25,7 @@ Hopefully only need to change these to get setup on a new machine.
   (defconst jmn-pureplus-systems '("lat" "testbed")
     "Systems which use the pure setup with the plus packages")
 
-  (defconst jmn-dark-mode nil
+  (defconst jmn-dark-mode t
     "Do we want Emacs in a dark mode? Note: no dark-mode for windows as of now")
 
   (defconst jmn-font-height-alist '(("xps" . 110)
@@ -386,12 +386,6 @@ More to do at [[https://youtu.be/PMWwM8QJAtU][here]]: dired-open
     ;; (if (version<= "28" emacs-version)
         ;; (setf dired-kill-when-opening-new-dired-buffer t))
     )
-
-  ;; sluggish mode which lists the recursive size of each folder/item in dired.
-  (use-package dired-du
-    :commands dired-du-mode
-    :defer t
-    :config (setq dired-du-size-format t))
 
   ;; use a single dired session ;; needed for emacs version < 28
   ;; (use-package dired-single
@@ -796,6 +790,7 @@ Function/keybinding learning area:
                (python-mode . eglot-ensure)
                (c-mode . eglot-ensure)
                (c++-mode . eglot-ensure)
+               (haskell-mode . eglot-ensure)
                (LaTeX-mode . eglot-ensure))
         :config
         ;; make shorter ones later?
@@ -1160,9 +1155,24 @@ Use =markdown-preview-mode= to view in browser.
 #+end_src
 
 ** TODO Haskell
+*** 1) Install [[https://www.haskell.org/ghcup/][GHCup]]
+Installs the following:
+  * ghcup - The Haskell toolchain installer
+  * ghc   - The Glasgow Haskell Compiler
+  * cabal - The Cabal build tool for managing Haskell software
+  * stack - A cross-platform program for developing Haskell projects (similar to cabal)
+  * hls   - (optional) A language server for developers to integrate with their editor/IDE
+
 #+begin_src emacs-lisp
-  (use-package haskell-mode)
-  (use-package lsp-haskell)
+  (use-package haskell-mode
+    :hook (haskell-mode . interactive-haskell-mode)  ;; For GHCi integration
+    )
+    ;; (use-package lsp-haskell)
+
+  ;; Enable haskell-mode and lsp-mode automatically for Haskell files
+  (add-hook 'haskell-mode-hook #'eglot-ensure)
+  (add-hook 'haskell-mode-hook #'interactive-haskell-mode) ; For GHCi integration
+
   (use-package flymake-hlint)
 #+end_src
 
