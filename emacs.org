@@ -1705,6 +1705,7 @@ Need to install: cmake, libtool
 
 #+begin_src emacs-lisp
   (use-package vterm
+    :ensure t
     :ensure-system-package ((cmake . "sudo dnf install -y cmake")
                             (libtool . "sudo dnf install -y libtool" )) ;; compilation
     :defer t
@@ -1712,13 +1713,18 @@ Need to install: cmake, libtool
            (:map vterm-mode-map ("C-o" . other-window)))
     :config
     (jmn-remove-M-1-9-from-mode-map vterm-mode-map)
+    (defun vterm-send-escape ()
+      "Sends `ESC` to the libvterm."
+      (interactive)
+      (vterm-send-key "<escape>")
+      )
     (setq vterm-max-scrollback 10000)
     :init (let ((package "cmake"))
-             (unless (executable-find package)
-               (async-shell-command (concat "sudo dnf install -y " package))))
-           (let ((package "libtool"))
-             (unless (executable-find package)
-               (async-shell-command (concat "sudo dnf install -y " package)))))
+            (unless (executable-find package)
+              (async-shell-command (concat "sudo dnf install -y " package))))
+    (let ((package "libtool"))
+      (unless (executable-find package)
+        (async-shell-command (concat "sudo dnf install -y " package)))))
 
 
   (use-package vterm-toggle
