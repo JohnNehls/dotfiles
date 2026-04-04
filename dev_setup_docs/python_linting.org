@@ -6,6 +6,33 @@ configuration file [[file:ruff.toml][ruff.toml]]
     ruff check . --fix
     ruff format
 #+end_src
+
+*** Pre-commit Hooks to run locally before a commit
+
+This is the most popular and efficient method. It automatically runs and fixes files on your machine /before/ you commit them. This prevents bad commits from ever reaching GitHub.
+
+1.  *Install pre-commit:*
+    #+begin_src bash
+    pip install pre-commit
+    pre-commit install
+    #+end_src
+
+2.  *Create =.pre-commit-config.yaml= in your project root:*
+    #+begin_src yaml
+    repos:
+    -   repo: https://github.com/astral-sh/ruff-pre-commit
+        # Find the latest tag on GitHub.
+        rev: v0.4.3
+        hooks:
+            # Run the linter.
+            -   id: ruff
+                args: [--fix]
+            # Run the formatter.
+            -   id: ruff-format
+    #+end_src
+
+Now, every time you =git commit=, =ruff= will automatically fix and format your staged files.
+
 ** pycodestyle configuration and linting notes
 
 https://pycodestyle.pycqa.org/en/latest/intro.html
