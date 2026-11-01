@@ -1210,7 +1210,15 @@ Notes on completion: use =C-c C-l= to insert a path link and get completion.
 #+end_src
 
 ** Fonts
+Heading font is the first installed family in =jmn-org-heading-fonts=, so it works across RHEL/Fedora, Ubuntu, and Windows (falls back to the default font).
 #+begin_src emacs-lisp
+  (defconst jmn-org-heading-fonts '("Cantarell" "Adwaita Sans" "Ubuntu" "DejaVu Sans")
+    "Preferred org heading font families, first installed one is used.")
+
+  (defun jmn-first-available-font (&rest families)
+    "Return the first of FAMILIES installed on this system, or nil."
+    (seq-find (lambda (f) (member f (font-family-list))) families))
+
   (defun jmn/org-font-setup ()
     (unless jmn-term ;; Replace list hyphen with dot
       (font-lock-add-keywords
@@ -1219,8 +1227,8 @@ Notes on completion: use =C-c C-l= to insert a path link and get completion.
                                                  (match-end 1) "•")))))))
 
     ;; Set faces for heading levels
-    (let ((jmn-org-hfont-alist '((gnu/linux . "Cantarell")
-                                (windows-nt . unspecified))))
+    (let ((hfont (or (apply #'jmn-first-available-font jmn-org-heading-fonts)
+                     'unspecified)))
       (dolist (face '((org-level-1 . 1.2)
                       (org-level-2 . 1.1)
                       (org-level-3 . 1.1)
@@ -1231,7 +1239,7 @@ Notes on completion: use =C-c C-l= to insert a path link and get completion.
                       (org-level-8 . 1.1)
                       ))
         (set-face-attribute (car face) nil
-                            :font (alist-get system-type jmn-org-hfont-alist)
+                            :family hfont
                             :weight 'regular :height (cdr face))))
 
     ;; Ensure that anything that should be fixed-pitch in Org files appears that way
