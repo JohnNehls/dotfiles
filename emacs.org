@@ -22,8 +22,16 @@ Hopefully only need to change these to get setup on a new machine.
   (defconst jmn-connected-extras t
     "Flag of weather to use the purely astetic packages or not on connected system")
 
-  (defconst jmn-pureplus-systems '("lat" "testbed")
-    "Systems which use the pure setup with the plus packages")
+  (defconst jmn-pureplus-systems '("testbed")
+    "Offline systems which use the pure setup plus the packages in `jmn-plus-packages'")
+
+  (defconst jmn-plus-packages '(which-key undo-tree ws-butler prescient ivy ivy-rich
+                                ivy-prescient counsel htmlize evil-nerd-commenter)
+    "Packages installed on pure-plus systems (see `jmn-install-plus-packages').
+  Their `use-package' blocks are expanded normally because the libraries are on disk.")
+
+  (defconst jmn-plus-packages-27 '(seq magit markdown-mode use-package gptel)
+    "Additional pure-plus packages installed only on Emacs 27 and above.")
 
   (defconst jmn-dark-mode t
     "Do we want Emacs in a dark mode? Note: no dark-mode for windows as of now")
@@ -54,11 +62,14 @@ Archives: elpa is default, melpa is community.
 - Update all packages with =M-x package-upgrade-all=
   
 #+begin_src emacs-lisp
-  (if (member system-name jmn-connected-systems)
-      (defconst jmn-pure nil "Indicating if we are pure or using packages")
-    (if (member system-name jmn-pureplus-systems)
-        (defconst jmn-pure "plus" "Indicating we are using pure config with plus packages")
-      (defconst jmn-pure t "Indicating if we are pure, not using any packages")))
+  (defconst jmn-system (cond ((member system-name jmn-connected-systems) 'connected)
+                             ((member system-name jmn-pureplus-systems)  'plus)
+                             (t                                          'pure))
+    "Kind of system: `connected' (downloads packages), `plus' (offline with
+  `jmn-plus-packages' installed by hand), or `pure' (offline, no packages).")
+
+  (defconst jmn-pure (not (eq jmn-system 'connected))
+    "Non-nil on offline systems, i.e. both `pure' and `plus' (see `jmn-system').")
 
   ;; flag
   (defconst jmn-term (not (display-graphic-p (selected-frame)))
@@ -86,19 +97,37 @@ Archives: elpa is default, melpa is community.
     (setq use-package-always-ensure t) ; no need for :ensure t for each package.
     (setq use-package-verbose t)) ; log configure/loading messages in *Messages*
 
-  (if jmn-pure
-        (defmacro use-package (&rest _))  ;; define use-package macro to do nothing
-    (jmn-connect-to-repositories)) ;; connect to repos  and use use-package macros to config below
+  (defun jmn-use-package-if-available (orig name &rest args)
+    "Around advice for `use-package' on offline systems.
+  Expand the block only if the library NAME is on disk (built in, or installed in
+  ~/.emacs.d/elpa); otherwise expand to nothing so nothing is downloaded."
+    (when (locate-library (symbol-name name))
+      (apply orig name args)))
+
+  (if (eq jmn-system 'connected)
+      (jmn-connect-to-repositories) ;; connect to repos and use use-package macros to config below
+    (package-initialize)            ;; activate anything installed by hand in ~/.emacs.d/elpa
+    (if (require 'use-package nil t) ;; built in on 29+, installed on pure-plus systems
+        (progn
+          (setq use-package-always-ensure nil)
+          (advice-add 'use-package :around #'jmn-use-package-if-available))
+      (defmacro use-package (&rest _)))) ;; no use-package available: do nothing
 #+end_src
 
-** TODO Pure-plus
-Code above is for pure (offline) and non-pure (online). The below is for a pure = 'plus', when we include a few packages.
+** Pure-plus
+On offline systems (pure and pure-plus) =use-package= blocks are only expanded when the library is already on disk (see =jmn-use-package-if-available= above). This means:
+- pure-plus packages get the same configuration as on connected systems, there is no separate enable list to keep in sync;
+- built-in libraries configured with =use-package= (e.g. =sh-script=) are configured on every system;
+- every other block expands to nothing.
+
+To set up a pure-plus system, run =jmn-install-plus-packages= on a connected machine and copy =~/.emacs.d/elpa= over.
+If a plus package fails to load, check it is in =~/.emacs.d/elpa=.
 #+begin_src emacs-lisp
   (defun jmn-install-plus-packages()
     (interactive)
     (jmn-connect-to-repositories)
     ;;install for all versions
-    (dolist (pluslist '(which-key undo-tree ws-butler prescient ivy ivy-rich ivy-prescient counsel htmlize evil-nerd-commenter))
+    (dolist (pluslist jmn-plus-packages)
       (package-install pluslist 1))
     ;; install if version 27 and above
     (if (version<= "27" emacs-version)
@@ -108,24 +137,11 @@ Code above is for pure (offline) and non-pure (online). The below is for a pure 
           ;; Warnings buffer gives the following advice
           ;; TODO -- need it install seq-2.24 by hand in package-list-packages
           (setq package-install-upgrade-built-in t)
-          (dolist (pluslist '(seq magit markdown-mode))
+          (dolist (pluslist jmn-plus-packages-27)
             (package-install pluslist 1))
           (unload-feature 'seq t)
           (require 'seq))))
 #+end_src
-
-If it fails here, we need to add the packages to =~/.emacs.d/elpa=
-#+begin_src emacs-lisp
-  (if (string= jmn-pure "plus") ;; turn on all of the plus modes
-      (progn
-        (package-initialize)
-        (require 'prescient)
-        (dolist (pluslist '(which-key-mode undo-tree-mode ws-butler-mode prescient-persist-mode ivy-mode ivy-rich-mode ivy-prescient-mode counsel-mode))
-          (funcall pluslist 1))
-        ;; evil nerd commenter
-        (global-set-key (kbd "C-;") 'evilnc-comment-or-uncomment-lines)))
-#+end_src
-TODO can the above do list be replaced with =(package-initialize)=?
 
 * General Emacs
 ** UI Configurations
