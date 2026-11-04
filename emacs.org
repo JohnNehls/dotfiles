@@ -30,7 +30,7 @@ Hopefully only need to change these to get setup on a new machine.
     "Packages installed on pure-plus systems (see `jmn-install-plus-packages').
   Their `use-package' blocks are expanded normally because the libraries are on disk.")
 
-  (defconst jmn-plus-packages-27 '(seq magit markdown-mode use-package gptel)
+  (defconst jmn-plus-packages-27 '(seq magit markdown-mode use-package gptel eglot)
     "Additional pure-plus packages installed only on Emacs 27 and above.")
 
   (defconst jmn-dark-mode t
@@ -132,10 +132,6 @@ If a plus package fails to load, check it is in =~/.emacs.d/elpa=.
     ;; install if version 27 and above
     (if (version<= "27" emacs-version)
         (progn
-          ;; For emacs 28
-          ;; magit requires ver >= 2.24 which is greater than built in version
-          ;; Warnings buffer gives the following advice
-          ;; TODO -- need it install seq-2.24 by hand in package-list-packages
           (setq package-install-upgrade-built-in t)
           (dolist (pluslist jmn-plus-packages-27)
             (package-install pluslist 1))
@@ -796,12 +792,13 @@ Function/keybinding learning area:
   (if jmn-connected-extras
       (use-package eglot
         :defer 1
-        :ensure-system-package
-        ((bash-language-server . "sudo dnf install -y nodejs-bash-language-server")
-         (pyright . "pip install pyright")
-         (clangd . "sudo dnf install -y clang-tools-extra")
-         (texlab . "cargo install --git https://github.com/latex-lsp/texlab --locked --tag v5.22.0") ;; ensure texlab is added to bash PATH
-         )
+        ;; Installing system packages is complicated now that we are supporting Ubuntu and REHL
+        ;; :ensure-system-package
+        ;; ((bash-language-server . "sudo dnf install -y nodejs-bash-language-server")
+        ;;  (pyright . "pip install pyright")
+        ;;  (clangd . "sudo dnf install -y clang-tools-extra")
+        ;;  (texlab . "cargo install --git https://github.com/latex-lsp/texlab --locked --tag v5.22.0") ;; ensure texlab is added to bash PATH
+        ;;  )
         :hook ((sh-mode . eglot-ensure)
                (python-mode . eglot-ensure)
                (c-mode . eglot-ensure)
@@ -809,6 +806,22 @@ Function/keybinding learning area:
                (haskell-mode . eglot-ensure)
                (LaTeX-mode . eglot-ensure))
         :config
+        ;; Emacs 29's eglot doesn't know basedpyright (the offline wheel bundle's server);
+        ;; add it, falling back to the servers eglot already tries. Newer eglot (Emacs 30+)
+        ;; lists it already, inside an `eglot-alternatives' closure, so search the printed form
+        (unless (string-match-p "basedpyright" (format "%S" eglot-server-programs))
+          (add-to-list 'eglot-server-programs
+                       `((python-mode python-ts-mode)
+                         . ,(eglot-alternatives '(("basedpyright-langserver" "--stdio")
+                                                  ("pyright-langserver" "--stdio")
+                                                  "pylsp"
+                                                  "jedi-language-server")))))
+        ;; shell: bash-language-server where installed, else efm-langserver serving
+        ;; shellcheck and shfmt (the offline Ubuntu bundle; config tangled below)
+        (add-to-list 'eglot-server-programs
+                     `(((sh-mode :language-id "sh") (bash-ts-mode :language-id "sh"))
+                       . ,(eglot-alternatives '(("bash-language-server" "start")
+                                                "efm-langserver"))))
         ;; make shorter ones later?
         ;; use "M-." for xref-find-definitions
         ;; use "M-?" for xref-find-references
@@ -824,6 +837,25 @@ Function/keybinding learning area:
         (define-key eglot-prefix (kbd "n") 'flymake-goto-next-error)
         (define-key eglot-prefix (kbd "p") 'flymake-goto-prev-error)
         (define-key eglot-prefix (kbd "b") 'flymake-show-buffer-diagnostics)))
+#+end_src
+
+efm-langserver's config: shellcheck diagnostics and shfmt formatting (=C-x e a=) for shell
+buffers, used when bash-language-server isn't installed. The =sh= key matches the
+=:language-id= given to eglot above.
+#+begin_src yaml :tangle ~/.config/efm-langserver/config.yaml :mkdirp yes
+  version: 2
+  root-markers:
+    - .git/
+  languages:
+    sh:
+      - lint-command: 'shellcheck -f gcc -x -'
+        lint-stdin: true
+        lint-formats:
+          - '%f:%l:%c: %trror: %m'
+          - '%f:%l:%c: %tarning: %m'
+          - '%f:%l:%c: %tote: %m'
+      - format-command: 'shfmt -i 2'
+        format-stdin: true
 #+end_src
 
 ** Breadcrumb
@@ -1029,9 +1061,14 @@ Use =C-c '= to view elisp babel blocks in their own file to get completion in co
 - debuggers are available
 
 #+begin_src emacs-lisp
+  ;; 2-space shell indentation everywhere (Google shell style). eglot sends the formatter
+  ;; :tabSize = tab-width and :insertSpaces = (not indent-tabs-mode), and bash-language-server
+  ;; runs shfmt with those, so set them too; efm's shfmt below uses -i 2 to match.
   (defun my-sh-mode-hook-fn()
     (setq sh-basic-offset 2
-          sh-indentation 2)) ;; defaults is 4
+          sh-indentation 2   ;; defaults are 4
+          indent-tabs-mode nil
+          tab-width 2))
   (add-hook 'sh-mode-hook #'my-sh-mode-hook-fn)
 
   (use-package sh-script
@@ -1039,6 +1076,13 @@ Use =C-c '= to view elisp babel blocks in their own file to get completion in co
     :config
     (setq sh-basic-offset 2
           sh-indentation 2)) ;; defaults are 4
+
+  ;; bash startup files Emacs doesn't already open in sh-mode (so they get eglot too):
+  ;; .bash_aliases/.bash_functions, the dotfiles repo's stow-style dot-* copies, and the
+  ;; /etc versions. Unprefixed names only match under /etc/ so a stray "profile" isn't caught.
+  (add-to-list 'auto-mode-alist
+               '("\\(?:/\\(?:\\.\\|dot-\\)\\|/etc/\\)\\(?:bash\\(?:rc\\|_profile\\|_login\\|_logout\\|_aliases\\|_functions\\)\\|profile\\|bash\\.bashrc\\)\\'"
+                 . sh-mode))
 #+end_src
 
 **** HOLD May need to attach shellcheck with flymake
