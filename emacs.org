@@ -804,7 +804,10 @@ Function/keybinding learning area:
                (c-mode . eglot-ensure)
                (c++-mode . eglot-ensure)
                (haskell-mode . eglot-ensure)
-               (LaTeX-mode . eglot-ensure))
+               (latex-mode . eglot-ensure)   ; built-in mode (server chosen in :config below)
+               (LaTeX-mode . eglot-ensure)   ; AUCTeX's mode, where installed
+               (bibtex-mode . eglot-ensure)
+               )
         :config
         ;; Emacs 29's eglot doesn't know basedpyright (the offline wheel bundle's server);
         ;; add it, falling back to the servers eglot already tries. Newer eglot (Emacs 30+)
@@ -822,6 +825,12 @@ Function/keybinding learning area:
                      `(((sh-mode :language-id "sh") (bash-ts-mode :language-id "sh"))
                        . ,(eglot-alternatives '(("bash-language-server" "start")
                                                 "efm-langserver"))))
+        ;; LaTeX: texlab first (single binary from its GitHub releases), else digestif
+        ;; (ships with TeX Live). texlab expects the "latex" language id, not eglot's "tex"
+        (add-to-list 'eglot-server-programs
+                     `(((LaTeX-mode :language-id "latex") (latex-mode :language-id "latex")
+                        (bibtex-mode :language-id "bibtex"))
+                       . ,(eglot-alternatives '("texlab" "digestif"))))
         ;; make shorter ones later?
         ;; use "M-." for xref-find-definitions
         ;; use "M-?" for xref-find-references
